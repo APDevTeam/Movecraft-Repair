@@ -19,7 +19,6 @@ public abstract class WEUtils {
 
     public abstract Clipboard loadCraftRepairStateClipboard(Craft craft, Sign sign);
 
-
     public abstract HashMap<Pair<Material, Byte>, Double> getMissingBlocks(String repairName);
 
     public abstract ArrayDeque<Pair<Vector, Vector>> getMissingBlockLocations(String repairName);

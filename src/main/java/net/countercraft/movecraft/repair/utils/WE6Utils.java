@@ -2,6 +2,7 @@ package net.countercraft.movecraft.repair.utils;
 
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
+import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -42,6 +43,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WE6Utils extends WEUtils {
+    private final HashMap<String, ArrayDeque<Pair<Vector,Vector>>> locMissingBlocksMap = new HashMap<>();
+    private final HashMap<String, Long> numDiffBlocksMap = new HashMap<>();
+    private final HashMap<String, HashMap<Pair<Material, Byte>, Double>> missingBlocksMap = new HashMap<>();
+
     public WE6Utils() {
         super();
     }
@@ -137,12 +142,12 @@ public class WE6Utils extends WEUtils {
                                 //Count fuel in furnaces
                                 ListTag list = block.getNbtData().getListTag("Items");
                                 if (list != null){
-                                    for (Tag t : list.getValue()){
-                                        if (!(t instanceof CompoundTag)){
+                                    for (Tag t : list.getValue()) {
+                                        if (!(t instanceof CompoundTag)) {
                                             continue;
                                         }
                                         CompoundTag ct = (CompoundTag) t;
-                                        if (ct.getByte("Slot") == 2){//Ignore the result slot
+                                        if (ct.getByte("Slot") == 2) {//Ignore the result slot
                                             continue;
                                         }
                                         String id = ct.getString("id");
@@ -150,7 +155,7 @@ public class WE6Utils extends WEUtils {
                                         if (id.equals("minecraft:coal")){
                                             byte data = (byte) ct.getShort("Damage");
                                             content = new Pair<>(Material.COAL, data);
-                                            if (!missingBlocks.containsKey(content)){
+                                            if (!missingBlocks.containsKey(content)) {
                                                 missingBlocks.put(content, (double) ct.getByte("Count"));
                                             } else {
                                                 double num = missingBlocks.get(content);
@@ -158,7 +163,7 @@ public class WE6Utils extends WEUtils {
                                                 missingBlocks.put(content, num);
                                             }
                                         }
-                                        if (id.equals("minecraft:coal_block")){
+                                        if (id.equals("minecraft:coal_block")) {
                                             content = new Pair<>(Material.COAL_BLOCK, (byte) 0);
                                             if (!missingBlocks.containsKey(content)){
                                                 missingBlocks.put(content, (double) ct.getByte("Count"));
@@ -491,20 +496,6 @@ public class WE6Utils extends WEUtils {
         return clipboard;
     }
 
-
-    public HashMap<Pair<Material, Byte>, Double> getMissingBlocks(String repairName) {
-        return null;
-    }
-
-    public ArrayDeque<Pair<Vector, Vector>> getMissingBlockLocations(String repairName) {
-        return null;
-    }
-
-    public long getNumDiffBlocks(String repairName) {
-        return 0L;
-    }
-
-
     public HashMap<Pair<Material, Byte>, Double> getMissingBlocks(String repairName) {
         return missingBlocksMap.get(repairName);
     }
@@ -516,7 +507,6 @@ public class WE6Utils extends WEUtils {
     public long getNumDiffBlocks(String s) {
         return numDiffBlocksMap.get(s);
     }
-
 
     private Set<BaseBlock> baseBlocksFromCraft(Craft craft) {
         HashSet<BaseBlock> returnSet = new HashSet<>();
