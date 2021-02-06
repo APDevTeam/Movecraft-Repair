@@ -19,6 +19,7 @@
     <url>https://github.com/APDevTeam/Movecraft-Repair</url>
 
     <build>
+        <finalName>Movecraft-Repair</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
