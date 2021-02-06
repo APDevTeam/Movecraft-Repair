@@ -1,6 +1,7 @@
 package net.countercraft.movecraft.repair;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.RepairManager;
@@ -29,6 +30,8 @@ public final class MovecraftRepair extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        saveDefaultConfig();
+
         //load up WorldEdit if it's present
         Plugin wEPlugin = getServer().getPluginManager().getPlugin("WorldEdit");
         if (wEPlugin == null || !(wEPlugin instanceof WorldEditPlugin)) {
@@ -36,9 +39,15 @@ public final class MovecraftRepair extends JavaPlugin {
             return;
         }
 
+        if(Movecraft.getInstance().getEconomy() == null) {
+            getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Not Found"));
+            return;
+        }
+
         getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
         Settings.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
         Settings.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
+        Settings.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
         worldEditPlugin = (WorldEditPlugin) wEPlugin;
 
         weUtils = new WE6Utils();

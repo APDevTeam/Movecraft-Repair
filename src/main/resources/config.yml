@@ -1,0 +1,4 @@
+Locale: en
+RepairTicksPerBlock: 10
+RepairMoneyPerBlock: 10
+RepairMaxPercent: 50
