@@ -8,6 +8,7 @@ import net.countercraft.movecraft.utils.*;
 import org.bukkit.block.Sign;
 import com.sk89q.worldedit.Vector;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -27,5 +28,5 @@ public abstract class WEUtils {
 
     public abstract long getNumDiffBlocks(String repairName);
 
-    public abstract boolean saveChunk(Chunk c, File directory, HashSet<Material> materialMask);
+    public abstract boolean saveChunk(Chunk c, File directory, @Nullable HashSet<Material> materialMask);
 }

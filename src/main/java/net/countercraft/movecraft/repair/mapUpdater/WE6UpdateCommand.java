@@ -17,14 +17,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 
-public class WorldEditUpdateCommand extends UpdateCommand {
+public class WE6UpdateCommand extends UpdateCommand {
     private final BaseBlock worldEditBaseBlock;
     private World world;
     private MovecraftLocation location;
     private Material type;
     private byte data;
 
-    public WorldEditUpdateCommand(BaseBlock worldEditBaseBlock, World world, MovecraftLocation location, Material type, byte data) {
+    public WE6UpdateCommand(BaseBlock worldEditBaseBlock, World world, MovecraftLocation location, Material type, byte data) {
         this.worldEditBaseBlock = worldEditBaseBlock;
         this.world = world;
         this.location = location;
@@ -92,7 +92,7 @@ public class WorldEditUpdateCommand extends UpdateCommand {
                 disp.getInventory().addItem(WaterItems);
             }
         }
-        if (worldEditBaseBlock.getType() == 63 ||worldEditBaseBlock.getType() == 68 ){
+        if (worldEditBaseBlock.getType() == 63 || worldEditBaseBlock.getType() == 68 ){
             BlockState state = block.getState();
             if (state instanceof Sign) {
                 Sign s = (Sign) state;

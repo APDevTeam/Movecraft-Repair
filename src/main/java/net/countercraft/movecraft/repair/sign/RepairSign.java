@@ -13,7 +13,7 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
-import net.countercraft.movecraft.repair.mapUpdater.WorldEditUpdateCommand;
+import net.countercraft.movecraft.repair.mapUpdater.WE6UpdateCommand;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.countercraft.movecraft.utils.Pair;
 import org.bukkit.ChatColor;
@@ -237,10 +237,10 @@ public class RepairSign implements Listener {
                     BaseBlock baseBlock = clipboard.getBlock(new Vector(cLoc.getBlockX(),cLoc.getBlockY(),cLoc.getBlockZ()));
                     Material type =  Material.getMaterial(baseBlock.getType());
                     if (fragileBlock(type)) {
-                        WorldEditUpdateCommand updateCommand = new WorldEditUpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
+                        WE6UpdateCommand updateCommand = new WE6UpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
                         updateCommandsFragileBlocks.add(updateCommand);
                     } else {
-                        WorldEditUpdateCommand updateCommand = new WorldEditUpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
+                        WE6UpdateCommand updateCommand = new WE6UpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
                         updateCommands.add(updateCommand);
                     }
                 }

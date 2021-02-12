@@ -34,6 +34,7 @@ import com.sk89q.worldedit.Vector;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -539,7 +540,7 @@ public class WE6Utils extends WEUtils {
         return returnSet;
     }
 
-    public boolean saveChunk(Chunk c, File directory, HashSet<Material> materialMask) {
+    public boolean saveChunk(Chunk c, File directory, @Nullable HashSet<Material> materialMask) {
         if(!directory.exists())
             directory.mkdirs();
 
@@ -558,7 +559,11 @@ public class WE6Utils extends WEUtils {
             for(int y = 0; y < 16; y++) {
                 for(int z = 0; z < 16; z++) {
                     Block b = c.getBlock(x, y, z);
-                    if(b.getType().equals(Material.AIR) || !materialMask.contains(b.getType()))
+                    if(b.getType().equals(Material.AIR))
+                        continue;
+
+                    // A null materialMask will be understood as saving every block
+                    if(materialMask == null || !materialMask.contains(b.getType()))
                         continue;
 
                     baseBlockSet.add(new BaseBlock(b.getTypeId(), b.getData()));
