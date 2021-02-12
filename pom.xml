@@ -6,7 +6,7 @@
 
     <groupId>net.countercraft.movecraft.repair</groupId>
     <artifactId>Movecraft-Repair</artifactId>
-    <version>0.2.0-SNAPSHOT.2</version>
+    <version>0.2.1</version>
     <packaging>jar</packaging>
 
     <name>Movecraft-Repair</name>
