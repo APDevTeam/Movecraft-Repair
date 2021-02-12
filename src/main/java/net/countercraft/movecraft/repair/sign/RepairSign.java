@@ -112,6 +112,7 @@ public class RepairSign implements Listener {
         event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Repair - Could not save file"));
     }
     private void signRightClick(PlayerInteractEvent event){
+        event.getPlayer().sendMessage("Right click");
         Sign sign = (Sign) event.getClickedBlock().getState();
         Player p = event.getPlayer();
         Craft pCraft = CraftManager.getInstance().getCraftByPlayer(p);

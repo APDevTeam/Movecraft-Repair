@@ -12,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.logging.Level;
 
 public final class MovecraftRepair extends JavaPlugin {
@@ -31,6 +32,17 @@ public final class MovecraftRepair extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        Config.Debug = getConfig().getBoolean("Debug", false);
+
+        // TODO other languages
+        String[] languages = {"en"};
+        for (String s : languages) {
+            if (!new File(getDataFolder()  + "/localisation/mc-repairlang_"+ s +".properties").exists()) {
+                this.saveResource("localisation/mc-repairlang_"+ s +".properties", false);
+            }
+        }
+        Config.Locale = getConfig().getString("Locale", "en");
+        I18nSupport.init();
 
         //load up WorldEdit if it's present
         Plugin wEPlugin = getServer().getPluginManager().getPlugin("WorldEdit");
