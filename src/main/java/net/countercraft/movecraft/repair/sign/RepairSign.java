@@ -13,7 +13,7 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
-import net.countercraft.movecraft.repair.repair.WorldEditUpdateCommand;
+import net.countercraft.movecraft.repair.mapUpdater.WorldEditUpdateCommand;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.countercraft.movecraft.utils.Pair;
 import org.bukkit.ChatColor;
