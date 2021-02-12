@@ -46,19 +46,25 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.Locale = getConfig().getString("Locale", "en");
         I18nSupport.init();
 
+
         //load up WorldEdit if it's present
         Plugin wEPlugin = getServer().getPluginManager().getPlugin("WorldEdit");
         if (wEPlugin == null || !(wEPlugin instanceof WorldEditPlugin)) {
             getLogger().log(Level.SEVERE, I18nSupport.getInternationalisedString("Startup - WE Not Found"));
             return;
         }
+        getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
+        worldEditPlugin = (WorldEditPlugin) wEPlugin;
 
+
+        //  TODO: Move to Movecraft-Economy class within this plugin
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) {
                 economy = rsp.getProvider();
                 getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Found"));
-            } else {
+            }
+            else {
                 getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Not Found"));
                 economy = null;
                 return;
@@ -69,11 +75,10 @@ public final class MovecraftRepair extends JavaPlugin {
             return;
         }
 
-        getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
+
         Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
         Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
-        worldEditPlugin = (WorldEditPlugin) wEPlugin;
 
         weUtils = new WE6Utils();
 

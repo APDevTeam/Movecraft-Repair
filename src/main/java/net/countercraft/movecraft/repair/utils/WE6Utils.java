@@ -3,6 +3,7 @@ package net.countercraft.movecraft.repair.utils;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
 import com.sk89q.jnbt.Tag;
+import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -536,5 +537,53 @@ public class WE6Utils extends WEUtils {
             }
         }
         return returnSet;
+    }
+
+    public boolean saveChunk(Chunk c, File directory, HashSet<Material> materialMask) {
+        if(!directory.exists())
+            directory.mkdirs();
+
+        // Load chunk if not loaded already
+        if(!c.isLoaded())
+            c.load();
+
+        Vector minPos = new Vector(c.getX() * 16, 0, c.getZ() * 16);
+        Vector maxPos = new Vector((c.getX() * 16) + 15, 0, (c.getZ() * 16) + 15);
+        com.sk89q.worldedit.world.World world = new BukkitWorld(c.getWorld());
+        CuboidRegion region = new CuboidRegion(world, minPos, maxPos);
+
+        // Copy chunk into memory
+        Set<BaseBlock> baseBlockSet = new HashSet<>();
+        for(int x = 0; x < 16; x++) {
+            for(int y = 0; y < 16; y++) {
+                for(int z = 0; z < 16; z++) {
+                    Block b = c.getBlock(x, y, z);
+                    if(b.getType().equals(Material.AIR) || !materialMask.contains(b.getType()))
+                        continue;
+
+                    baseBlockSet.add(new BaseBlock(b.getTypeId(), b.getData()));
+                }
+            }
+        }
+
+        // Save chunk to disk
+        File file = new File(directory, c.getX() + "-" + c.getZ() + ".schematic");
+        try {
+            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+            Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
+            Extent destination = clipboard;
+            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), destination, minPos);
+            BlockMask mask = new BlockMask(source, baseBlockSet);
+            copy.setSourceMask(mask);
+            Operations.completeLegacy(copy);
+            ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(file, false));
+            writer.write(clipboard, world.getWorldData());
+            writer.close();
+            return true;
+        }
+        catch (MaxChangedBlocksException | IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
