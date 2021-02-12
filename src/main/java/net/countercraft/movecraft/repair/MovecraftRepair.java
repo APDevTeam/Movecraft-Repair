@@ -31,6 +31,8 @@ public final class MovecraftRepair extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
+
         saveDefaultConfig();
         Config.Debug = getConfig().getBoolean("Debug", false);
 
@@ -80,8 +82,6 @@ public final class MovecraftRepair extends JavaPlugin {
         repairManager.convertOldCraftRepairStates();
 
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
-
-        instance = this;
     }
 
     @Override
