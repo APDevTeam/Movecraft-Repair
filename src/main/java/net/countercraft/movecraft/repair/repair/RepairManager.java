@@ -1,7 +1,7 @@
 package net.countercraft.movecraft.repair.repair;
 
-import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.MovecraftRepair;
+import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,7 +25,7 @@ public class RepairManager extends BukkitRunnable {
         }
     }
 
-    public void convertOldCraftRepairStates(){
+    public void convertOldCraftRepairStates() {
         Map<UUID, ArrayList<File>> confirmedRepairStates = new HashMap<>();
         LinkedList<List<String>> confirmedSimilarPlayerNames = new LinkedList<>();
         //Check in the old RepairStates folder

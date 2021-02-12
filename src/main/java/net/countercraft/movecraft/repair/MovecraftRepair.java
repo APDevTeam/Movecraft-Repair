@@ -1,8 +1,8 @@
 package net.countercraft.movecraft.repair;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.RepairManager;
 import net.countercraft.movecraft.repair.sign.RepairSign;
 import net.countercraft.movecraft.repair.utils.WE6Utils;
