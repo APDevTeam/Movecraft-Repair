@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair.repair.update;
+package net.countercraft.movecraft.repair.repair;
 
 import com.google.gson.Gson;
 import com.sk89q.jnbt.CompoundTag;
