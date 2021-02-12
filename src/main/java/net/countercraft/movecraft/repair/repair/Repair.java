@@ -1,8 +1,8 @@
 package net.countercraft.movecraft.repair.repair;
 
-import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
+import net.countercraft.movecraft.repair.config.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
@@ -29,7 +29,7 @@ public final class Repair {
         this.craft = craft;
         this.updateCommands = updateCommands;
         this.fragileBlockUpdateCommands = fragileBlockUpdateCommands;
-        this.durationInTicks = missingBlocks * Settings.RepairTicksPerBlock;
+        this.durationInTicks = missingBlocks * Config.RepairTicksPerBlock;
         this.ticksSinceStart = 0;
         this.missingBlocks = missingBlocks;
         this.playerUUID = playerUUID;

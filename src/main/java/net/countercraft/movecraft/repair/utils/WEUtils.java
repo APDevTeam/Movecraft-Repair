@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 public abstract class WEUtils {
     public WEUtils() {
-
     }
 
     public abstract boolean saveCraftRepairState(Craft craft, Sign sign);

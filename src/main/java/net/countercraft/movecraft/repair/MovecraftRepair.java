@@ -1,14 +1,15 @@
 package net.countercraft.movecraft.repair;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import net.countercraft.movecraft.Movecraft;
-import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.localisation.I18nSupport;
+import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.repair.RepairManager;
 import net.countercraft.movecraft.repair.sign.RepairSign;
 import net.countercraft.movecraft.repair.utils.WE6Utils;
 import net.countercraft.movecraft.repair.utils.WEUtils;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -22,14 +23,13 @@ public final class MovecraftRepair extends JavaPlugin {
     }
 
     private static WorldEditPlugin worldEditPlugin;
+    private static Economy economy;
 
     private WEUtils weUtils;
     private RepairManager repairManager;
 
     @Override
     public void onEnable() {
-        instance = this;
-
         saveDefaultConfig();
 
         //load up WorldEdit if it's present
@@ -39,15 +39,26 @@ public final class MovecraftRepair extends JavaPlugin {
             return;
         }
 
-        if(Movecraft.getInstance().getEconomy() == null) {
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) {
+                economy = rsp.getProvider();
+                getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Found"));
+            } else {
+                getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Not Found"));
+                economy = null;
+                return;
+            }
+        } else {
             getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - Vault Not Found"));
+            economy = null;
             return;
         }
 
         getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
-        Settings.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
-        Settings.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
-        Settings.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
+        Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
+        Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
+        Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
         worldEditPlugin = (WorldEditPlugin) wEPlugin;
 
         weUtils = new WE6Utils();
@@ -57,6 +68,8 @@ public final class MovecraftRepair extends JavaPlugin {
         repairManager.convertOldCraftRepairStates();
 
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
+
+        instance = this;
     }
 
     @Override
@@ -66,6 +79,10 @@ public final class MovecraftRepair extends JavaPlugin {
 
     public WorldEditPlugin getWorldEditPlugin() {
         return worldEditPlugin;
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 
     public RepairManager getRepairManager() {

@@ -1,11 +1,11 @@
 package net.countercraft.movecraft.repair.repair;
 
 import net.countercraft.movecraft.Movecraft;
-import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.events.CraftReleaseEvent;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
+import net.countercraft.movecraft.repair.config.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,7 +36,7 @@ public class RepairTask extends BukkitRunnable {
         }
         ticksFromStart++;
         repair.setTicksSinceStart(ticksFromStart);
-        if (ticksFromStart % Settings.RepairTicksPerBlock == 0){
+        if (ticksFromStart % Config.RepairTicksPerBlock == 0){
             //To avoid any issues during the repair, such as fragile blocks missing, or guns firing by accident, place the blocks in correct order
             if (!repair.getUpdateCommands().isEmpty()){ //first, all the solid blocks
                 MapUpdateManager.getInstance().scheduleUpdate(repair.getUpdateCommands().pop());

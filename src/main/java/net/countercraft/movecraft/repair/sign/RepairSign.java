@@ -5,15 +5,15 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
-import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
-import net.countercraft.movecraft.mapUpdater.update.WorldEditUpdateCommand;
 import net.countercraft.movecraft.repair.MovecraftRepair;
+import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
+import net.countercraft.movecraft.repair.repair.update.WorldEditUpdateCommand;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.countercraft.movecraft.utils.Pair;
 import org.bukkit.ChatColor;
@@ -89,7 +89,7 @@ public class RepairSign implements Listener {
         if (!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(HEADER) || sign.getLine(0) == null){
             return;
         }
-        if (Settings.RepairTicksPerBlock == 0) {
+        if (Config.RepairTicksPerBlock == 0) {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
             return;
         }
@@ -123,7 +123,7 @@ public class RepairSign implements Listener {
             return;
         }
 
-        if (Settings.RepairTicksPerBlock == 0) {
+        if (Config.RepairTicksPerBlock == 0) {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
             return;
         }
@@ -193,10 +193,10 @@ public class RepairSign implements Listener {
                     chestsToTakeFrom.put(type.getLeft(), chests);
                 }
             }
-            if (Movecraft.getInstance().getEconomy() != null && enoughMaterial) {
-                double moneyCost = numDifferentBlocks * Settings.RepairMoneyPerBlock;
-                if (Movecraft.getInstance().getEconomy().has(event.getPlayer(), moneyCost)) {
-                    Movecraft.getInstance().getEconomy().withdrawPlayer(event.getPlayer(), moneyCost);
+            if (MovecraftRepair.getInstance().getEconomy() != null && enoughMaterial) {
+                double moneyCost = numDifferentBlocks * Config.RepairMoneyPerBlock;
+                if (MovecraftRepair.getInstance().getEconomy().has(event.getPlayer(), moneyCost)) {
+                    MovecraftRepair.getInstance().getEconomy().withdrawPlayer(event.getPlayer(), moneyCost);
                 } else {
                     event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
                     enoughMaterial = false;
@@ -223,7 +223,7 @@ public class RepairSign implements Listener {
                     }
                 }
 
-                double cost = numDifferentBlocks * Settings.RepairMoneyPerBlock;
+                double cost = numDifferentBlocks * Config.RepairMoneyPerBlock;
                 Movecraft.getInstance().getLogger().info(String.format(I18nSupport.getInternationalisedString("Repair - Repair Has Begun"),event.getPlayer().getName(),cost));
                 final LinkedList<UpdateCommand> updateCommands = new LinkedList<>();
                 final LinkedList<UpdateCommand> updateCommandsFragileBlocks = new LinkedList<>();
@@ -255,7 +255,7 @@ public class RepairSign implements Listener {
             float percent = ((float) numDifferentBlocks / (float) totalSize) * 100;
             p.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + numDifferentBlocks);
             p.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
-            if (percent > Settings.RepairMaxPercent){
+            if (percent > Config.RepairMaxPercent){
                 p.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
                 return;
             }
@@ -268,9 +268,9 @@ public class RepairSign implements Listener {
                         event.getPlayer().sendMessage(String.format("%s : %d", blockType.getLeft().name().toLowerCase().replace("_", " "), Math.round(numMissingItems.get(blockType))));
                     }
                 }
-                long durationInSeconds = numDifferentBlocks * Settings.RepairTicksPerBlock / 20;
+                long durationInSeconds = numDifferentBlocks * Config.RepairTicksPerBlock / 20;
                 event.getPlayer().sendMessage(String.format(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + ": %d", durationInSeconds));
-                int moneyCost = (int) (numDifferentBlocks * Settings.RepairMoneyPerBlock);
+                int moneyCost = (int) (numDifferentBlocks * Config.RepairMoneyPerBlock);
                 event.getPlayer().sendMessage(String.format(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + ": %d", moneyCost));
                 playerInteractTimeMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
             }
