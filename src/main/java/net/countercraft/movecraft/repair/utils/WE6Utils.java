@@ -21,7 +21,9 @@ import com.sk89q.worldedit.world.registry.WorldData;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
 import net.countercraft.movecraft.repair.MovecraftRepair;
+import net.countercraft.movecraft.repair.mapUpdater.WE6UpdateCommand;
 import net.countercraft.movecraft.utils.BitmapHitBox;
 import net.countercraft.movecraft.utils.HitBox;
 import net.countercraft.movecraft.utils.Pair;
@@ -43,6 +45,7 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class WE6Utils extends WEUtils {
     private final HashMap<String, ArrayDeque<Pair<Vector,Vector>>> locMissingBlocksMap = new HashMap<>();
@@ -572,7 +575,7 @@ public class WE6Utils extends WEUtils {
         }
 
         // Save chunk to disk
-        File file = new File(directory, c.getX() + "-" + c.getZ() + ".schematic");
+        File file = new File(directory, c.getX() + "_" + c.getZ() + ".schematic");
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
@@ -590,5 +593,46 @@ public class WE6Utils extends WEUtils {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean repairChunk(Chunk c, File directory, Predicate<MovecraftLocation> p) {
+        // Load schematic from disk
+        File file = new File(directory, c.getX() + "_" + c.getZ() + ".schematic");
+        Clipboard clipboard;
+        World w = c.getWorld();
+        try {
+            WorldData worldData = (new BukkitWorld(w)).getWorldData();
+            clipboard = ClipboardFormat.SCHEMATIC.getReader(new FileInputStream(file)).read(worldData);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Load chunk if not loaded already
+        if(!c.isLoaded())
+            c.load();
+
+        // Repair chunk
+        for (int x = clipboard.getMinimumPoint().getBlockX(); x < clipboard.getMaximumPoint().getBlockX(); x++) {
+            for (int y = clipboard.getMinimumPoint().getBlockY(); y < clipboard.getMaximumPoint().getBlockY(); y++) {
+                for (int z = clipboard.getMinimumPoint().getBlockZ(); z < clipboard.getMaximumPoint().getBlockZ(); z++) {
+                    Vector ccloc = new Vector(x, y, z);
+                    BaseBlock bb = clipboard.getBlock(ccloc);
+                    if (bb.isAir())
+                        continue; // most blocks will be air, quickly move on to the next. This loop will run millions of times, needs to be fast
+                    if (!w.getBlockAt(x, y, z).isEmpty() && !w.getBlockAt(x, y, z).isLiquid())
+                        continue; // Don't replace blocks which aren't liquid or air
+
+                    MovecraftLocation moveloc = new MovecraftLocation(x, y, z);
+                    if(!p.test(moveloc))
+                        continue;
+
+                    WE6UpdateCommand updateCommand = new WE6UpdateCommand(bb, w, moveloc, Material.getMaterial(bb.getType()), (byte) bb.getData());
+                    MapUpdateManager.getInstance().scheduleUpdate(updateCommand);
+                }
+            }
+        }
+        return true;
     }
 }
