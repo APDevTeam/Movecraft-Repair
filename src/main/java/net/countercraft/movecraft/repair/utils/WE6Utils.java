@@ -552,23 +552,26 @@ public class WE6Utils extends WEUtils {
             c.load();
 
         Vector minPos = new Vector(c.getX() * 16, 0, c.getZ() * 16);
-        Vector maxPos = new Vector((c.getX() * 16) + 15, 0, (c.getZ() * 16) + 15);
+        Vector maxPos = new Vector((c.getX() * 16) + 15, 255, (c.getZ() * 16) + 15);
         com.sk89q.worldedit.world.World world = new BukkitWorld(c.getWorld());
         CuboidRegion region = new CuboidRegion(world, minPos, maxPos);
 
         // Copy chunk into memory
         Set<BaseBlock> baseBlockSet = new HashSet<>();
         for(int x = 0; x < 16; x++) {
-            for(int y = 0; y < 16; y++) {
+            for(int y = 0; y < 256; y++) {
                 for(int z = 0; z < 16; z++) {
                     Block b = c.getBlock(x, y, z);
                     if(b.getType().equals(Material.AIR))
                         continue;
 
                     // A null materialMask will be understood as saving every block
-                    if(materialMask == null || !materialMask.contains(b.getType()))
+                    if(materialMask == null || !materialMask.contains(b.getType())) {
+                        Bukkit.broadcastMessage("Skipped " + b);
                         continue;
+                    }
 
+                    Bukkit.broadcastMessage("Saved " + b);
                     baseBlockSet.add(new BaseBlock(b.getTypeId(), b.getData()));
                 }
             }
@@ -579,8 +582,7 @@ public class WE6Utils extends WEUtils {
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
-            Extent destination = clipboard;
-            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), destination, minPos);
+            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
             BlockMask mask = new BlockMask(source, baseBlockSet);
             copy.setSourceMask(mask);
             Operations.completeLegacy(copy);
