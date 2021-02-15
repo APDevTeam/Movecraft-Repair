@@ -613,9 +613,9 @@ public class WE6Utils extends WEUtils {
             c.load();
 
         // Repair chunk
-        for (int x = clipboard.getMinimumPoint().getBlockX(); x < clipboard.getMaximumPoint().getBlockX(); x++) {
-            for (int y = clipboard.getMinimumPoint().getBlockY(); y < clipboard.getMaximumPoint().getBlockY(); y++) {
-                for (int z = clipboard.getMinimumPoint().getBlockZ(); z < clipboard.getMaximumPoint().getBlockZ(); z++) {
+        for (int x = clipboard.getMinimumPoint().getBlockX(); x <= clipboard.getMaximumPoint().getBlockX(); x++) {
+            for (int y = clipboard.getMinimumPoint().getBlockY(); y <= clipboard.getMaximumPoint().getBlockY(); y++) {
+                for (int z = clipboard.getMinimumPoint().getBlockZ(); z <= clipboard.getMaximumPoint().getBlockZ(); z++) {
                     Vector ccloc = new Vector(x, y, z);
                     BaseBlock bb = clipboard.getBlock(ccloc);
                     if (bb.isAir())
