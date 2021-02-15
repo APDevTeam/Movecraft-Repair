@@ -566,12 +566,9 @@ public class WE6Utils extends WEUtils {
                         continue;
 
                     // A null materialMask will be understood as saving every block
-                    if(materialMask == null || !materialMask.contains(b.getType())) {
-                        Bukkit.broadcastMessage("Skipped " + b);
+                    if(materialMask == null || !materialMask.contains(b.getType()))
                         continue;
-                    }
 
-                    Bukkit.broadcastMessage("Saved " + b);
                     baseBlockSet.add(new BaseBlock(b.getTypeId(), b.getData()));
                 }
             }
