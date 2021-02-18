@@ -14,8 +14,7 @@ jobs:
     - name: Checkout Movecraft
       uses: actions/checkout@v2
       with:
-        repository: 'TylerS1066/Movecraft'
-        ref: 'repair2'
+        repository: 'APDevTeam/Movecraft'
         path: Movecraft
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
