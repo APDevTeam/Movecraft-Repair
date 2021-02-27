@@ -39,6 +39,7 @@ import org.bukkit.block.Sign;
 import com.sk89q.worldedit.Vector;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class WE6Utils extends WEUtils {
     private final HashMap<String, ArrayDeque<Pair<Vector,Vector>>> locMissingBlocksMap = new HashMap<>();
@@ -628,6 +630,9 @@ public class WE6Utils extends WEUtils {
     private HashSet<Integer> convertToIDs(HashSet<Material> materials) {
         HashSet<Integer> integers = new HashSet<>();
         for(Material m : materials) {
+            if(m == null)
+                continue;
+
             integers.add(m.getId());
         }
         return integers;
