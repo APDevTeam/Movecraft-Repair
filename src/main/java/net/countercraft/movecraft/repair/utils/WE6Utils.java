@@ -39,7 +39,6 @@ import org.bukkit.block.Sign;
 import com.sk89q.worldedit.Vector;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -51,7 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
 
 public class WE6Utils extends WEUtils {
     private final HashMap<String, ArrayDeque<Pair<Vector,Vector>>> locMissingBlocksMap = new HashMap<>();
@@ -570,7 +569,7 @@ public class WE6Utils extends WEUtils {
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
             if(materialMask != null) {
                 // A null materialMask will be understood as saving every block
-                Mask mask = Masks.wrap(new BlockTypeMask(convertToIDs(materialMask)));
+                Mask mask = new MaterialMask(materialMask, c.getWorld());
                 copy.setSourceMask(mask);
             }
             Operations.completeLegacy(copy);
@@ -627,14 +626,25 @@ public class WE6Utils extends WEUtils {
     }
 
 
-    private HashSet<Integer> convertToIDs(HashSet<Material> materials) {
-        HashSet<Integer> integers = new HashSet<>();
-        for(Material m : materials) {
-            if(m == null)
-                continue;
+    private class MaterialMask implements Mask {
+        private final HashSet<Material> materialMask;
+        private final World w;
 
-            integers.add(m.getId());
+        public MaterialMask(HashSet<Material> materialMask, World w) {
+            this.materialMask = materialMask;
+            this.w = w;
         }
-        return integers;
+
+        @Override
+        public boolean test(Vector vector) {
+            Block b = w.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+            return materialMask.contains(b.getType());
+        }
+
+        @Nullable
+        @Override
+        public Mask2D toMask2D() {
+            return null;
+        }
     }
 }
