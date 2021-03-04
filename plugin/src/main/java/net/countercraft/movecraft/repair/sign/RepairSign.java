@@ -1,7 +1,5 @@
 package net.countercraft.movecraft.repair.sign;
 
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
@@ -13,7 +11,6 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
-import net.countercraft.movecraft.repair.mapUpdater.WE6UpdateCommand;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.countercraft.movecraft.utils.Pair;
 import org.bukkit.ChatColor;
@@ -31,6 +28,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+
 
 public class RepairSign implements Listener {
     private final String HEADER = "Repair:";
@@ -151,7 +149,7 @@ public class RepairSign implements Listener {
             }
         }
         HashMap<Pair<Material, Byte>, Double> numMissingItems = weUtils.getMissingBlocks(repairName);
-        ArrayDeque<Pair<Vector, Vector>> locMissingBlocks = weUtils.getMissingBlockLocations(repairName);
+        ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks = weUtils.getMissingBlockLocations(repairName);
         int totalSize = locMissingBlocks.size() + pCraft.getHitBox().size();
         if (secondClick){
             // check all the chests for materials for the repair
@@ -225,25 +223,9 @@ public class RepairSign implements Listener {
 
                 double cost = numDifferentBlocks * Config.RepairMoneyPerBlock;
                 Movecraft.getInstance().getLogger().info(String.format(I18nSupport.getInternationalisedString("Repair - Repair Has Begun"),event.getPlayer().getName(),cost));
-                final LinkedList<UpdateCommand> updateCommands = new LinkedList<>();
-                final LinkedList<UpdateCommand> updateCommandsFragileBlocks = new LinkedList<>();
-
-                while (!locMissingBlocks.isEmpty()){
-                    Pair<Vector,Vector> locs = locMissingBlocks.pollFirst();
-                    assert locs != null;
-                    Vector cLoc = locs.getRight();
-                    MovecraftLocation moveLoc = new MovecraftLocation(locs.getLeft().getBlockX(), locs.getLeft().getBlockY(), locs.getLeft().getBlockZ());
-                    //To avoid any issues during the repair, keep certain blocks in different linked lists
-                    BaseBlock baseBlock = clipboard.getBlock(new Vector(cLoc.getBlockX(),cLoc.getBlockY(),cLoc.getBlockZ()));
-                    Material type =  Material.getMaterial(baseBlock.getType());
-                    if (fragileBlock(type)) {
-                        WE6UpdateCommand updateCommand = new WE6UpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
-                        updateCommandsFragileBlocks.add(updateCommand);
-                    } else {
-                        WE6UpdateCommand updateCommand = new WE6UpdateCommand(baseBlock, sign.getWorld(), moveLoc, type, (byte) baseBlock.getData());
-                        updateCommands.add(updateCommand);
-                    }
-                }
+                final Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> updateCommandsPair = weUtils.getUpdatCommands(clipboard, sign.getWorld(), locMissingBlocks);
+                final LinkedList<UpdateCommand> updateCommands = updateCommandsPair.getLeft();
+                final LinkedList<UpdateCommand> updateCommandsFragileBlocks = updateCommandsPair.getRight();
                 if (!updateCommands.isEmpty() || !updateCommandsFragileBlocks.isEmpty()) {
                     final Craft releaseCraft = pCraft;
                     CraftManager.getInstance().removePlayerFromCraft(pCraft);
@@ -275,25 +257,5 @@ public class RepairSign implements Listener {
                 playerInteractTimeMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
             }
         }
-    }
-
-    private boolean fragileBlock(Material type){
-        return type.name().endsWith("BUTTON")
-                || type.name().endsWith("DOOR_BLOCK")
-                || type.name().startsWith("DIODE")
-                || type.name().startsWith("REDSTONE_COMPARATOR")
-                || type.name().endsWith("WATER")
-                || type.name().endsWith("LAVA")
-                || type.equals(Material.LEVER)
-                || type.equals(Material.WALL_SIGN)
-                || type.equals(Material.WALL_BANNER)
-                || type.equals(Material.REDSTONE_WIRE)
-                || type.equals(Material.LADDER)
-                || type.equals(Material.BED_BLOCK)
-                || type.equals(Material.TRIPWIRE_HOOK)
-                || type.equals(Material.TORCH)
-                || type.equals(Material.REDSTONE_TORCH_OFF)
-                || type.equals(Material.REDSTONE_TORCH_ON);
-
     }
 }

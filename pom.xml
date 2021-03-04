@@ -5,11 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.countercraft.movecraft.repair</groupId>
-    <artifactId>Movecraft-Repair</artifactId>
-    <version>0.2.0</version>
-    <packaging>jar</packaging>
+    <artifactId>Movecraft-Repair-Parent</artifactId>
+    <version>Parent</version>
+    <modules>
+        <module>api</module>
+        <module>WE6</module>
+        <module>WE7</module>
+        <module>plugin</module>
+    </modules>
+    <packaging>pom</packaging>
 
-    <name>Movecraft-Repair</name>
+    <name>Movecraft-Repair-Parent</name>
     <description>Repair features of Movecraft</description>
 
     <properties>
@@ -18,49 +24,7 @@
     </properties>
     <url>https://github.com/APDevTeam/Movecraft-Repair</url>
 
-    <build>
-        <finalName>Movecraft-Repair</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <targetPath>.</targetPath>
-                <directory>.</directory>
-                <includes>
-                    <include>LICENSE.md</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+
 
     <repositories>
         <repository>
@@ -85,26 +49,12 @@
             <version>1.10.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!--Movecraft-->
-        <dependency>
-            <groupId>net.countercraft.movecraft</groupId>
-            <artifactId>Movecraft</artifactId>
-            <version>7.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../Movecraft/target/Movecraft.jar</systemPath>
-        </dependency>
+
         <!--Annotations-->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations-java5</artifactId>
             <version>RELEASE</version>
-        </dependency>
-        <!--WorldEdit-->
-        <dependency>
-            <groupId>com.sk89q</groupId>
-            <artifactId>worldedit</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
         </dependency>
         <!--VaultAPI-->
         <dependency>
