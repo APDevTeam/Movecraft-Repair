@@ -14,6 +14,8 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.BlockMask;
+import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.mask.Mask2D;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -522,8 +524,11 @@ public class WE7Utils extends WEUtils {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
-            BlockMask mask = new BlockMask(source, baseBlockSet);
-            copy.setSourceMask(mask);
+            if(materialMask != null) {
+                // A null materialMask will be understood as saving every block
+                Mask mask = new MaterialMask(materialMask, c.getWorld());
+                copy.setSourceMask(mask);
+            }
             Operations.completeLegacy(copy);
             ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file, false));
             writer.write(clipboard);
@@ -615,5 +620,27 @@ public class WE7Utils extends WEUtils {
                 || type.name().endsWith("BED")
                 || type.equals(Material.TRIPWIRE_HOOK)
                 || type.name().endsWith("WALL_TORCH");
+    }
+
+    private class MaterialMask implements Mask {
+        private final HashSet<Material> materialMask;
+        private final World w;
+
+        public MaterialMask(HashSet<Material> materialMask, World w) {
+            this.materialMask = materialMask;
+            this.w = w;
+        }
+
+        @Override
+        public boolean test(BlockVector3 vector) {
+            Block b = w.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+            return materialMask.contains(b.getType());
+        }
+
+        @javax.annotation.Nullable
+        @Override
+        public Mask2D toMask2D() {
+            return null;
+        }
     }
 }

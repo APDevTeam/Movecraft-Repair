@@ -21,11 +21,10 @@ jobs:
       with:
         java-version: 1.8
     - name: Cache Maven packages
-      id: cache
       uses: actions/cache@v2
       with:
         path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-m2
         restore-keys: ${{ runner.os }}-m2
     
     # Run Spigot BuildTools for NMS if required
@@ -52,11 +51,11 @@ jobs:
     
     # Build Movecraft
     - name: Build Movecraft
-      run:  mvn -B package --file Movecraft/pom.xml
+      run:  mvn -B package -T 1C --file Movecraft/pom.xml
 
     # Build MCR
     - name: Build Movecraft-Repair
-      run: mvn -B package --file Movecraft-Repair/pom.xml
+      run: mvn -B package -T 1C --file Movecraft-Repair/pom.xml
 
     - name: Stage jar
       run: mkdir staging && cp Movecraft-Repair/target/Movecraft-Repair.jar staging

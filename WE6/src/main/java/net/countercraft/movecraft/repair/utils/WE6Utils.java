@@ -14,8 +14,12 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.BlockMask;
+import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.mask.Mask2D;
+import com.sk89q.worldedit.function.mask.Masks;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.masks.BlockTypeMask;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.registry.WorldData;
 import net.countercraft.movecraft.MovecraftLocation;
@@ -44,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
+
 
 public class WE6Utils extends WEUtils {
 
@@ -551,32 +556,17 @@ public class WE6Utils extends WEUtils {
         com.sk89q.worldedit.world.World world = new BukkitWorld(c.getWorld());
         CuboidRegion region = new CuboidRegion(world, minPos, maxPos);
 
-        // Copy chunk into memory
-        Set<BaseBlock> baseBlockSet = new HashSet<>();
-        for(int x = 0; x < 16; x++) {
-            for(int y = 0; y < 256; y++) {
-                for(int z = 0; z < 16; z++) {
-                    Block b = c.getBlock(x, y, z);
-                    if(b.getType().equals(Material.AIR))
-                        continue;
-
-                    // A null materialMask will be understood as saving every block
-                    if(materialMask == null || !materialMask.contains(b.getType()))
-                        continue;
-
-                    baseBlockSet.add(new BaseBlock(b.getTypeId(), b.getData()));
-                }
-            }
-        }
-
         // Save chunk to disk
         File file = new File(directory, c.getX() + "_" + c.getZ() + ".schematic");
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
-            BlockMask mask = new BlockMask(source, baseBlockSet);
-            copy.setSourceMask(mask);
+            if(materialMask != null) {
+                // A null materialMask will be understood as saving every block
+                Mask mask = new MaterialMask(materialMask, c.getWorld());
+                copy.setSourceMask(mask);
+            }
             Operations.completeLegacy(copy);
             ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(file, false));
             writer.write(clipboard, world.getWorldData());
@@ -671,5 +661,27 @@ public class WE6Utils extends WEUtils {
                 || type.equals(Material.TORCH)
                 || type.equals(Material.REDSTONE_TORCH_OFF)
                 || type.equals(Material.REDSTONE_TORCH_ON);
+    }
+
+    private class MaterialMask implements Mask {
+        private final HashSet<Material> materialMask;
+        private final World w;
+
+        public MaterialMask(HashSet<Material> materialMask, World w) {
+            this.materialMask = materialMask;
+            this.w = w;
+        }
+
+        @Override
+        public boolean test(Vector vector) {
+            Block b = w.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+            return materialMask.contains(b.getType());
+        }
+
+        @Nullable
+        @Override
+        public Mask2D toMask2D() {
+            return null;
+        }
     }
 }

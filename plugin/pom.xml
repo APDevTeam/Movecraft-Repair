@@ -38,8 +38,10 @@
             <type>jar</type>
         </dependency>
     </dependencies>
+
     <artifactId>Movecraft-Repair</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.3</version>
+    <packaging>jar</packaging>
     <build>
         <finalName>Movecraft-Repair</finalName>
         <directory>../target</directory>
