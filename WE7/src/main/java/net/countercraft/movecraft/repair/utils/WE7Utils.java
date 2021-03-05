@@ -60,7 +60,7 @@ public class WE7Utils extends WEUtils {
 
     public boolean saveCraftRepairState(Craft craft, Sign sign) {
         HitBox hitBox = craft.getHitBox();
-        File saveDirectory = new File(movecraftRepair.getDataFolder(), "RepairStates");
+        File saveDirectory = new File(dataFolder, "RepairStates");
         World world = craft.getW();
         com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
         BlockVector3 origin = BlockVector3.at(sign.getX(),sign.getY(),sign.getZ());
@@ -102,7 +102,7 @@ public class WE7Utils extends WEUtils {
     }
 
     public Clipboard loadCraftRepairStateClipboard(Craft craft, Sign sign) {
-        File dataDirectory = new File(movecraftRepair.getDataFolder(), "RepairStates");
+        File dataDirectory = new File(dataFolder, "RepairStates");
         File playerDirectory = new File(dataDirectory,craft.getNotificationPlayer().getUniqueId().toString());
         if (!playerDirectory.exists()){
             return null;
@@ -582,7 +582,7 @@ public class WE7Utils extends WEUtils {
     }
 
     @Override
-    public Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> getUpdatCommands(Clipboard clipboard, World world, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks) {
+    public Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> getUpdateCommands(Clipboard clipboard, World world, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks) {
         final LinkedList<UpdateCommand> updateCommands = new LinkedList<>();
         final LinkedList<UpdateCommand> updateCommandsFragileBlocks = new LinkedList<>();
         while (!locMissingBlocks.isEmpty()){

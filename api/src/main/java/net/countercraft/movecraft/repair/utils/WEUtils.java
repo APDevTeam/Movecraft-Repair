@@ -21,12 +21,12 @@ import java.util.LinkedList;
 import java.util.function.Predicate;
 
 public abstract class WEUtils {
-    protected final Plugin movecraftRepair;
     protected final HashMap<String, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>>> locMissingBlocksMap = new HashMap<>();
     protected final HashMap<String, Long> numDiffBlocksMap = new HashMap<>();
     protected final HashMap<String, HashMap<Pair<Material, Byte>, Double>> missingBlocksMap = new HashMap<>();
+    protected final File dataFolder;
     public WEUtils(Plugin movecraftRepair) {
-        this.movecraftRepair = movecraftRepair;
+        dataFolder = movecraftRepair.getDataFolder();
     }
 
     public abstract boolean saveCraftRepairState(Craft craft, Sign sign);
@@ -43,5 +43,5 @@ public abstract class WEUtils {
 
     public abstract boolean repairChunk(Chunk c, File directory, Predicate<MovecraftLocation> p);
 
-    public abstract Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> getUpdatCommands(Clipboard clipboard, World world, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks);
+    public abstract Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> getUpdateCommands(Clipboard clipboard, World world, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks);
 }
