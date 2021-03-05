@@ -148,7 +148,7 @@ public class WE7Utils extends WEUtils {
                             qtyToConsume = 0.5;
                         } else if (itemToConsume.name().endsWith("BED")) {
                             qtyToConsume = 0.5;
-                        } else if (itemToConsume.name().endsWith("SLAB"))
+                        }
                         switch (itemToConsume) {
                             case FURNACE:
                                 //Count fuel in furnaces
@@ -278,7 +278,7 @@ public class WE7Utils extends WEUtils {
                             }
 
                         }
-                        if (block.getBlockType().getName().endsWith("air")){
+                        if (!block.getBlockType().getName().endsWith("air")){
                             locMissingBlocks.addLast(new Pair<>(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
                         }
                     }

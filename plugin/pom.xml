@@ -23,16 +23,19 @@
             <groupId>net.countercraft.movecraft.repair</groupId>
             <artifactId>Movecraft-Repair-API</artifactId>
             <version>API</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>net.countercraft.movecraft.repair</groupId>
             <artifactId>Movecraft-Repair-WE6</artifactId>
             <version>WE6</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>net.countercraft.movecraft.repair</groupId>
             <artifactId>Movecraft-Repair-WE7</artifactId>
             <version>WE7</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <artifactId>Movecraft-Repair</artifactId>
@@ -41,6 +44,14 @@
         <finalName>Movecraft-Repair</finalName>
         <directory>../target</directory>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <forceCreation>true</forceCreation>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -61,6 +72,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>net.countercraft.movecraft.repair:Movecraft-Repair*</include>
+                                </includes>
+                            </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>

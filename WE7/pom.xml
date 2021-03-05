@@ -11,6 +11,7 @@
 
     <artifactId>Movecraft-Repair-WE7</artifactId>
     <version>WE7</version>
+    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
