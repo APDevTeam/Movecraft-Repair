@@ -11,6 +11,8 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
+import net.countercraft.movecraft.repair.utils.MovecraftRepairLocation;
+import net.countercraft.movecraft.repair.utils.UpdateCommandsQueuePair;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.countercraft.movecraft.utils.Pair;
 import org.bukkit.Bukkit;
@@ -150,7 +152,7 @@ public class RepairSign implements Listener {
             }
         }
         HashMap<Pair<Material, Byte>, Double> numMissingItems = weUtils.getMissingBlocks(repairName);
-        ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks = weUtils.getMissingBlockLocations(repairName);
+        ArrayDeque<MovecraftRepairLocation> locMissingBlocks = weUtils.getMissingBlockLocations(repairName);
         int totalSize = locMissingBlocks.size() + pCraft.getHitBox().size();
         if (secondClick){
             // check all the chests for materials for the repair
@@ -224,9 +226,9 @@ public class RepairSign implements Listener {
 
                 double cost = numDifferentBlocks * Config.RepairMoneyPerBlock;
                 Movecraft.getInstance().getLogger().info(String.format(I18nSupport.getInternationalisedString("Repair - Repair Has Begun"),event.getPlayer().getName(),cost));
-                final Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> updateCommandsPair = weUtils.getUpdatCommands(clipboard, sign.getWorld(), locMissingBlocks);
-                final LinkedList<UpdateCommand> updateCommands = updateCommandsPair.getLeft();
-                final LinkedList<UpdateCommand> updateCommandsFragileBlocks = updateCommandsPair.getRight();
+                final UpdateCommandsQueuePair updateCommandsPair = weUtils.getUpdateCommands(clipboard, sign.getWorld(), locMissingBlocks);
+                final LinkedList<UpdateCommand> updateCommands = updateCommandsPair.getUpdateCommands();
+                final LinkedList<UpdateCommand> updateCommandsFragileBlocks = updateCommandsPair.getUpdateCommandsFragileBlocks();
                 if (!updateCommands.isEmpty() || !updateCommandsFragileBlocks.isEmpty()) {
                     final Craft releaseCraft = pCraft;
                     CraftManager.getInstance().removePlayerFromCraft(pCraft);

@@ -16,10 +16,8 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.BlockMask;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.Mask2D;
-import com.sk89q.worldedit.function.mask.Masks;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.masks.BlockTypeMask;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.registry.WorldData;
 import net.countercraft.movecraft.MovecraftLocation;
@@ -124,7 +122,7 @@ public class WE6Utils extends WEUtils {
         }
         long numDiffBlocks = 0;
         HashMap<Pair<Material, Byte>, Double> missingBlocks = new HashMap<>();
-        ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks = new ArrayDeque<>();
+        ArrayDeque<MovecraftRepairLocation> locMissingBlocks = new ArrayDeque<>();
         Vector minPos = clipboard.getMinimumPoint();
         Vector distance = clipboard.getOrigin().subtract(clipboard.getMinimumPoint());
         Vector size = clipboard.getDimensions();
@@ -336,7 +334,7 @@ public class WE6Utils extends WEUtils {
 
                         }
                         if (block.getType() != 0){
-                            locMissingBlocks.addLast(new Pair<>(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
+                            locMissingBlocks.addLast(new MovecraftRepairLocation(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
                         }
                     }
                     if (bukkitBlock.getType() == Material.DISPENSER && block.getType() == 23) {
@@ -417,7 +415,7 @@ public class WE6Utils extends WEUtils {
                         }
                         if (needReplace) {
                             numDiffBlocks++;
-                            locMissingBlocks.addLast(new Pair<>(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
+                            locMissingBlocks.addLast(new MovecraftRepairLocation(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
                         }
                     }
                     if (bukkitBlock.getType() == Material.FURNACE && block.getType() == 61){
@@ -486,7 +484,7 @@ public class WE6Utils extends WEUtils {
                         }
                         if (needsRefill > 0){
                             numDiffBlocks++;
-                            locMissingBlocks.addLast(new Pair<>(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
+                            locMissingBlocks.addLast(new MovecraftRepairLocation(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
                         }
                     }
                 }
@@ -505,7 +503,7 @@ public class WE6Utils extends WEUtils {
         return missingBlocksMap.get(repairName);
     }
 
-    public ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> getMissingBlockLocations(String repairName) {
+    public ArrayDeque<MovecraftRepairLocation> getMissingBlockLocations(String repairName) {
         return locMissingBlocksMap.get(repairName);
     }
 
@@ -621,14 +619,14 @@ public class WE6Utils extends WEUtils {
     }
 
     @Override
-    public Pair<LinkedList<UpdateCommand>, LinkedList<UpdateCommand>> getUpdateCommands(Clipboard clipboard, World world, ArrayDeque<Pair<MovecraftLocation, MovecraftLocation>> locMissingBlocks) {
+    public UpdateCommandsQueuePair getUpdateCommands(Clipboard clipboard, World world, ArrayDeque<MovecraftRepairLocation> locMissingBlocks) {
         final LinkedList<UpdateCommand> updateCommands = new LinkedList<>();
         final LinkedList<UpdateCommand> updateCommandsFragileBlocks = new LinkedList<>();
         while (!locMissingBlocks.isEmpty()){
-            Pair<MovecraftLocation, MovecraftLocation> locs = locMissingBlocks.pollFirst();
+            MovecraftRepairLocation locs = locMissingBlocks.pollFirst();
             assert locs != null;
-            MovecraftLocation cLoc = locs.getRight();
-            MovecraftLocation moveLoc = locs.getLeft();
+            MovecraftLocation cLoc = locs.getOrigin();
+            MovecraftLocation moveLoc = locs.getOffset();
             //To avoid any issues during the repair, keep certain blocks in different linked lists
             BaseBlock baseBlock = clipboard.getBlock(new Vector(cLoc.getX(),cLoc.getY(),cLoc.getZ()));
             Material type =  Material.getMaterial(baseBlock.getType());
@@ -640,7 +638,7 @@ public class WE6Utils extends WEUtils {
                 updateCommands.add(updateCommand);
             }
         }
-        return new Pair<>(updateCommands, updateCommandsFragileBlocks);
+        return new UpdateCommandsQueuePair(updateCommands, updateCommandsFragileBlocks);
     }
 
 
