@@ -27,11 +27,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>net.countercraft.movecraft.repair</groupId>
             <artifactId>Movecraft-Repair-API</artifactId>
             <version>API</version>
