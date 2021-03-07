@@ -2,6 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <artifactId>Movecraft-Repair</artifactId>
+    <version>0.3.0</version>
+    <packaging>jar</packaging>
+
+
     <parent>
         <artifactId>Movecraft-Repair-Parent</artifactId>
         <groupId>net.countercraft.movecraft.repair</groupId>
@@ -39,9 +45,6 @@
         </dependency>
     </dependencies>
 
-    <artifactId>Movecraft-Repair</artifactId>
-    <version>0.2.3</version>
-    <packaging>jar</packaging>
     <build>
         <finalName>Movecraft-Repair</finalName>
         <directory>../target</directory>
