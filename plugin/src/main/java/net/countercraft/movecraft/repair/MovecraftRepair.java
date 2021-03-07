@@ -6,6 +6,7 @@ import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.RepairManager;
 import net.countercraft.movecraft.repair.sign.RepairSign;
 import net.countercraft.movecraft.repair.utils.WE6Utils;
+import net.countercraft.movecraft.repair.utils.WE7Utils;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.Plugin;
@@ -80,7 +81,13 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
 
-        weUtils = new WE6Utils();
+        String packageName = getServer().getClass().getPackage().getName();
+        String version = packageName.substring(packageName.lastIndexOf(".") + 1);
+        if (Integer.parseInt(version.split("_")[1]) <= 12) {
+            weUtils = new WE6Utils(this);
+        } else {
+            weUtils = new WE7Utils(this);
+        }
 
         repairManager = new RepairManager();
         repairManager.runTaskTimerAsynchronously(this, 0, 1);

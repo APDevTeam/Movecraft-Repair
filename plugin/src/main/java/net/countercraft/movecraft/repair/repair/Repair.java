@@ -21,7 +21,7 @@ public final class Repair {
     private final UUID playerUUID;
     private final long missingBlocks, durationInTicks;
     private long ticksSinceStart;
-    private final  BossBar progressBar;
+    private final BossBar progressBar;
     private final Location signLoc;
     private final AtomicBoolean running = new AtomicBoolean(true);
     public Repair(String name, Craft craft, LinkedList<UpdateCommand> updateCommands, LinkedList<UpdateCommand> fragileBlockUpdateCommands,  UUID playerUUID, long missingBlocks, Location signLoc){
