@@ -1,4 +1,5 @@
 # Movecraft-Repair Addon
+![Repair](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
 
 Home of the code for the following features:
  - Craft repair signs
