@@ -3,13 +3,10 @@ package net.countercraft.movecraft.repair.utils;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
-import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
-import net.countercraft.movecraft.utils.*;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
-import com.sk89q.worldedit.Vector;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nullable;
@@ -17,7 +14,6 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.function.Predicate;
 
 public abstract class WEUtils {

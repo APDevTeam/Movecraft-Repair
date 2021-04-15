@@ -26,9 +26,9 @@ import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import net.countercraft.movecraft.repair.mapUpdater.WE6UpdateCommand;
-import net.countercraft.movecraft.utils.BitmapHitBox;
-import net.countercraft.movecraft.utils.HitBox;
-import net.countercraft.movecraft.utils.Pair;
+import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
+import net.countercraft.movecraft.util.hitboxes.HitBox;
+import net.countercraft.movecraft.util.hitboxes.MutableHitBox;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
@@ -38,6 +38,7 @@ import com.sk89q.worldedit.Vector;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -75,7 +76,7 @@ public class WE6Utils extends WEUtils {
         repairName += ".schematic";
         File repairStateFile = new File(playerDirectory, repairName);
         Set<BaseBlock> blockSet = baseBlocksFromCraft(craft);
-        BitmapHitBox outsideLocs = solidBlockLocs(craft.getW(), cRegion).difference(craft.getHitBox());
+        BitmapHitBox outsideLocs = (BitmapHitBox) solidBlockLocs(craft.getW(), cRegion).difference(craft.getHitBox());
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(cRegion);
             clipboard.setOrigin(origin);
@@ -511,7 +512,8 @@ public class WE6Utils extends WEUtils {
         return numDiffBlocksMap.get(s);
     }
 
-    private Set<BaseBlock> baseBlocksFromCraft(Craft craft) {
+    @NotNull
+    private Set<BaseBlock> baseBlocksFromCraft(@NotNull Craft craft) {
         HashSet<BaseBlock> returnSet = new HashSet<>();
         HitBox hitBox = craft.getHitBox();
         World w = craft.getW();
@@ -526,7 +528,8 @@ public class WE6Utils extends WEUtils {
         return returnSet;
     }
 
-    private BitmapHitBox solidBlockLocs(World w, CuboidRegion cr){
+    @NotNull
+    private BitmapHitBox solidBlockLocs(World w, @NotNull CuboidRegion cr){
         BitmapHitBox returnSet = new BitmapHitBox();
         for (int x = cr.getMinimumPoint().getBlockX(); x <= cr.getMaximumPoint().getBlockX(); x++){
             for (int y = cr.getMinimumPoint().getBlockY(); y <= cr.getMaximumPoint().getBlockY(); y++){
@@ -541,7 +544,7 @@ public class WE6Utils extends WEUtils {
         return returnSet;
     }
 
-    public boolean saveChunk(Chunk c, File directory, @Nullable HashSet<Material> materialMask) {
+    public boolean saveChunk(Chunk c, @NotNull File directory, @Nullable HashSet<Material> materialMask) {
         if(!directory.exists())
             directory.mkdirs();
 

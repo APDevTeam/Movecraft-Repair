@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <artifactId>Movecraft-Repair</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.a</version>
     <packaging>jar</packaging>
 
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>net.countercraft.movecraft</groupId>
             <artifactId>Movecraft</artifactId>
-            <version>7.0.0</version>
+            <version>LATEST</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../../Movecraft/target/Movecraft.jar</systemPath>
         </dependency>
