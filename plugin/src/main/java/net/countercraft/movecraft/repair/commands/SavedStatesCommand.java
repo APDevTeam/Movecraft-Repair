@@ -66,7 +66,11 @@ public class SavedStatesCommand implements CommandExecutor {
         for(File file : playerDirectory.listFiles()) {
             if(file.isFile())
             {
-                paginator.addLine(file.getName().replace(".schematic", ""));
+                if(file.getName().endsWith(".schematic")) {
+                    paginator.addLine(file.getName().replace(".schematic", ""));
+                    continue;
+                }
+                paginator.addLine(file.getName().replace(".schem", ""));
             }
         }
 
