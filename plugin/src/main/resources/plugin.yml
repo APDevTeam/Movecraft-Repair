@@ -14,8 +14,8 @@ commands:
     usage: /<command> [Player] [Page]
 
 permissions:
-  movecraftrepair.savedstates:
+  movecraftrepair.command.savedstates:
     description: Allows you to see a list of your saved states.
     default: true
-  movecraftrepair.savedstates.other:
+  movecraftrepair.command.savedstates.other:
     description: Allows you to see the saved states of other players.
