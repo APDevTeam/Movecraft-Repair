@@ -16,6 +16,7 @@ jobs:
       with:
         repository: 'APDevTeam/Movecraft'
         path: Movecraft
+        ref: 'legacy'
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
