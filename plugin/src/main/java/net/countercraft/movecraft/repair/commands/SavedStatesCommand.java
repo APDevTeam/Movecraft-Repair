@@ -21,7 +21,7 @@ public class SavedStatesCommand implements CommandExecutor {
             return false;
         }
 
-        if(!sender.hasPermission("movecraftrepair.command.savedstates")) {
+        if(!sender.hasPermission("movecraft.repair.command.savedstates")) {
             sender.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return true;
         }
@@ -32,7 +32,7 @@ public class SavedStatesCommand implements CommandExecutor {
             if(args.length == 1 && args[0].matches("-?\\d+")) {
                 page = Integer.parseInt(args[0]);
             }
-            else if(sender.hasPermission("movecraftrepair.command.savedstates.other")) {
+            else if(sender.hasPermission("movecraft.repair.command.savedstates.other")) {
                 player = MovecraftRepair.getInstance().getServer().getOfflinePlayer(args[0]);
 
                 if(player == null || !player.hasPlayedBefore()) {
