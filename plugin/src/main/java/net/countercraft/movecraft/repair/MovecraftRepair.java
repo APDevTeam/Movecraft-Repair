@@ -1,6 +1,7 @@
 package net.countercraft.movecraft.repair;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import net.countercraft.movecraft.repair.commands.SavedStatesCommand;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.RepairManager;
@@ -94,6 +95,7 @@ public final class MovecraftRepair extends JavaPlugin {
         repairManager.convertOldCraftRepairStates();
 
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
+        getCommand("savedstates").setExecutor(new SavedStatesCommand());
     }
 
     @Override

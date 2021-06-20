@@ -6,3 +6,17 @@ description: Repair features of Movecraft
 authors: [TylerS1066, cccm5, eirik1996, BaccaYarro]
 website: https://github.com/APDevTeam/Movecraft-Repair
 main: net.countercraft.movecraft.repair.MovecraftRepair
+
+commands:
+  savedstates:
+    description: Lists your saved repair states.
+    aliases: ["repairstates"]
+    usage: /<command> [Player] [Page]
+
+permissions:
+  movecraft.repair.command.savedstates:
+    description: Allows you to see a list of your saved states.
+    default: op
+  movecraft.repair.command.savedstates.other:
+    description: Allows you to see the saved states of other players.
+    default: op
