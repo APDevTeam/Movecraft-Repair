@@ -95,7 +95,7 @@
             </resource>
             <resource>
                 <targetPath>.</targetPath>
-                <directory>.</directory>
+                <directory>..</directory>
                 <includes>
                     <include>LICENSE.md</include>
                 </includes>
