@@ -24,11 +24,10 @@
     <dependencies>
         <!--Movecraft-->
         <dependency>
-            <groupId>net.countercraft.movecraft</groupId>
-            <artifactId>Movecraft</artifactId>
-            <version>7.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../../Movecraft/target/Movecraft.jar</systemPath>
+            <groupId>net.countercraft</groupId>
+            <artifactId>movecraft</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
         </dependency>
         <!--WorldEdit-->
         <dependency>
