@@ -5,7 +5,6 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.RepairManager;
 import net.countercraft.movecraft.repair.sign.RepairSign;
-import net.countercraft.movecraft.repair.utils.WE6Utils;
 import net.countercraft.movecraft.repair.utils.WE7Utils;
 import net.countercraft.movecraft.repair.utils.WEUtils;
 import net.milkbowl.vault.economy.Economy;
@@ -84,7 +83,7 @@ public final class MovecraftRepair extends JavaPlugin {
         String packageName = getServer().getClass().getPackage().getName();
         String version = packageName.substring(packageName.lastIndexOf(".") + 1);
         if (Integer.parseInt(version.split("_")[1]) <= 12) {
-            weUtils = new WE6Utils(this);
+            getLogger().log(Level.SEVERE, I18nSupport.getInternationalisedString("Startup - WE Not Found"));
         } else {
             weUtils = new WE7Utils(this);
         }
