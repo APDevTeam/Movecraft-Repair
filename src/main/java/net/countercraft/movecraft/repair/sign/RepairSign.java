@@ -5,6 +5,7 @@ import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
+import net.countercraft.movecraft.craft.PlayerCraft;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
@@ -83,7 +84,7 @@ public class RepairSign implements Listener {
         }
 
     }
-    //
+
     private void signLeftClick(PlayerInteractEvent event){
         Sign sign = (Sign) event.getClickedBlock().getState();
         if (!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(HEADER) || sign.getLine(0) == null){
@@ -93,7 +94,7 @@ public class RepairSign implements Listener {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
             return;
         }
-        Craft pCraft = CraftManager.getInstance().getCraftByPlayer(event.getPlayer());
+        PlayerCraft pCraft = CraftManager.getInstance().getCraftByPlayer(event.getPlayer());
         if (pCraft == null) {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
@@ -111,10 +112,11 @@ public class RepairSign implements Listener {
         }
         event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Repair - Could not save file"));
     }
+
     private void signRightClick(PlayerInteractEvent event){
         Sign sign = (Sign) event.getClickedBlock().getState();
         Player p = event.getPlayer();
-        Craft pCraft = CraftManager.getInstance().getCraftByPlayer(p);
+        PlayerCraft pCraft = CraftManager.getInstance().getCraftByPlayer(p);
         if (!sign.getLine(0).equalsIgnoreCase(HEADER)){
             return;
         }
@@ -132,6 +134,7 @@ public class RepairSign implements Listener {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
+
         String repairName = event.getPlayer().getUniqueId().toString();
         repairName += "_";
         repairName += ChatColor.stripColor(sign.getLine(1));
@@ -162,7 +165,7 @@ public class RepairSign implements Listener {
                 int remainingQty = (int) longRemQty;
                 ArrayList<InventoryHolder> chests = new ArrayList<>();
                 for (MovecraftLocation loc : pCraft.getHitBox()) {
-                    Block b = pCraft.getW().getBlockAt(loc.getX(), loc.getY(), loc.getZ());
+                    Block b = pCraft.getWorld().getBlockAt(loc.getX(), loc.getY(), loc.getZ());
                     if ((b.getType() == Material.CHEST) || (b.getType() == Material.TRAPPED_CHEST)) {
                         InventoryHolder inventoryHolder = (InventoryHolder) b.getState();
                         if (inventoryHolder.getInventory().contains(type.getLeft()) && remainingQty > 0) {

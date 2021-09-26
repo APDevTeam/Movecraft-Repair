@@ -8,7 +8,11 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.entity.BaseEntity;
+import com.sk89q.worldedit.entity.Entity;
+import com.sk89q.worldedit.extent.AbstractBufferingExtent;
 import com.sk89q.worldedit.extent.Extent;
+import com.sk89q.worldedit.extent.buffer.ExtentBuffer;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
@@ -17,21 +21,32 @@ import com.sk89q.worldedit.function.mask.BlockMask;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.Mask2D;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockStateHolder;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.craft.PlayerCraft;
 import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.mapUpdater.WE7UpdateCommand;
 import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import net.countercraft.movecraft.util.hitboxes.HitBox;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Sign;
@@ -39,6 +54,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -54,10 +71,10 @@ public class WE7Utils extends WEUtils {
         super(movecraftRepair);
     }
 
-    public boolean saveCraftRepairState(Craft craft, Sign sign) {
+    public boolean saveCraftRepairState(@NotNull PlayerCraft craft, @NotNull Sign sign) {
         HitBox hitBox = craft.getHitBox();
         File saveDirectory = new File(dataFolder, "RepairStates");
-        World world = craft.getW();
+        World world = craft.getWorld();
         com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
         BlockVector3 origin = BlockVector3.at(sign.getX(),sign.getY(),sign.getZ());
         if (!saveDirectory.exists()) {
@@ -66,7 +83,7 @@ public class WE7Utils extends WEUtils {
         BlockVector3 minPos = BlockVector3.at(hitBox.getMinX(), hitBox.getMinY(), hitBox.getMinZ());
         BlockVector3 maxPos = BlockVector3.at(hitBox.getMaxX(), hitBox.getMaxY(), hitBox.getMaxZ());
         CuboidRegion cRegion = new CuboidRegion(minPos, maxPos);
-        File playerDirectory = new File(saveDirectory,craft.getNotificationPlayer().getUniqueId().toString());
+        File playerDirectory = new File(saveDirectory, craft.getPlayer().getUniqueId().toString());
         if (!playerDirectory.exists()){
             playerDirectory.mkdirs();
         }
@@ -97,16 +114,15 @@ public class WE7Utils extends WEUtils {
         }
     }
 
-    public Clipboard loadCraftRepairStateClipboard(Craft craft, Sign sign) {
+    public Clipboard loadCraftRepairStateClipboard(@NotNull PlayerCraft craft, Sign sign) {
         File dataDirectory = new File(dataFolder, "RepairStates");
-        File playerDirectory = new File(dataDirectory,craft.getNotificationPlayer().getUniqueId().toString());
+        File playerDirectory = new File(dataDirectory, craft.getPlayer().getUniqueId().toString());
         if (!playerDirectory.exists()){
             return null;
         }
         String repairName = ChatColor.stripColor(sign.getLine(1));
         repairName += ".schematic";
         File file = new File(playerDirectory, repairName); // The schematic file
-        com.sk89q.worldedit.world.World weWorld = new BukkitWorld(sign.getWorld());
         Clipboard clipboard;
         try {
             clipboard = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(file)).read();
@@ -118,13 +134,35 @@ public class WE7Utils extends WEUtils {
         if (clipboard == null) {
             return null;
         }
+
+        BlockVector3 minPos = clipboard.getMinimumPoint();
+        BlockVector3 size = clipboard.getDimensions();
+        BlockVector3 distance = clipboard.getOrigin().subtract(clipboard.getMinimumPoint());
+        BlockVector3 offset = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ()).subtract(distance);
+
+        // Calculate rotation for schematic
+        BlockVector3 schematicSignPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ()).subtract(offset).add(minPos);
+        BaseBlock schematicSign = clipboard.getFullBlock(schematicSignPosition);
+        int rotation = -1;
+        for(var e : schematicSign.getStates().entrySet()) {
+            if(e.getKey().getName().equals("rotation")) {
+                rotation = (int) e.getValue();
+            }
+        }
+        BlockFace schematicSignFacing = blockFaceFromNBTRotation(rotation);
+        BlockFace repairSignFacing = ((org.bukkit.block.data.type.Sign) sign.getBlockData()).getRotation();
+        long angle = angleBetweenBlockFaces(repairSignFacing, schematicSignFacing);
+
+        // Apply rotation
+        try {
+            clipboard = ClipboardUtils.transform(clipboard, new AffineTransform().rotateY(angle));
+        } catch (WorldEditException e) {
+            e.printStackTrace();
+        }
+
         long numDiffBlocks = 0;
         HashMap<Pair<Material, Byte>, Double> missingBlocks = new HashMap<>();
         ArrayDeque<MovecraftRepairLocation> locMissingBlocks = new ArrayDeque<>();
-        BlockVector3 minPos = clipboard.getMinimumPoint();
-        BlockVector3 distance = clipboard.getOrigin().subtract(clipboard.getMinimumPoint());
-        BlockVector3 size = clipboard.getDimensions();
-        BlockVector3 offset = BlockVector3.at(sign.getX() - distance.getBlockX(), sign.getY() - distance.getBlockY(), sign.getZ() - distance.getBlockZ());
         for (int x = 0; x <= size.getBlockX(); x++) {
             for (int z = 0; z <= size.getBlockZ(); z++) {
                 for (int y = 0; y <= size.getBlockY(); y++) {
@@ -274,7 +312,6 @@ public class WE7Utils extends WEUtils {
                                 num += qtyToConsume;
                                 missingBlocks.put(missingBlock, num);
                             }
-
                         }
                         if (!block.getBlockType().getName().endsWith("air")){
                             locMissingBlocks.addLast(new MovecraftRepairLocation(new MovecraftLocation(offset.getBlockX() + x, offset.getBlockY() + y, offset.getBlockZ() + z),new MovecraftLocation(position.getBlockX(),position.getBlockY(),position.getBlockZ())));
@@ -433,13 +470,55 @@ public class WE7Utils extends WEUtils {
                 }
             }
         }
-        String repairStateName = craft.getNotificationPlayer().getUniqueId().toString();
+        String repairStateName = craft.getPlayer().getUniqueId().toString();
         repairStateName += "_";
         repairStateName += repairName.replace(".schematic","");
         locMissingBlocksMap.put(repairStateName, locMissingBlocks);
         missingBlocksMap.put(repairStateName, missingBlocks);
         numDiffBlocksMap.put(repairStateName, numDiffBlocks);
         return clipboard;
+    }
+
+    @Contract(pure = true)
+    private @Nullable BlockFace blockFaceFromNBTRotation(int rotation) {
+        switch(rotation) {
+            case 0: return BlockFace.SOUTH;
+            case 1: return BlockFace.SOUTH_SOUTH_WEST;
+            case 2: return BlockFace.SOUTH_WEST;
+            case 3: return BlockFace.WEST_SOUTH_WEST;
+            case 4: return BlockFace.WEST;
+            case 5: return BlockFace.WEST_NORTH_WEST;
+            case 6: return BlockFace.NORTH_WEST;
+            case 7: return BlockFace.NORTH_NORTH_WEST;
+            case 8: return BlockFace.NORTH;
+            case 9: return BlockFace.NORTH_NORTH_EAST;
+            case 10: return BlockFace.NORTH_EAST;
+            case 11: return BlockFace.EAST_NORTH_EAST;
+            case 12: return BlockFace.EAST;
+            case 13: return BlockFace.EAST_SOUTH_EAST;
+            case 14: return BlockFace.SOUTH_EAST;
+            case 15: return BlockFace.SOUTH_SOUTH_EAST;
+            case -1:
+            default: return null;
+        }
+    }
+
+    private long angleBetweenBlockFaces(BlockFace base, BlockFace other) {
+        if(base == null || other == null)
+            return 0;
+
+        // Vector#angle() does not return the direction, merely the magnitude of the angle difference
+        //  Therefore, we have to calculate this manually
+        //  Also, Minecraft flips the Z axis, so *yay*
+        double baseAngle = Math.atan2(-1.0 * base.getDirection().getZ(), base.getDirection().getX());
+        double otherAngle = Math.atan2(-1.0 * other.getDirection().getZ(), other.getDirection().getX());
+        double angle = otherAngle - baseAngle;
+        angle /= 2 * Math.PI; // Convert from radians to turns
+        angle *= 4; // Convert to quarter-turns
+        angle *= -1; // Flip
+        long angleDegrees = Math.round(angle); // Round to nearest quarter-turn
+        angleDegrees *= 90; // Convert to degrees
+        return angleDegrees;
     }
 
     public HashMap<Pair<Material, Byte>, Double> getMissingBlocks(String repairName) {

@@ -2,7 +2,7 @@ package net.countercraft.movecraft.repair.utils;
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import net.countercraft.movecraft.MovecraftLocation;
-import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.craft.PlayerCraft;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -25,9 +25,9 @@ public abstract class WEUtils {
         dataFolder = movecraftRepair.getDataFolder();
     }
 
-    public abstract boolean saveCraftRepairState(Craft craft, Sign sign);
+    public abstract boolean saveCraftRepairState(PlayerCraft craft, Sign sign);
 
-    public abstract Clipboard loadCraftRepairStateClipboard(Craft craft, Sign sign);
+    public abstract Clipboard loadCraftRepairStateClipboard(PlayerCraft craft, Sign sign);
 
     public abstract HashMap<Pair<Material, Byte>, Double> getMissingBlocks(String repairName);
 
