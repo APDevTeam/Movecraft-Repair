@@ -150,7 +150,16 @@ public class WE7Utils extends WEUtils {
             }
         }
         BlockFace schematicSignFacing = blockFaceFromNBTRotation(rotation);
-        BlockFace repairSignFacing = ((org.bukkit.block.data.type.Sign) sign.getBlockData()).getRotation();
+        BlockData signData = sign.getBlockData();
+        BlockFace repairSignFacing = null;
+        if(signData instanceof org.bukkit.block.data.type.Sign) {
+            repairSignFacing = ((org.bukkit.block.data.type.Sign) signData).getRotation();
+        }
+        else if(signData instanceof org.bukkit.block.data.type.WallSign) {
+            // TODO: Something still wrong here
+            repairSignFacing = ((org.bukkit.block.data.type.WallSign) signData).getFacing().getOppositeFace();
+        }
+        // If unavailable, default to no rotation
         long angle = angleBetweenBlockFaces(repairSignFacing, schematicSignFacing);
 
         // Apply rotation
@@ -503,7 +512,7 @@ public class WE7Utils extends WEUtils {
         }
     }
 
-    private long angleBetweenBlockFaces(BlockFace base, BlockFace other) {
+    private long angleBetweenBlockFaces(@Nullable BlockFace base, @Nullable BlockFace other) {
         if(base == null || other == null)
             return 0;
 
