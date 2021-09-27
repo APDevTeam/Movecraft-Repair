@@ -16,6 +16,7 @@ import com.sk89q.worldedit.extent.buffer.ExtentBuffer;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.BlockMask;
 import com.sk89q.worldedit.function.mask.Mask;
@@ -66,6 +67,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class WE7Utils extends WEUtils {
+    private static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
 
     public WE7Utils(Plugin movecraftRepair) {
         super(movecraftRepair);
@@ -88,7 +90,7 @@ public class WE7Utils extends WEUtils {
             playerDirectory.mkdirs();
         }
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += ".schematic";
+        repairName += SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File repairStateFile = new File(playerDirectory, repairName);
         Set<BaseBlock> blockSet = baseBlocksFromCraft(craft);
         BitmapHitBox outsideLocs = (BitmapHitBox) solidBlockLocs(craft.getW(), cRegion).difference(craft.getHitBox());
@@ -103,7 +105,7 @@ public class WE7Utils extends WEUtils {
             for (MovecraftLocation outsideLoc : outsideLocs){
                 clipboard.setBlock(BlockVector3.at(outsideLoc.getX(), outsideLoc.getY(), outsideLoc.getZ()), BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
-            ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(repairStateFile, false));
+            ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairStateFile, false));
             writer.write(clipboard);
             writer.close();
             return true;
@@ -121,11 +123,11 @@ public class WE7Utils extends WEUtils {
             return null;
         }
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += ".schematic";
+        repairName += SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File file = new File(playerDirectory, repairName); // The schematic file
         Clipboard clipboard;
         try {
-            clipboard = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(file)).read();
+            clipboard = SCHEMATIC_FORMAT.getReader(new FileInputStream(file)).read();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -481,7 +483,7 @@ public class WE7Utils extends WEUtils {
         }
         String repairStateName = craft.getPlayer().getUniqueId().toString();
         repairStateName += "_";
-        repairStateName += repairName.replace(".schematic","");
+        repairStateName += repairName.replace(SCHEMATIC_FORMAT.getPrimaryFileExtension(), "");
         locMissingBlocksMap.put(repairStateName, locMissingBlocks);
         missingBlocksMap.put(repairStateName, missingBlocks);
         numDiffBlocksMap.put(repairStateName, numDiffBlocks);
@@ -603,7 +605,7 @@ public class WE7Utils extends WEUtils {
         }
 
         // Save chunk to disk
-        File file = new File(directory, c.getX() + "_" + c.getZ() + ".schematic");
+        File file = new File(directory, c.getX() + "_" + c.getZ() + SCHEMATIC_FORMAT.getPrimaryFileExtension());
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16*16*257);
@@ -614,7 +616,7 @@ public class WE7Utils extends WEUtils {
                 copy.setSourceMask(mask);
             }
             Operations.completeLegacy(copy);
-            ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file, false));
+            ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(file, false));
             writer.write(clipboard);
             writer.close();
             return true;
@@ -627,11 +629,11 @@ public class WE7Utils extends WEUtils {
 
     public boolean repairChunk(Chunk c, File directory, Predicate<MovecraftLocation> p) {
         // Load schematic from disk
-        File file = new File(directory, c.getX() + "_" + c.getZ() + ".schematic");
+        File file = new File(directory, c.getX() + "_" + c.getZ() + SCHEMATIC_FORMAT.getPrimaryFileExtension());
         Clipboard clipboard;
         World w = c.getWorld();
         try {
-            clipboard = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(new FileInputStream(file)).read();
+            clipboard = SCHEMATIC_FORMAT.getReader(new FileInputStream(file)).read();
         }
         catch (IOException e) {
             e.printStackTrace();

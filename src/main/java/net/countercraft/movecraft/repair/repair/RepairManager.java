@@ -1,7 +1,9 @@
 package net.countercraft.movecraft.repair.repair;
 
+import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
+import net.countercraft.movecraft.repair.utils.WE7Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -47,7 +49,7 @@ public class RepairManager extends BukkitRunnable {
 
         for (File rs : repairStates){
             String fileName = rs.getName();
-            if (!fileName.contains(".schematic")){
+            if (!fileName.contains(BuiltInClipboardFormat.MCEDIT_SCHEMATIC.getPrimaryFileExtension())){
                 continue;
             }
             List<String> similarPlayerNames = new ArrayList<>();
