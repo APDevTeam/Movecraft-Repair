@@ -3,6 +3,7 @@ package net.countercraft.movecraft.repair.utils;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.PlayerCraft;
+import net.countercraft.movecraft.util.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;

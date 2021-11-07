@@ -43,6 +43,7 @@ import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.mapUpdater.WE7UpdateCommand;
+import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import net.countercraft.movecraft.util.hitboxes.HitBox;
 import org.bukkit.*;

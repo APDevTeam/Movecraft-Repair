@@ -6,6 +6,7 @@ import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.PlayerCraft;
+import net.countercraft.movecraft.craft.type.CraftType;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
@@ -13,9 +14,9 @@ import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.repair.Repair;
 import net.countercraft.movecraft.repair.repair.RepairManager;
 import net.countercraft.movecraft.repair.utils.MovecraftRepairLocation;
-import net.countercraft.movecraft.repair.utils.Pair;
 import net.countercraft.movecraft.repair.utils.UpdateCommandsQueuePair;
 import net.countercraft.movecraft.repair.utils.WEUtils;
+import net.countercraft.movecraft.util.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -99,7 +100,7 @@ public class RepairSign implements Listener {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
         }
-        if (!event.getPlayer().hasPermission("movecraft." + pCraft.getType().getCraftName() + ".repair")){
+        if (!event.getPlayer().hasPermission("movecraft." + pCraft.getType().getStringProperty(CraftType.NAME) + ".repair")){
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
@@ -130,7 +131,7 @@ public class RepairSign implements Listener {
             return;
         }
 
-        if (!event.getPlayer().hasPermission("movecraft." + pCraft.getType().getCraftName() + ".repair")){
+        if (!event.getPlayer().hasPermission("movecraft." + pCraft.getType().getStringProperty(CraftType.NAME) + ".repair")){
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }

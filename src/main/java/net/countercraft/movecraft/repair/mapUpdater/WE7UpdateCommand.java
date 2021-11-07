@@ -8,7 +8,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
-import net.countercraft.movecraft.repair.utils.Pair;
+import net.countercraft.movecraft.util.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;

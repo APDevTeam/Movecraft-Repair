@@ -1,6 +1,7 @@
 package net.countercraft.movecraft.repair.utils;
 
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
+import net.countercraft.movecraft.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
