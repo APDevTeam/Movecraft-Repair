@@ -86,7 +86,7 @@ public class WE7Utils extends WEUtils {
         BlockVector3 minPos = BlockVector3.at(hitBox.getMinX(), hitBox.getMinY(), hitBox.getMinZ());
         BlockVector3 maxPos = BlockVector3.at(hitBox.getMaxX(), hitBox.getMaxY(), hitBox.getMaxZ());
         CuboidRegion cRegion = new CuboidRegion(minPos, maxPos);
-        File playerDirectory = new File(saveDirectory, craft.getPlayer().getUniqueId().toString());
+        File playerDirectory = new File(saveDirectory, craft.getPilot().getUniqueId().toString());
         if (!playerDirectory.exists()){
             playerDirectory.mkdirs();
         }
@@ -119,7 +119,7 @@ public class WE7Utils extends WEUtils {
 
     public Clipboard loadCraftRepairStateClipboard(@NotNull PlayerCraft craft, Sign sign) {
         File dataDirectory = new File(dataFolder, "RepairStates");
-        File playerDirectory = new File(dataDirectory, craft.getPlayer().getUniqueId().toString());
+        File playerDirectory = new File(dataDirectory, craft.getPilot().getUniqueId().toString());
         if (!playerDirectory.exists()){
             return null;
         }
@@ -482,7 +482,7 @@ public class WE7Utils extends WEUtils {
                 }
             }
         }
-        String repairStateName = craft.getPlayer().getUniqueId().toString();
+        String repairStateName = craft.getPilot().getUniqueId().toString();
         repairStateName += "_";
         repairStateName += repairName.replace(SCHEMATIC_FORMAT.getPrimaryFileExtension(), "");
         locMissingBlocksMap.put(repairStateName, locMissingBlocks);
