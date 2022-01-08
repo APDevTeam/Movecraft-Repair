@@ -6,7 +6,7 @@
 
     <groupId>net.countercraft.movecraft.repair</groupId>
     <artifactId>Movecraft-Repair</artifactId>
-    <version>1.0.0-alpha.3</version>
+    <version>1.0.0-a.3</version>
     <packaging>jar</packaging>
 
     <name>Movecraft-Repair</name>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations-java5</artifactId>
-            <version>RELEASE</version>
+            <version>22.0.0</version>
         </dependency>
         <!--VaultAPI-->
         <dependency>
@@ -133,13 +133,13 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-core</artifactId>
-            <version>7.1.0-SNAPSHOT</version>
+            <version>7.1.0</version>
         </dependency>
         <!--WorldEdit Bukkit-->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.1.0-SNAPSHOT</version>
+            <version>7.1.0</version>
         </dependency>
     </dependencies>
 </project>
