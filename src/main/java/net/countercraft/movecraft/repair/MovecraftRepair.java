@@ -1,16 +1,22 @@
 package net.countercraft.movecraft.repair;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Level;
 
+import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
+import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
+import net.countercraft.movecraft.util.Tags;
 import net.milkbowl.vault.economy.Economy;
 
 public final class MovecraftRepair extends JavaPlugin {
@@ -53,6 +59,30 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairBlobs = new HashSet<>();
+        Object entry = getConfig().get("RepairBlobs");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairBlobs must be a list.");
+        }
+        for (Object object : (ArrayList) entry) {
+            EnumSet<Material> result = EnumSet.noneOf(Material.class);
+            if (object instanceof ArrayList) {
+                // Handle an array of materials and/or tags
+                for (Object o : (ArrayList) object) {
+                    if(!(o instanceof String)) {
+                        throw new InvalidValueException("RepairBlobs array entries must be strings.");
+                    }
+                    result.addAll(Tags.parseMaterials((String) o));
+                }
+            }
+            else if (object instanceof String) {
+                // Handle a single material or tag
+                result.addAll(Tags.parseMaterials((String) object));
+            }
+            else {
+                throw new InvalidValueException("RepairBlobs entries must be a list or material name.");
+            }
+            Config.RepairBlobs.add(result);
+        }
 
         worldEditPlugin = (WorldEditPlugin) plugin;
     }
