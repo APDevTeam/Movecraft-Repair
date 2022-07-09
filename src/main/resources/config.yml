@@ -2,3 +2,26 @@ Locale: en
 RepairTicksPerBlock: 10
 RepairMoneyPerBlock: 10
 RepairMaxPercent: 50
+RepairBlobs:
+ - "#chests"
+ - "#concrete"
+ - "#concrete_powder"
+ - "#fence_gates"
+ - "#glazed_terracotta"
+ - "#redstone_torches"
+ - "#stained_glass_blocks"
+ - "#stained_glass_pane"
+ - "#terracotta"
+ - "#beds"
+ - "#carpets"
+ - "#fences"
+ - "#planks"
+ - "#signs"
+ - "#wooden_buttons"
+ - "#wooden_doors"
+ - "#wooden_fences"
+ - "#wooden_pressure_plates"
+ - "#wooden_slabs"
+ - "#wooden_stairs"
+ - "wooden_trapdoors"
+ - "#wool"
