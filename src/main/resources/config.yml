@@ -25,3 +25,13 @@ RepairBlobs:
  - "#wooden_stairs"
  - "wooden_trapdoors"
  - "#wool"
+RepairFirstPass: # First pass to construct a hull without heavy armor
+ - "#wool"
+ - "#concrete"
+ - "#terracotta"
+ - "#planks"
+ - "iron_block"
+RepairLastPass:
+ - "end_stone"
+ - "end_stone_bricks"
+# Observers are placed second to last (after RepairLastPass), with fragile blocks placed last.
