@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
@@ -49,7 +48,7 @@ public final class MovecraftRepair extends JavaPlugin {
 
         // Load up WorldEdit if it's present
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldEdit");
-        if (plugin == null || !(plugin instanceof WorldEditPlugin)) {
+        if (!(plugin instanceof WorldEditPlugin)) {
             getLogger().log(Level.SEVERE, I18nSupport.getInternationalisedString("Startup - WE Not Found"));
             return;
         }
@@ -63,11 +62,11 @@ public final class MovecraftRepair extends JavaPlugin {
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairBlobs must be a list.");
         }
-        for (Object object : (ArrayList) entry) {
+        for (Object object : (ArrayList<?>) entry) {
             EnumSet<Material> result = EnumSet.noneOf(Material.class);
             if (object instanceof ArrayList) {
                 // Handle an array of materials and/or tags
-                for (Object o : (ArrayList) object) {
+                for (Object o : (ArrayList<?>) object) {
                     if(!(o instanceof String)) {
                         throw new InvalidValueException("RepairBlobs array entries must be strings.");
                     }
