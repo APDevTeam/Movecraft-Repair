@@ -12,7 +12,6 @@ import com.sk89q.worldedit.math.transform.CombinedTransform;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
-import net.countercraft.movecraft.repair.MovecraftRepair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +19,13 @@ public class ClipboardUtils {
     /**
      * Apply a transformation to a clipboard
      *
-     * @param original original clipboard
+     * @param original  original clipboard
      * @param transform transformation to apply
      * @return returns transformed clipboard
      * @throws WorldEditException
      */
-    public static @NotNull Clipboard transform(@NotNull Clipboard original, @NotNull Transform transform) throws WorldEditException {
+    public static @NotNull Clipboard transform(@NotNull Clipboard original, @NotNull Transform transform)
+            throws WorldEditException {
         // Prepare target
         Region targetRegion = getTransformedRegion(original, transform);
         Clipboard target = new BlockArrayClipboard(targetRegion);
@@ -33,7 +33,8 @@ public class ClipboardUtils {
 
         // Prepare operation
         BlockTransformExtent extent = new BlockTransformExtent(original, transform);
-        ForwardExtentCopy copy = new ForwardExtentCopy(extent, original.getRegion(), original.getOrigin(), target, original.getOrigin());
+        ForwardExtentCopy copy = new ForwardExtentCopy(extent, original.getRegion(), original.getOrigin(), target,
+                original.getOrigin());
         copy.setTransform(transform);
 
         // Execute operation
@@ -51,14 +52,11 @@ public class ClipboardUtils {
         Region region = original.getRegion();
         Vector3 minimum = region.getMinimumPoint().toVector3();
         Vector3 maximum = region.getMaximumPoint().toVector3();
-        MovecraftRepair.getInstance().getLogger().info("\n\n\tOrigin: '" + region + "'\n");
 
-        Transform transformAround =
-                new CombinedTransform(
-                        new AffineTransform().translate(original.getOrigin().multiply(-1)),
-                        transform,
-                        new AffineTransform().translate(original.getOrigin())
-                );
+        Transform transformAround = new CombinedTransform(
+                new AffineTransform().translate(original.getOrigin().multiply(-1)),
+                transform,
+                new AffineTransform().translate(original.getOrigin()));
 
         Vector3[] corners = new Vector3[] {
                 minimum,
@@ -84,7 +82,6 @@ public class ClipboardUtils {
         }
 
         Region result = new CuboidRegion(newMinimum.floor().toBlockPoint(), newMaximum.ceil().toBlockPoint());
-        MovecraftRepair.getInstance().getLogger().info("\n\n\tResult: '" + result + "'\n");
         return result;
     }
 }
