@@ -1,7 +1,6 @@
-package net.countercraft.movecraft.repair.types;
+package net.countercraft.movecraft.repair.tasks;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;

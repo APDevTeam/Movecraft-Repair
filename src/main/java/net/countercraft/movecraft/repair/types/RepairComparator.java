@@ -5,6 +5,9 @@ import java.util.Comparator;
 import org.bukkit.Material;
 
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.tasks.BlockRepair;
+import net.countercraft.movecraft.repair.tasks.InventoryRepair;
+import net.countercraft.movecraft.repair.tasks.RepairTask;
 
 public class RepairComparator implements Comparator<RepairTask> {
     private enum Result {

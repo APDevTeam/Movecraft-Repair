@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair.types;
+package net.countercraft.movecraft.repair.tasks;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
