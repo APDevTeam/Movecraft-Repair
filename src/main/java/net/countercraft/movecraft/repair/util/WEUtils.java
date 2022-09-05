@@ -4,13 +4,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import com.sk89q.jnbt.CompoundTag;
+import com.sk89q.jnbt.ListTag;
+import com.sk89q.jnbt.Tag;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockType;
 
 public class WEUtils {
     private static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
@@ -38,5 +48,29 @@ public class WEUtils {
             throw new IOException("Failed to load schematic", e);
         }
         return clipboard;
+    }
+
+    @Nullable
+    public static Set<ItemStack> getBlockContents(BaseBlock block) {
+        Set<ItemStack> result = new HashSet<>();
+        ListTag blockItems = block.getNbtData().getListTag("Items");
+        if (blockItems == null)
+            return null;
+
+        for (Tag t : blockItems.getValue()) {
+            if (!(t instanceof CompoundTag))
+                continue;
+
+            CompoundTag ct = (CompoundTag) t;
+            String id = ct.getString("id");
+            BlockType type = new BlockType(id);
+            Material material = BukkitAdapter.adapt(type);
+
+            byte count = ct.getByte("count");
+
+            ItemStack stack = new ItemStack(material, count);
+            result.add(stack);
+        }
+        return result;
     }
 }
