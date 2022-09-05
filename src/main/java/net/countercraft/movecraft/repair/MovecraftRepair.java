@@ -3,7 +3,6 @@ package net.countercraft.movecraft.repair;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
@@ -54,8 +53,9 @@ public final class MovecraftRepair extends JavaPlugin {
         getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
 
         Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
-        Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
+        Config.RepairMaxTickTime = getConfig().getLong("RepairMaxTickTime", 5000000);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
+        Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Object entry = getConfig().get("RepairBlobs");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairBlobs must be a list.");

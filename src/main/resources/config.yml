@@ -1,5 +1,6 @@
 Locale: en
-RepairTicksPerBlock: 10
+RepairTicksPerBlock: 10 # Ticks per block placed
+RepairMaxTickTime: 5000000 # Maximum time spent per tick, in nanoseconds
 RepairMoneyPerBlock: 10
 RepairMaxPercent: 50
 RepairBlobs:
