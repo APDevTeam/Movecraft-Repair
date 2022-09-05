@@ -14,6 +14,7 @@ public class Config {
 
     public static int RepairTicksPerBlock = 0;
     public static long RepairMaxTickTime = 5000000;
+    public static int RepairMaxBlocksPerTick = 2;
     public static double RepairMoneyPerBlock = 0.0;
     public static double RepairMaxPercent = 50.0;
     public static Set<EnumSet<Material>> RepairBlobs = new HashSet<>();

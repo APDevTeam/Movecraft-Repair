@@ -54,6 +54,7 @@ public final class MovecraftRepair extends JavaPlugin {
 
         Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
         Config.RepairMaxTickTime = getConfig().getLong("RepairMaxTickTime", 5000000);
+        Config.RepairMaxBlocksPerTick = getConfig().getInt("RepairMaxBlocksPerTick", 2);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Object entry = getConfig().get("RepairBlobs");
