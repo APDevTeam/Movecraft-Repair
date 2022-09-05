@@ -20,7 +20,7 @@ public class Repair {
         return queue.isEmpty();
     }
 
-    public void run() {
+    public boolean run() {
         double elapsedTicks = (System.nanoTime() - lastExecution) * 20.0 / 1000000000;
         int placedBlocks = 0;
 
@@ -31,6 +31,11 @@ public class Repair {
             placedBlocks++;
         }
 
-        lastExecution = System.nanoTime();
+        if (placedBlocks > 0) {
+            lastExecution = System.nanoTime();
+            return true;
+        }
+
+        return false;
     }
 }
