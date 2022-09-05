@@ -23,7 +23,7 @@ RepairBlobs:
  - "#wooden_pressure_plates"
  - "#wooden_slabs"
  - "#wooden_stairs"
- - "wooden_trapdoors"
+ - "#wooden_trapdoors"
  - "#wool"
 RepairFirstPass: # First pass to construct a hull without heavy armor
  - "#wool"

@@ -21,7 +21,6 @@ import net.milkbowl.vault.economy.Economy;
 public final class MovecraftRepair extends JavaPlugin {
     private static MovecraftRepair instance;
 
-
     public static MovecraftRepair getInstance() {
         return instance;
     }
@@ -37,10 +36,10 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.Debug = getConfig().getBoolean("Debug", false);
 
         // TODO other languages
-        String[] languages = {"en"};
+        String[] languages = { "en" };
         for (String s : languages) {
-            if (!new File(getDataFolder()  + "/localisation/mc-repairlang_"+ s +".properties").exists()) {
-                this.saveResource("localisation/mc-repairlang_"+ s +".properties", false);
+            if (!new File(getDataFolder() + "/localisation/mc-repairlang_" + s + ".properties").exists()) {
+                this.saveResource("localisation/mc-repairlang_" + s + ".properties", false);
             }
         }
         Config.Locale = getConfig().getString("Locale", "en");
@@ -57,7 +56,6 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
         Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
         Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
-        Config.RepairBlobs = new HashSet<>();
         Object entry = getConfig().get("RepairBlobs");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairBlobs must be a list.");
@@ -67,20 +65,42 @@ public final class MovecraftRepair extends JavaPlugin {
             if (object instanceof ArrayList) {
                 // Handle an array of materials and/or tags
                 for (Object o : (ArrayList<?>) object) {
-                    if(!(o instanceof String)) {
+                    if (!(o instanceof String)) {
                         throw new InvalidValueException("RepairBlobs array entries must be strings.");
                     }
                     result.addAll(Tags.parseMaterials((String) o));
                 }
-            }
-            else if (object instanceof String) {
+            } else if (object instanceof String) {
                 // Handle a single material or tag
                 result.addAll(Tags.parseMaterials((String) object));
-            }
-            else {
+            } else {
                 throw new InvalidValueException("RepairBlobs entries must be a list or material name.");
             }
             Config.RepairBlobs.add(result);
+        }
+        entry = getConfig().get("RepairFirstPass");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairFirstPass must be a list.");
+        }
+        for (Object object : (ArrayList<?>) entry) {
+            if (object instanceof String) {
+                // Handle a single material or tag
+                Config.RepairFirstPass.addAll(Tags.parseMaterials((String) object));
+            } else {
+                throw new InvalidValueException("RepairFirstPass entries must be a material name.");
+            }
+        }
+        entry = getConfig().get("RepairLastPass");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairLastPass must be a list.");
+        }
+        for (Object object : (ArrayList<?>) entry) {
+            if (object instanceof String) {
+                // Handle a single material or tag
+                Config.RepairLastPass.addAll(Tags.parseMaterials((String) object));
+            } else {
+                throw new InvalidValueException("RepairLastPass entries must be a material name.");
+            }
         }
 
         worldEditPlugin = (WorldEditPlugin) plugin;
