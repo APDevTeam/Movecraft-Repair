@@ -10,6 +10,8 @@ import java.util.Queue;
 import org.apache.commons.lang.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
+import net.countercraft.movecraft.repair.tasks.RepairTask;
+
 public class RepairQueue implements Queue<RepairTask> {
     Queue<RepairTask> remaining = new PriorityQueue<>(new RepairComparator());
     Deque<RepairTask> blocked = new ArrayDeque<>();
