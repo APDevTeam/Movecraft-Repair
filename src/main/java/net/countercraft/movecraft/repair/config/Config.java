@@ -18,6 +18,9 @@ public class Config {
     public static double RepairMoneyPerBlock = 0.0;
     public static double RepairMaxPercent = 50.0;
     public static Set<EnumSet<Material>> RepairBlobs = new HashSet<>();
+    public static EnumSet<Material> RepairDispenserItems = EnumSet.noneOf(Material.class);
+    public static EnumSet<Material> RepairFurnaceItems = EnumSet.noneOf(Material.class);
+    public static EnumSet<Material> RepairDropperItems = EnumSet.noneOf(Material.class);
     public static EnumSet<Material> RepairFirstPass = EnumSet.noneOf(Material.class);
     public static EnumSet<Material> RepairLastPass = EnumSet.noneOf(Material.class);
 }

@@ -2,7 +2,6 @@ package net.countercraft.movecraft.repair;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +15,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -28,6 +26,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
 import net.countercraft.movecraft.repair.tasks.RepairTask;
+import net.countercraft.movecraft.repair.types.MaterialCounter;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
@@ -75,7 +74,7 @@ public class RepairState {
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
-        RequiredMaterials materials = new RequiredMaterials();
+        MaterialCounter materials = new MaterialCounter();
         Set<RepairTask> tasks = new HashSet<>();
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
@@ -97,8 +96,9 @@ public class RepairState {
                     }
 
                     // Handle inventory repair
-                    Set<ItemStack> schematicContents = WEUtils.getBlockContents(schematicBlock);
-                    Pair<Boolean, Set<ItemStack>> inventoryRepair = RepairUtils.checkInventoryRepair(worldState, schematicContents);
+                    MaterialCounter schematicContents = WEUtils.getBlockContents(schematicBlock);
+                    Pair<Boolean, MaterialCounter> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial,
+                            worldState, schematicContents);
                     if (!inventoryRepair.getLeft())
                         continue;
 
@@ -111,29 +111,5 @@ public class RepairState {
         }
 
         return null;
-    }
-
-    private class RequiredMaterials {
-        private EnumMap<Material, Integer> map = new EnumMap<Material, Integer>(Material.class);
-
-        public void add(Material material, int count) {
-            Integer current = map.get(material);
-            if (current == null) {
-                current = count;
-            }
-            else {
-                current += count;
-            }
-            map.put(material, current);
-        }
-
-        public Set<Material> getKeys() {
-            return map.keySet();
-        }
-
-        @Nullable
-        public Integer get(Material material) {
-            return map.get(material);
-        }
     }
 }

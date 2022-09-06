@@ -4,7 +4,7 @@ RepairMaxBlocksPerTick: 2 # Maximum number of blocks to place per tick if the se
 RepairMaxTickTime: 5000000 # Maximum time spent per tick, in nanoseconds
 RepairMoneyPerBlock: 10
 RepairMaxPercent: 50
-RepairBlobs:
+RepairBlobs: # "Blobs" of materials which can be used interchangably to repair
  - "#chests"
  - "#concrete"
  - "#concrete_powder"
@@ -26,6 +26,16 @@ RepairBlobs:
  - "#wooden_slabs"
  - "#wooden_stairs"
  - "#wooden_trapdoors"
+ - "#wool"
+RepairDispenserItems: # Items which can be repaired into dispensers
+ - "tnt"
+ - "fire_charge"
+ - "water_bucket"
+RepairFuranceItems: # Items which can be repaired into furnaces
+ - "coal_block"
+ - "charcoal"
+ - "coal"
+RepairDropperItems: # Items which can be repaired into droppers
  - "#wool"
 RepairFirstPass: # First pass to construct a hull without heavy armor
  - "#wool"

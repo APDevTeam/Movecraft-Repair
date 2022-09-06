@@ -22,6 +22,8 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockType;
 
+import net.countercraft.movecraft.repair.types.MaterialCounter;
+
 public class WEUtils {
     private static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
 
@@ -51,8 +53,8 @@ public class WEUtils {
     }
 
     @Nullable
-    public static Set<ItemStack> getBlockContents(BaseBlock block) {
-        Set<ItemStack> result = new HashSet<>();
+    public static MaterialCounter getBlockContents(BaseBlock block) {
+        MaterialCounter counter = new MaterialCounter();
         ListTag blockItems = block.getNbtData().getListTag("Items");
         if (blockItems == null)
             return null;
@@ -68,9 +70,8 @@ public class WEUtils {
 
             byte count = ct.getByte("count");
 
-            ItemStack stack = new ItemStack(material, count);
-            result.add(stack);
+            counter.add(material, count);
         }
-        return result;
+        return counter;
     }
 }

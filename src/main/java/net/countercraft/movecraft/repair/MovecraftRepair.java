@@ -79,6 +79,42 @@ public final class MovecraftRepair extends JavaPlugin {
             }
             Config.RepairBlobs.add(result);
         }
+        entry = getConfig().get("RepairDispenserItems");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairDispenserItems must be a list.");
+        }
+        for (Object object : (ArrayList<?>) entry) {
+            if (object instanceof String) {
+                // Handle a single material or tag
+                Config.RepairDispenserItems.addAll(Tags.parseMaterials((String) object));
+            } else {
+                throw new InvalidValueException("RepairDispenserItems entries must be a material name.");
+            }
+        }
+        entry = getConfig().get("RepairFurnaceItems");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairFurnaceItems must be a list.");
+        }
+        for (Object object : (ArrayList<?>) entry) {
+            if (object instanceof String) {
+                // Handle a single material or tag
+                Config.RepairFurnaceItems.addAll(Tags.parseMaterials((String) object));
+            } else {
+                throw new InvalidValueException("RepairFurnaceItems entries must be a material name.");
+            }
+        }
+        entry = getConfig().get("RepairDropperItems");
+        if (!(entry instanceof ArrayList)) {
+            throw new InvalidValueException("RepairDropperItems must be a list.");
+        }
+        for (Object object : (ArrayList<?>) entry) {
+            if (object instanceof String) {
+                // Handle a single material or tag
+                Config.RepairDropperItems.addAll(Tags.parseMaterials((String) object));
+            } else {
+                throw new InvalidValueException("RepairDropperItems entries must be a material name.");
+            }
+        }
         entry = getConfig().get("RepairFirstPass");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairFirstPass must be a list.");
