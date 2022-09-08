@@ -70,7 +70,7 @@ public class WEUtils {
 
             byte count = ct.getByte("count");
 
-            counter.add(material, count);
+            counter.add(material, (int) count);
         }
         return counter;
     }

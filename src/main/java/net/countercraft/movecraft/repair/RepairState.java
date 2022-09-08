@@ -3,6 +3,8 @@ package net.countercraft.movecraft.repair;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,8 +27,8 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
-import net.countercraft.movecraft.repair.tasks.RepairTask;
 import net.countercraft.movecraft.repair.types.MaterialCounter;
+import net.countercraft.movecraft.repair.types.RepairQueue;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
@@ -75,7 +77,7 @@ public class RepairState {
         // Gather the required materials and tasks
         World world = sign.getWorld();
         MaterialCounter materials = new MaterialCounter();
-        Set<RepairTask> tasks = new HashSet<>();
+        RepairQueue queue = new RepairQueue();
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
@@ -92,7 +94,7 @@ public class RepairState {
                     // Handle block repair
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
                         materials.add(schematicMaterial, 1);
-                        tasks.add(new BlockRepair(worldPosition, schematicData));
+                        queue.add(new BlockRepair(worldPosition, schematicData));
                     }
 
                     // Handle inventory repair
@@ -102,14 +104,19 @@ public class RepairState {
                     if (!inventoryRepair.getLeft())
                         continue;
 
-                    for (ItemStack i : inventoryRepair.getRight()) {
-                        materials.add(i.getType(), i.getAmount());
-                        tasks.add(new InventoryRepair(worldPosition, i));
-                    }
+                    materials.add(inventoryRepair.getRight());
+                    addInventoryTasks(queue, worldPosition, inventoryRepair.getRight());
                 }
             }
         }
 
         return null;
+    }
+
+    private void addInventoryTasks(RepairQueue tasks, Location location, MaterialCounter counter) {
+        for (Material m : counter.getMaterials()) {
+            ItemStack items = new ItemStack(m, counter.get(m));
+            tasks.add(new InventoryRepair(location, items));
+        }
     }
 }
