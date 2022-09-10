@@ -14,6 +14,7 @@ public class Repair {
     public Repair(UUID uuid, RepairQueue queue) {
         this.uuid = uuid;
         this.queue = queue;
+        lastExecution = System.nanoTime();
     }
 
     public boolean isDone() {

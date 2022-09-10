@@ -55,7 +55,7 @@ public class RepairState {
         size = schematic.getDimensions();
     }
 
-    private void rotate(Sign sign) throws WorldEditException {
+    private Clipboard rotate(Sign sign) throws WorldEditException {
         BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
 
         BlockVector3 offset = signPosition.subtract(worldOffset);
@@ -67,12 +67,12 @@ public class RepairState {
 
         int angle = RotationUtils.angleBetweenBlockFaces(worldSignFacing, schematicSignFacing);
 
-        schematic = ClipboardUtils.transform(schematic, new AffineTransform().rotateY(angle));
+        return ClipboardUtils.transform(schematic, new AffineTransform().rotateY(angle));
     }
 
-    public Repair execute(Sign sign) throws WorldEditException {
+    public ProtoRepair execute(Sign sign) throws WorldEditException {
         // Rotate repair around the sign
-        rotate(sign);
+        Clipboard clipboard = rotate(sign);
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
@@ -82,7 +82,7 @@ public class RepairState {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
                     BlockVector3 schematicPosition = minPos.add(x, y, z);
-                    BaseBlock schematicBlock = schematic.getFullBlock(schematicPosition);
+                    BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
@@ -110,7 +110,7 @@ public class RepairState {
             }
         }
 
-        return null;
+        return new ProtoRepair(uuid, queue, materials);
     }
 
     private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {
