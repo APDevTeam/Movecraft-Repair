@@ -27,12 +27,12 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
-import net.countercraft.movecraft.repair.types.MaterialCounter;
 import net.countercraft.movecraft.repair.types.RepairQueue;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
 import net.countercraft.movecraft.repair.util.WEUtils;
+import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.Pair;
 
 public class RepairState {
@@ -76,7 +76,7 @@ public class RepairState {
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
-        MaterialCounter materials = new MaterialCounter();
+        Counter<Material> materials = new Counter<>();
         RepairQueue queue = new RepairQueue();
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
@@ -93,13 +93,13 @@ public class RepairState {
 
                     // Handle block repair
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
-                        materials.add(schematicMaterial, 1);
+                        materials.add(schematicMaterial);
                         queue.add(new BlockRepair(worldPosition, schematicData));
                     }
 
                     // Handle inventory repair
-                    MaterialCounter schematicContents = WEUtils.getBlockContents(schematicBlock);
-                    Pair<Boolean, MaterialCounter> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial,
+                    Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
+                    Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial,
                             worldState, schematicContents);
                     if (!inventoryRepair.getLeft())
                         continue;
@@ -113,8 +113,8 @@ public class RepairState {
         return null;
     }
 
-    private void addInventoryTasks(RepairQueue tasks, Location location, MaterialCounter counter) {
-        for (Material m : counter.getMaterials()) {
+    private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {
+        for (Material m : counter.getKeySet()) {
             ItemStack items = new ItemStack(m, counter.get(m));
             tasks.add(new InventoryRepair(location, items));
         }

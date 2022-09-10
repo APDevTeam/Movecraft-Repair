@@ -22,7 +22,7 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockType;
 
-import net.countercraft.movecraft.repair.types.MaterialCounter;
+import net.countercraft.movecraft.util.Counter;
 
 public class WEUtils {
     private static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
@@ -52,9 +52,15 @@ public class WEUtils {
         return clipboard;
     }
 
+    /**
+     * Get the contents of a WorldEdit block
+     * 
+     * @param block block to check
+     * @return Counter of the materials in the block
+     */
     @Nullable
-    public static MaterialCounter getBlockContents(BaseBlock block) {
-        MaterialCounter counter = new MaterialCounter();
+    public static Counter<Material> getBlockContents(BaseBlock block) {
+        Counter<Material> counter = new Counter<>();
         ListTag blockItems = block.getNbtData().getListTag("Items");
         if (blockItems == null)
             return null;
