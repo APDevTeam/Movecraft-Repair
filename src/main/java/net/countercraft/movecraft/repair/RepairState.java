@@ -110,6 +110,8 @@ public class RepairState {
             }
         }
 
+        // Do stuff with repair blobs
+
         return new ProtoRepair(uuid, queue, materials);
     }
 
