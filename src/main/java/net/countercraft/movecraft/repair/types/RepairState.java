@@ -21,6 +21,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.world.block.BaseBlock;
 
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;

@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.bukkit.scheduler.BukkitRunnable;
-
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.types.Repair;
 
 public class RepairManager extends BukkitRunnable {
     private final Queue<Repair> repairs = new ConcurrentLinkedQueue<>();

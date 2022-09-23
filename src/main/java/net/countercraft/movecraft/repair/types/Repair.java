@@ -1,10 +1,9 @@
-package net.countercraft.movecraft.repair;
+package net.countercraft.movecraft.repair.types;
 
 import java.util.UUID;
 
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.tasks.RepairTask;
-import net.countercraft.movecraft.repair.types.RepairQueue;
 
 public class Repair {
     private UUID uuid;

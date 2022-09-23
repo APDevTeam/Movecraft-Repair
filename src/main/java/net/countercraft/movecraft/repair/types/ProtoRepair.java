@@ -1,9 +1,7 @@
 package net.countercraft.movecraft.repair.types;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Material;
@@ -33,6 +31,10 @@ public class ProtoRepair {
         this.queue = queue;
         this.materials = materials;
         this.calculationTime = System.nanoTime();
+    }
+
+    public UUID playerUUID() {
+        return uuid;
     }
 
     public boolean isExpired() {
