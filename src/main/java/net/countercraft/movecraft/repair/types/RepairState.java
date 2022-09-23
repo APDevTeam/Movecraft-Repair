@@ -29,6 +29,7 @@ import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
 import net.countercraft.movecraft.repair.util.WEUtils;
 import net.countercraft.movecraft.util.Counter;
+import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
 
 public class RepairState {
@@ -116,9 +117,9 @@ public class RepairState {
             }
         }
 
-        // Do stuff with repair blobs
+        // TODO: Do stuff with repair blobs
 
-        return new ProtoRepair(uuid, queue, materials);
+        return new ProtoRepair(uuid, queue, materials, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
     }
 
     private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {

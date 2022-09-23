@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.util.Counter;
+import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.Tags;
 
@@ -24,12 +26,14 @@ public class ProtoRepair {
     private UUID uuid;
     private RepairQueue queue;
     private Counter<Material> materials;
+    private MovecraftLocation origin;
     private long calculationTime;
 
-    public ProtoRepair(UUID uuid, RepairQueue queue, Counter<Material> materials) {
+    public ProtoRepair(UUID uuid, RepairQueue queue, Counter<Material> materials, MovecraftLocation origin) {
         this.uuid = uuid;
         this.queue = queue;
         this.materials = materials;
+        this.origin = origin;
         this.calculationTime = System.nanoTime();
     }
 
@@ -41,11 +45,18 @@ public class ProtoRepair {
         return System.nanoTime() - calculationTime > 1000000000L;
     }
 
+    public MovecraftLocation getOrigin() {
+        return origin;
+    }
+
     @Nullable
-    public Repair execute(@NotNull Craft craft)
-            throws ProtoRepairExpiredException, ItemRemovalException, NotEnoughItemsException {
-        if (isExpired()) // Check for expired
-            throw new ProtoRepairExpiredException();
+    public Repair execute(@NotNull Craft craft, Sign sign)
+            throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
+            NotEnoughItemsException {
+        if (isExpired())
+            throw new ProtoRepairExpiredException(); // Check for expired
+        if (MathUtils.bukkit2MovecraftLoc(sign.getLocation()) != origin)
+            throw new ProtoRepairLocationException(); // Check for origin
 
         // Check materials
         Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
@@ -160,5 +171,8 @@ public class ProtoRepair {
     }
 
     class ProtoRepairExpiredException extends IllegalStateException {
+    }
+
+    class ProtoRepairLocationException extends IllegalStateException {
     }
 }
