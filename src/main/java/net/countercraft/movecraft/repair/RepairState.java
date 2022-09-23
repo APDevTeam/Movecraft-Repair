@@ -2,10 +2,6 @@ package net.countercraft.movecraft.repair;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Location;

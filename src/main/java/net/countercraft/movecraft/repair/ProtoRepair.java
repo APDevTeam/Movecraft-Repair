@@ -41,7 +41,8 @@ public class ProtoRepair {
     }
 
     @Nullable
-    public Repair execute(@NotNull Craft craft) throws ProtoRepairExpiredException, ItemRemovalException, NotEnoughItemsException {
+    public Repair execute(@NotNull Craft craft)
+            throws ProtoRepairExpiredException, ItemRemovalException, NotEnoughItemsException {
         if (isExpired()) // Check for expired
             throw new ProtoRepairExpiredException();
 
