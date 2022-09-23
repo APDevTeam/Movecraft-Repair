@@ -1,7 +1,9 @@
 package net.countercraft.movecraft.repair;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Material;
@@ -9,7 +11,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -40,13 +41,40 @@ public class ProtoRepair {
     }
 
     @Nullable
-    public Repair execute(@NotNull Craft craft) {
-        
+    public Repair execute(@NotNull Craft craft) throws ProtoRepairExpiredException, ItemRemovalException, NotEnoughItemsException {
+        if (isExpired()) // Check for expired
+            throw new ProtoRepairExpiredException();
 
+        // Check materials
+        Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
+
+        // Make sure we have enough
+        Counter<Material> remaining = pair.getLeft();
+        if (remaining.size() > 0) {
+            throw new NotEnoughItemsException(remaining);
+        }
+
+        // Remove materials
+        Map<MovecraftLocation, Counter<Material>> itemsToRemove = pair.getRight();
+        World world = craft.getWorld();
+        for (Map.Entry<MovecraftLocation, Counter<Material>> entry : itemsToRemove.entrySet()) {
+            MovecraftLocation location = entry.getKey();
+            Block block = world.getBlockAt(location.getX(), location.getY(), location.getZ());
+            if (!Tags.CHESTS.contains(block.getType()))
+                throw new ItemRemovalException();
+
+            BlockState state = block.getState();
+            if (!(state instanceof Container))
+                throw new ItemRemovalException();
+
+            removeInventory((Inventory) state, entry.getValue());
+        }
+
+        // Start repair
         return new Repair(uuid, queue);
     }
 
-    private Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
+    public Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
         Counter<Material> remaining = new Counter<>(materials);
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = new HashMap<>();
 
@@ -61,14 +89,74 @@ public class ProtoRepair {
                 continue;
 
             Counter<Material> contents = sumInventory(((Container) state).getInventory());
+            Counter<Material> toRemove = new Counter<>();
+            for (Material m : contents.getKeySet()) {
+                if (!remaining.getKeySet().contains(m))
+                    continue;
+
+                int remainingCount = remaining.get(m);
+                int currentCount = contents.get(m);
+                if (remainingCount >= currentCount) {
+                    // Enough items found, clear the material from remaining
+                    remaining.clear(m);
+                } else {
+                    // Not enough items found, subtract what we have
+                    remaining.set(m, remainingCount - currentCount);
+                }
+                toRemove.add(m, remainingCount - currentCount);
+            }
+            itemsToRemove.put(location, toRemove);
         }
+        return new Pair<>(remaining, itemsToRemove);
     }
 
     private Counter<Material> sumInventory(Inventory inventory) {
         Counter<Material> result = new Counter<>();
-        for (ItemStack items : inventory.getContents()) {
-            result.add(items.getType(), items.getAmount());
+        for (ItemStack item : inventory.getContents()) {
+            result.add(item.getType(), item.getAmount());
         }
         return result;
+    }
+
+    private void removeInventory(Inventory inventory, Counter<Material> remaining) throws ItemRemovalException {
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            Material m = stack.getType();
+            if (!remaining.getKeySet().contains(m))
+                continue;
+
+            int remainingCount = remaining.get(m);
+            int currentCount = stack.getAmount();
+            if (remainingCount >= currentCount) {
+                // Enough items found, clear the material from remaining
+                remaining.clear(m);
+                inventory.setItem(i, null);
+            } else {
+                // Not enough items found, subtract what we have
+                remaining.set(m, remainingCount - currentCount);
+                stack.setAmount(remainingCount - currentCount);
+                inventory.setItem(i, stack);
+            }
+        }
+        if (remaining.size() > 0)
+            throw new ItemRemovalException();
+    }
+
+    class NotEnoughItemsException extends IllegalStateException {
+        private final transient Counter<Material> remaining;
+
+        public NotEnoughItemsException(Counter<Material> remaining) {
+            this.remaining = remaining;
+        }
+
+        public Counter<Material> getRemaining() {
+            return remaining;
+        }
+    }
+
+    class ItemRemovalException extends IllegalStateException {
+    }
+
+    class ProtoRepairExpiredException extends IllegalStateException {
     }
 }
