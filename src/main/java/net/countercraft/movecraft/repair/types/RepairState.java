@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair;
+package net.countercraft.movecraft.repair.types;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,6 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
-import net.countercraft.movecraft.repair.types.RepairQueue;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;

@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair;
+package net.countercraft.movecraft.repair.types;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
-import net.countercraft.movecraft.repair.types.RepairQueue;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.Tags;
