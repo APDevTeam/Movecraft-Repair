@@ -33,6 +33,7 @@ import net.countercraft.movecraft.util.Pair;
 
 public class RepairState {
     private UUID uuid;
+    private String name;
     private Clipboard schematic;
     private BlockVector3 minPos;
     private BlockVector3 worldOffset;
@@ -40,6 +41,7 @@ public class RepairState {
 
     public RepairState(UUID uuid, String name) throws IOException, IllegalStateException {
         this.uuid = uuid;
+        this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
         File playerDirectory = new File(dataDirectory, uuid.toString());
         if (!playerDirectory.exists())
@@ -49,6 +51,14 @@ public class RepairState {
         minPos = schematic.getMinimumPoint();
         worldOffset = schematic.getOrigin().subtract(minPos);
         size = schematic.getDimensions();
+    }
+
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
     }
 
     private Clipboard rotate(Sign sign) throws WorldEditException {

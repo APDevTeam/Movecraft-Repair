@@ -73,7 +73,7 @@ public final class MovecraftRepair extends JavaPlugin {
         RepairManager repairManager = new RepairManager();
         repairManager.runTaskTimer(this, 0, 1);
 
-        // Startup proto repair manager (every 10 seconds)
+        // Startup proto repair (every 10 seconds)
         ProtoRepairCache protoRepairs = new ProtoRepairCache();
         protoRepairs.runTaskTimerAsynchronously(this, 10, 200);
     }
