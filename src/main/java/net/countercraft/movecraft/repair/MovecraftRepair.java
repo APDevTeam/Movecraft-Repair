@@ -6,7 +6,9 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -32,32 +34,61 @@ public final class MovecraftRepair extends JavaPlugin {
         instance = this;
 
         saveDefaultConfig();
-        Config.Debug = getConfig().getBoolean("Debug", false);
 
-        // TODO other languages
         String[] languages = { "en" };
         for (String s : languages) {
             if (!new File(getDataFolder() + "/localisation/mc-repairlang_" + s + ".properties").exists()) {
-                this.saveResource("localisation/mc-repairlang_" + s + ".properties", false);
+                saveResource("localisation/mc-repairlang_" + s + ".properties", false);
             }
         }
-        Config.Locale = getConfig().getString("Locale", "en");
-        I18nSupport.init();
 
-        // Load up WorldEdit if it's present
-        Plugin plugin = getServer().getPluginManager().getPlugin("WorldEdit");
-        if (!(plugin instanceof WorldEditPlugin)) {
-            getLogger().log(Level.SEVERE, I18nSupport.getInternationalisedString("Startup - WE Not Found"));
+        // Load up Vauld and WorldEdit if they are present
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) {
+                economy = rsp.getProvider();
+                getLogger().info("Found a compatible Vault plugin. Enabling Vault integration.");
+            } else {
+                getLogger().severe("Movecraft did not find a compatible Vault plugin. Disabling Vault integration.");
+                economy = null;
+                return;
+            }
+        } else {
+            getLogger().severe("Movecraft did not find a compatible Vault plugin. Disabling Vault integration.");
+            economy = null;
             return;
         }
-        getLogger().log(Level.INFO, I18nSupport.getInternationalisedString("Startup - WE Found"));
+        Plugin plugin = getServer().getPluginManager().getPlugin("WorldEdit");
+        if (!(plugin instanceof WorldEditPlugin)) {
+            getLogger().severe(
+                    "Movecraft did not find a compatible version of WorldEdit. Disabling WorldEdit integration.");
+            return;
+        }
+        getLogger().info("Found a compatible version of WorldEdit. Enabling WorldEdit integration.");
+        worldEditPlugin = (WorldEditPlugin) plugin;
 
-        Config.RepairTicksPerBlock = getConfig().getInt("RepairTicksPerBlock", 0);
-        Config.RepairMaxTickTime = getConfig().getLong("RepairMaxTickTime", 5000000);
-        Config.RepairMaxBlocksPerTick = getConfig().getInt("RepairMaxBlocksPerTick", 2);
-        Config.RepairMoneyPerBlock = getConfig().getDouble("RepairMoneyPerBlock", 0.0);
-        Config.RepairMaxPercent = getConfig().getDouble("RepairMaxPercent", 50);
-        Object entry = getConfig().get("RepairBlobs");
+        loadConfig(getConfig());
+
+        // Startup repair manager (every tick)
+        RepairManager repairManager = new RepairManager();
+        repairManager.runTaskTimer(this, 0, 1);
+
+        // Startup proto repair manager (every 10 seconds)
+        ProtoRepairCache protoRepairs = new ProtoRepairCache();
+        protoRepairs.runTaskTimerAsynchronously(this, 10, 200);
+    }
+
+    private static void loadConfig(FileConfiguration config) {
+        // TODO: Simplify loading
+        Config.Debug = config.getBoolean("Debug", false);
+        Config.Locale = config.getString("Locale", "en");
+        I18nSupport.init();
+        Config.RepairTicksPerBlock = config.getInt("RepairTicksPerBlock", 0);
+        Config.RepairMaxTickTime = config.getLong("RepairMaxTickTime", 5000000);
+        Config.RepairMaxBlocksPerTick = config.getInt("RepairMaxBlocksPerTick", 2);
+        Config.RepairMoneyPerBlock = config.getDouble("RepairMoneyPerBlock", 0.0);
+        Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);
+        Object entry = config.get("RepairBlobs");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairBlobs must be a list.");
         }
@@ -79,7 +110,7 @@ public final class MovecraftRepair extends JavaPlugin {
             }
             Config.RepairBlobs.add(result);
         }
-        entry = getConfig().get("RepairDispenserItems");
+        entry = config.get("RepairDispenserItems");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairDispenserItems must be a list.");
         }
@@ -91,7 +122,7 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairDispenserItems entries must be a material name.");
             }
         }
-        entry = getConfig().get("RepairFurnaceItems");
+        entry = config.get("RepairFurnaceItems");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairFurnaceItems must be a list.");
         }
@@ -103,7 +134,7 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairFurnaceItems entries must be a material name.");
             }
         }
-        entry = getConfig().get("RepairDropperItems");
+        entry = config.get("RepairDropperItems");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairDropperItems must be a list.");
         }
@@ -115,7 +146,7 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairDropperItems entries must be a material name.");
             }
         }
-        entry = getConfig().get("RepairFirstPass");
+        entry = config.get("RepairFirstPass");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairFirstPass must be a list.");
         }
@@ -127,7 +158,7 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairFirstPass entries must be a material name.");
             }
         }
-        entry = getConfig().get("RepairLastPass");
+        entry = config.get("RepairLastPass");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairLastPass must be a list.");
         }
@@ -139,13 +170,6 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairLastPass entries must be a material name.");
             }
         }
-
-        worldEditPlugin = (WorldEditPlugin) plugin;
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
     }
 
     public WorldEditPlugin getWorldEditPlugin() {
