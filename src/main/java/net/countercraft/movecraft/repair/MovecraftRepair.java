@@ -42,7 +42,7 @@ public final class MovecraftRepair extends JavaPlugin {
             }
         }
 
-        // Load up Vauld and WorldEdit if they are present
+        // Load up Vault and WorldEdit if they are present
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) {
@@ -88,6 +88,7 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxBlocksPerTick = config.getInt("RepairMaxBlocksPerTick", 2);
         Config.RepairMoneyPerBlock = config.getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);
+        Config.RepairTool = Material.valueOf(config.getString("RepairTool", "firework_rocket").toUpperCase());
         Object entry = config.get("RepairBlobs");
         if (!(entry instanceof ArrayList)) {
             throw new InvalidValueException("RepairBlobs must be a list.");

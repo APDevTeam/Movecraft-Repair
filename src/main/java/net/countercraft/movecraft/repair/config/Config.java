@@ -17,6 +17,7 @@ public class Config {
     public static int RepairMaxBlocksPerTick = 2;
     public static double RepairMoneyPerBlock = 0.0;
     public static double RepairMaxPercent = 50.0;
+    public static Material RepairTool = Material.FIREWORK_ROCKET;
     public static Set<EnumSet<Material>> RepairBlobs = new HashSet<>();
     public static EnumSet<Material> RepairDispenserItems = EnumSet.noneOf(Material.class);
     public static EnumSet<Material> RepairFurnaceItems = EnumSet.noneOf(Material.class);
