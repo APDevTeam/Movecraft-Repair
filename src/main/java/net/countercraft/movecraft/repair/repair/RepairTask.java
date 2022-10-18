@@ -53,7 +53,7 @@ public class RepairTask extends BukkitRunnable {
             if (p != null && repair.getRunning().get()) {
 
                 p.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs complete"));
-                CraftManager.getInstance().removeCraft(repair.getCraft(), CraftReleaseEvent.Reason.REPAIR);
+                CraftManager.getInstance().release(repair.getCraft(), CraftReleaseEvent.Reason.REPAIR, false);
             }
             Movecraft.getInstance().getLogger().info(I18nSupport.getInternationalisedString("Repair - Repair Complete Console"));
             repair.getProgressBar().setVisible(false);

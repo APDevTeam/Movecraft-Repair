@@ -7,6 +7,7 @@ import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.PlayerCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
+import net.countercraft.movecraft.events.CraftReleaseEvent;
 import net.countercraft.movecraft.mapUpdater.update.UpdateCommand;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
@@ -234,7 +235,7 @@ public class RepairSign implements Listener {
                 final LinkedList<UpdateCommand> updateCommandsFragileBlocks = updateCommandsPair.getUpdateCommandsFragileBlocks();
                 if (!updateCommands.isEmpty() || !updateCommandsFragileBlocks.isEmpty()) {
                     final Craft releaseCraft = pCraft;
-                    CraftManager.getInstance().removePlayerFromCraft(pCraft);
+                    CraftManager.getInstance().release(releaseCraft, CraftReleaseEvent.Reason.REPAIR, false); // Note: This change is temporary and means that repairs allow the player to repilot and could have damaging effects on combat releases
                     RepairManager repairManager = MovecraftRepair.getInstance().getRepairManager();
                     repairManager.getRepairs().add(new Repair(sign.getLine(1), releaseCraft, updateCommands, updateCommandsFragileBlocks,  p.getUniqueId(), numDifferentBlocks, sign.getLocation()));
                 }
