@@ -44,6 +44,12 @@ public class RepairSign implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
 
+        Player player = event.getPlayer();
+        if (Config.RepairTicksPerBlock == 0) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
+            return;
+        }
+
         BlockState state = event.getClickedBlock().getState();
         if (!(state instanceof Sign))
             return;
@@ -53,31 +59,31 @@ public class RepairSign implements Listener {
         if (signText == null || !signText.equalsIgnoreCase(HEADER))
             return;
 
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            onRightClick(event);
-        } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            onLeftClick(sign, event.getPlayer(), event.getHand());
-        }
-    }
-
-    public void onRightClick(PlayerInteractEvent event) {
-        // TODO
-    }
-
-    public void onLeftClick(Sign sign, Player player, EquipmentSlot hand) {
-        if (getItemInHand(player, hand) != Config.RepairTool)
-            return;
-
         PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(player);
         if (craft == null) {
             player.sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
         }
-
+    
         if (!player.hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")) {
             player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
+    
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            onRightClick(sign, player);
+        } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            onLeftClick(sign, player, craft, event.getHand());
+        }
+    }
+
+    public void onRightClick(Sign sign, Player player) {
+        // TODO
+    }
+
+    public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {
+        if (getItemInHand(player, hand) != Config.RepairTool)
+            return;
 
         Long lastLeftClick = leftClickCache.get(player.getUniqueId());
         if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
