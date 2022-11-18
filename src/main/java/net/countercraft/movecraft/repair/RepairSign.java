@@ -15,7 +15,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.PlayerCraft;
@@ -29,12 +28,12 @@ public class RepairSign implements Listener {
     private final Map<UUID, Long> leftClickCache = new WeakHashMap<>();
 
     @EventHandler
-    public void onSignChange(SignChangeEvent event){
-        if (!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(HEADER)){
+    public void onSignChange(SignChangeEvent event) {
+        if (!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(HEADER))
             return;
-        }
-        //Clear the repair sign if second line is empty
-        if (event.getLine(1).isEmpty()){
+
+        // Clear the repair sign if second line is empty
+        if (event.getLine(1).isEmpty()) {
             event.getPlayer().sendMessage("You must specify a repair state name on second line");
             event.setCancelled(true);
         }
@@ -56,10 +55,8 @@ public class RepairSign implements Listener {
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             onRightClick(event);
-        }
-
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            onLeftClick(event);
+        } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            onLeftClick(sign, event.getPlayer(), event.getHand());
         }
     }
 
@@ -67,20 +64,18 @@ public class RepairSign implements Listener {
         // TODO
     }
 
-    public void onLeftClick(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        if (getItemInHand(player, event.getHand()) != Config.RepairTool)
+    public void onLeftClick(Sign sign, Player player, EquipmentSlot hand) {
+        if (getItemInHand(player, hand) != Config.RepairTool)
             return;
 
-        PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(event.getPlayer());
+        PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(player);
         if (craft == null) {
-            event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
+            player.sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
         }
 
-        if (!event.getPlayer().hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")){
-            event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
+        if (!player.hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
 
@@ -88,15 +83,19 @@ public class RepairSign implements Listener {
         if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
             // First click, just add to the map
             leftClickCache.put(player.getUniqueId(), System.currentTimeMillis());
+            return;
         }
-        else {
-            // Second click, save the state
-            // TODO
+
+        if (!WEUtils.saveCraftSchematic(craft, sign)) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Could not save file"));
+            return;
         }
+
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - State saved"));
     }
 
     private Material getItemInHand(Player player, EquipmentSlot slot) {
-        switch(slot) {
+        switch (slot) {
             case HAND:
                 return player.getInventory().getItemInMainHand().getType();
             case OFF_HAND:

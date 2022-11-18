@@ -1,7 +1,5 @@
 package net.countercraft.movecraft.repair.util;
 
-import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
@@ -58,7 +56,7 @@ public class RepairUtils {
         for (Material material : targetContents.getKeySet()) {
             int target = targetContents.get(material);
             Integer current = currentContents.get(material);
-            if (current == null) {
+            if (current == null) { // TODO?
                 result.add(material, target);
             }
             else {

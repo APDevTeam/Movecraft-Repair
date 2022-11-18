@@ -3,7 +3,6 @@ package net.countercraft.movecraft.repair;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.logging.Level;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
