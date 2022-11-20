@@ -42,7 +42,7 @@ public class ProtoRepair {
     }
 
     public boolean isExpired() {
-        return System.nanoTime() - calculationTime > 1000000000L;
+        return System.nanoTime() - calculationTime > 5000000000L; // 5 seconds
     }
 
     public MovecraftLocation getOrigin() {
@@ -63,9 +63,8 @@ public class ProtoRepair {
 
         // Make sure we have enough
         Counter<Material> remaining = pair.getLeft();
-        if (remaining.size() > 0) {
+        if (remaining.size() > 0)
             throw new NotEnoughItemsException(remaining);
-        }
 
         // Remove materials
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = pair.getRight();

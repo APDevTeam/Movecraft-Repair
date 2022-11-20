@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -25,8 +26,10 @@ public final class MovecraftRepair extends JavaPlugin {
         return instance;
     }
 
-    private WorldEditPlugin worldEditPlugin;
-    private Economy economy;
+    private WorldEditPlugin worldEditPlugin = null;
+    private Economy economy = null;
+    private RepairManager repairManager = null;
+    private ProtoRepairCache protoRepairCache = null;
 
     @Override
     public void onEnable() {
@@ -48,19 +51,19 @@ public final class MovecraftRepair extends JavaPlugin {
                 economy = rsp.getProvider();
                 getLogger().info("Found a compatible Vault plugin. Enabling Vault integration.");
             } else {
-                getLogger().severe("Movecraft did not find a compatible Vault plugin. Disabling Vault integration.");
+                getLogger().severe("Movecraft-Repair did not find a compatible Vault plugin. Disabling Vault integration.");
                 economy = null;
                 return;
             }
         } else {
-            getLogger().severe("Movecraft did not find a compatible Vault plugin. Disabling Vault integration.");
+            getLogger().severe("Movecraft-Repair did not find a compatible Vault plugin. Disabling Vault integration.");
             economy = null;
             return;
         }
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldEdit");
         if (!(plugin instanceof WorldEditPlugin)) {
             getLogger().severe(
-                    "Movecraft did not find a compatible version of WorldEdit. Disabling WorldEdit integration.");
+                    "Movecraft-Repair did not find a compatible version of WorldEdit. Disabling WorldEdit integration.");
             return;
         }
         getLogger().info("Found a compatible version of WorldEdit. Enabling WorldEdit integration.");
@@ -69,12 +72,14 @@ public final class MovecraftRepair extends JavaPlugin {
         loadConfig(getConfig());
 
         // Startup repair manager (every tick)
-        RepairManager repairManager = new RepairManager();
+        repairManager = new RepairManager();
         repairManager.runTaskTimer(this, 0, 1);
 
         // Startup proto repair (every 10 seconds)
-        ProtoRepairCache protoRepairs = new ProtoRepairCache();
-        protoRepairs.runTaskTimerAsynchronously(this, 10, 200);
+        protoRepairCache = new ProtoRepairCache();
+        protoRepairCache.runTaskTimerAsynchronously(this, 10, 200);
+
+        getServer().getPluginManager().registerEvents(new RepairSign(), this);
     }
 
     private static void loadConfig(FileConfiguration config) {
@@ -178,5 +183,15 @@ public final class MovecraftRepair extends JavaPlugin {
 
     public Economy getEconomy() {
         return economy;
+    }
+
+    @Nullable
+    public RepairManager getRepairManager() {
+        return repairManager;
+    }
+
+    @Nullable
+    public ProtoRepairCache getProtoRepairCache() {
+        return protoRepairCache;
     }
 }

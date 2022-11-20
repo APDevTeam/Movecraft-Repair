@@ -18,10 +18,10 @@ public class Config {
     public static double RepairMoneyPerBlock = 0.0;
     public static double RepairMaxPercent = 50.0;
     public static Material RepairTool = Material.FIREWORK_ROCKET;
-    public static Set<EnumSet<Material>> RepairBlobs = new HashSet<>();
-    public static EnumSet<Material> RepairDispenserItems = EnumSet.noneOf(Material.class);
-    public static EnumSet<Material> RepairFurnaceItems = EnumSet.noneOf(Material.class);
-    public static EnumSet<Material> RepairDropperItems = EnumSet.noneOf(Material.class);
-    public static EnumSet<Material> RepairFirstPass = EnumSet.noneOf(Material.class);
-    public static EnumSet<Material> RepairLastPass = EnumSet.noneOf(Material.class);
+    public static Set<Set<Material>> RepairBlobs = new HashSet<>();
+    public static Set<Material> RepairDispenserItems = EnumSet.noneOf(Material.class);
+    public static Set<Material> RepairFurnaceItems = EnumSet.noneOf(Material.class);
+    public static Set<Material> RepairDropperItems = EnumSet.noneOf(Material.class);
+    public static Set<Material> RepairFirstPass = EnumSet.noneOf(Material.class);
+    public static Set<Material> RepairLastPass = EnumSet.noneOf(Material.class);
 }

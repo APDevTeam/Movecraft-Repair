@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -16,11 +17,16 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
+import com.sk89q.worldedit.WorldEditException;
+
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.PlayerCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
+import net.countercraft.movecraft.repair.types.ProtoRepair;
+import net.countercraft.movecraft.repair.types.Repair;
+import net.countercraft.movecraft.repair.types.RepairState;
 import net.countercraft.movecraft.repair.util.WEUtils;
 
 public class RepairSign implements Listener {
@@ -71,14 +77,48 @@ public class RepairSign implements Listener {
         }
     
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            onRightClick(sign, player);
+            onRightClick(sign, player, craft);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
             onLeftClick(sign, player, craft, event.getHand());
         }
     }
 
-    public void onRightClick(Sign sign, Player player) {
-        // TODO
+    public void onRightClick(Sign sign, Player player, PlayerCraft craft) {
+        UUID uuid = player.getUniqueId();
+
+        ProtoRepair protoRepair = MovecraftRepair.getInstance().getProtoRepairCache().get(uuid);
+        if (protoRepair == null) {
+            // No cached repair (or expired)
+            String stateName = ChatColor.stripColor(sign.getLine(1));
+
+            // Get the repair state from file
+            RepairState state;
+            try {
+                state = new RepairState(uuid, stateName);
+            }
+            catch (IOException e) {
+                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));;
+                return;
+            }
+
+            // Convert to a proto repair
+            try {
+                protoRepair = state.execute(sign);
+            }
+            catch (WorldEditException e) {
+                // Failed to transform
+            }
+
+            // Add to cache
+            MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
+            // TODO: Add the list of required materials?
+        }
+        else {
+            // Cached and non-expired repair, start running
+            Repair repair = protoRepair.execute(craft, sign);
+            MovecraftRepair.getInstance().getRepairManager().add(repair);
+            // TODO: Tell the player?
+        }
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {

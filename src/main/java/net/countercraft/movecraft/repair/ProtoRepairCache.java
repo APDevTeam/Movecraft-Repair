@@ -13,7 +13,7 @@ import net.countercraft.movecraft.repair.types.ProtoRepair;
 
 public class ProtoRepairCache extends BukkitRunnable {
     private final Map<UUID, ProtoRepair> protoRepairs = new ConcurrentHashMap<>();
-    
+
     public void add(ProtoRepair protoRepair) {
         protoRepairs.put(protoRepair.playerUUID(), protoRepair);
     }
@@ -21,11 +21,15 @@ public class ProtoRepairCache extends BukkitRunnable {
     @Nullable
     public ProtoRepair get(UUID player) {
         ProtoRepair protoRepair = protoRepairs.get(player);
+        if (protoRepair == null)
+            return null;
+
         if (protoRepair.isExpired()) {
             // Remove expired ones on request
             protoRepairs.remove(player);
             return null;
         }
+
         return protoRepair;
     }
 
