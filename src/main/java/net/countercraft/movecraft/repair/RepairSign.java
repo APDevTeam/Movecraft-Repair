@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -97,7 +99,7 @@ public class RepairSign implements Listener {
                 state = new RepairState(uuid, stateName);
             }
             catch (IOException e) {
-                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));;
+                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
                 return;
             }
 
@@ -106,17 +108,47 @@ public class RepairSign implements Listener {
                 protoRepair = state.execute(sign);
             }
             catch (WorldEditException e) {
-                // Failed to transform
+                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
+                return;
             }
+
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
+            double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
+            if (percent > Config.RepairMaxPercent) {
+                player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
+                return;
+            }
+
+            for (Material m : protoRepair.getMaterials().getKeySet()) {
+                player.sendMessage(String.format("%s : %d", m, protoRepair.getMaterials().get(m)));
+            }
+
+            long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
+
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %d", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
 
             // Add to cache
             MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
-            // TODO: Add the list of required materials?
         }
         else {
-            // Cached and non-expired repair, start running
-            Repair repair = protoRepair.execute(craft, sign);
+            // Cached and repair, try running it
+            Repair repair;
+            try {
+                repair = protoRepair.execute(craft, sign);
+            }
+            catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
+                // ItemRemovalException shouldn't happen, but fall through regardless
+                return; // Expired or wrong location, just fall through
+            }
+            catch (ProtoRepair.NotEnoughItemsException e) {
+                // Not enough items
+                return;
+            }
+
             MovecraftRepair.getInstance().getRepairManager().add(repair);
+
             // TODO: Tell the player?
         }
     }

@@ -25,9 +25,8 @@ public class ProtoRepairCache extends BukkitRunnable {
             return null;
 
         if (protoRepair.isExpired()) {
-            // Remove expired ones on request
+            // Remove expired ones, but return anyways
             protoRepairs.remove(player);
-            return null;
         }
 
         return protoRepair;

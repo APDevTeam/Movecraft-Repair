@@ -26,14 +26,16 @@ public class ProtoRepair {
     private UUID uuid;
     private RepairQueue queue;
     private Counter<Material> materials;
+    private int damagedBlockCount;
     private MovecraftLocation origin;
     private long calculationTime;
 
-    public ProtoRepair(UUID uuid, RepairQueue queue, Counter<Material> materials, MovecraftLocation origin) {
+    public ProtoRepair(UUID uuid, RepairQueue queue, Counter<Material> materials, int damagedBlockCount, MovecraftLocation origin) {
         this.uuid = uuid;
         this.queue = queue;
         this.materials = materials;
         this.origin = origin;
+        this.damagedBlockCount = damagedBlockCount;
         this.calculationTime = System.nanoTime();
     }
 
@@ -41,12 +43,24 @@ public class ProtoRepair {
         return uuid;
     }
 
-    public boolean isExpired() {
-        return System.nanoTime() - calculationTime > 5000000000L; // 5 seconds
+    public RepairQueue getQueue() {
+        return queue;
+    }
+
+    public Counter<Material> getMaterials() {
+        return materials;
+    }
+
+    public int getDamagedBlockCount() {
+        return damagedBlockCount;
     }
 
     public MovecraftLocation getOrigin() {
         return origin;
+    }
+
+    public boolean isExpired() {
+        return System.nanoTime() - calculationTime > 5000000000L; // 5 seconds
     }
 
     @Nullable
@@ -154,7 +168,7 @@ public class ProtoRepair {
             throw new ItemRemovalException();
     }
 
-    class NotEnoughItemsException extends IllegalStateException {
+    public class NotEnoughItemsException extends IllegalStateException {
         private final transient Counter<Material> remaining;
 
         public NotEnoughItemsException(Counter<Material> remaining) {
@@ -166,12 +180,12 @@ public class ProtoRepair {
         }
     }
 
-    class ItemRemovalException extends IllegalStateException {
+    public class ItemRemovalException extends IllegalStateException {
     }
 
-    class ProtoRepairExpiredException extends IllegalStateException {
+    public class ProtoRepairExpiredException extends IllegalStateException {
     }
 
-    class ProtoRepairLocationException extends IllegalStateException {
+    public class ProtoRepairLocationException extends IllegalStateException {
     }
 }
