@@ -9,8 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import net.countercraft.movecraft.repair.MovecraftRepair;
-
 public class InventoryRepair extends RepairTask {
     @NotNull
     private Location location;
@@ -24,12 +22,9 @@ public class InventoryRepair extends RepairTask {
 
     @Override
     public void execute() {
-        MovecraftRepair.getInstance().getLogger().info("Repairing inventory at " + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + " with " + item.getAmount() + "x " + item.getType());
-
         Block block = location.getBlock();
         BlockState state = block.getState();
         if (!(state instanceof Container)) {
-            MovecraftRepair.getInstance().getLogger().info("Not a container");
             done = true;
             return;
         }
@@ -37,7 +32,6 @@ public class InventoryRepair extends RepairTask {
         Container container = (Container) state;
         addInventory(container.getInventory(), item);
         done = true;
-        MovecraftRepair.getInstance().getLogger().info("Done");
     }
 
     private void addInventory(Inventory inventory, ItemStack item) {
@@ -48,7 +42,6 @@ public class InventoryRepair extends RepairTask {
                 // Empty stack, set to the max size
                 item.setAmount(item.getType().getMaxStackSize());
                 remainingCount -= item.getType().getMaxStackSize();
-                MovecraftRepair.getInstance().getLogger().info("Setting" + i + " to " + item.getType().getMaxStackSize());
             }
             else {
                 if (stack.getType() != item.getType())
@@ -59,7 +52,6 @@ public class InventoryRepair extends RepairTask {
                 int toSetCount = Math.min(currentCount + remainingCount, item.getType().getMaxStackSize());
                 item.setAmount(toSetCount);
                 remainingCount -= (toSetCount - currentCount);
-                MovecraftRepair.getInstance().getLogger().info("Changing " + i + " from " + currentCount + " to " + toSetCount);
             }
 
             // Update inventory
