@@ -1,6 +1,7 @@
 package net.countercraft.movecraft.repair.tasks;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
@@ -42,7 +43,7 @@ public class InventoryRepair extends RepairTask {
     private void addInventory(Inventory inventory, ItemStack item) {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
-            if (stack == null) {
+            if (stack == null || stack.getType() == Material.AIR) {
                 // Empty stack, set to the target and return
                 inventory.setItem(i, item);
                 return;
