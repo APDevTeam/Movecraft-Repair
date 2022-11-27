@@ -48,42 +48,35 @@ public class RepairSign implements Listener {
 
     @EventHandler
     public void onSignClick(PlayerInteractEvent event) {
-        MovecraftRepair.getInstance().getLogger().info("a");
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
 
-        MovecraftRepair.getInstance().getLogger().info("b");
         Player player = event.getPlayer();
         if (Config.RepairTicksPerBlock == 0) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("c");
         BlockState state = event.getClickedBlock().getState();
         if (!(state instanceof Sign))
             return;
 
-        MovecraftRepair.getInstance().getLogger().info("d");
         Sign sign = (Sign) event.getClickedBlock().getState();
         String signText = ChatColor.stripColor(sign.getLine(0));
         if (signText == null || !signText.equalsIgnoreCase(HEADER))
             return;
 
-        MovecraftRepair.getInstance().getLogger().info("e");
         PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(player);
         if (craft == null) {
             player.sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("f");
         if (!player.hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")) {
             player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
     
-        MovecraftRepair.getInstance().getLogger().info("g");
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             onRightClick(sign, player, craft);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -92,7 +85,6 @@ public class RepairSign implements Listener {
     }
 
     public void onRightClick(Sign sign, Player player, PlayerCraft craft) {
-        MovecraftRepair.getInstance().getLogger().info("aa");
         UUID uuid = player.getUniqueId();
 
         ProtoRepair protoRepair = MovecraftRepair.getInstance().getProtoRepairCache().get(uuid);
@@ -102,14 +94,14 @@ public class RepairSign implements Listener {
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("ab");
         // Cached repair, see if the player has the money (if the economy is enabled)
         double cost = 0;
+        boolean takeMoney = false;
         if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
             cost = protoRepair.getQueue().size() * Config.RepairMoneyPerBlock;
             if (MovecraftRepair.getInstance().getEconomy().has(player, cost)) {
                 // Player can afford it
-                MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
+                takeMoney = true;
             }
             else {
                 // Player can't afford it
@@ -118,7 +110,6 @@ public class RepairSign implements Listener {
             }
         }
 
-        MovecraftRepair.getInstance().getLogger().info("ac");
         // Try running the repair
         Repair repair;
         try {
@@ -139,7 +130,8 @@ public class RepairSign implements Listener {
         }
 
         // Start the repair
-        MovecraftRepair.getInstance().getLogger().info("ad");
+        if (takeMoney)
+            MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
         final double finalCost = cost;
         MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun a repair with the cost of %.2f", player.getName(), finalCost));
         MovecraftRepair.getInstance().getRepairManager().add(repair);
@@ -147,7 +139,6 @@ public class RepairSign implements Listener {
     }
 
     private void createProtoRepair(Sign sign, UUID uuid, Player player, PlayerCraft craft) {
-        MovecraftRepair.getInstance().getLogger().info("ba");
         String stateName = ChatColor.stripColor(sign.getLine(1));
 
         // Get the repair state from file
@@ -160,7 +151,6 @@ public class RepairSign implements Listener {
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("bb");
         // Convert to a proto repair
         ProtoRepair protoRepair;
         try {
@@ -171,7 +161,6 @@ public class RepairSign implements Listener {
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("bc");
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
         double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + String.format(": %.2f", percent));
@@ -180,7 +169,6 @@ public class RepairSign implements Listener {
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("bd");
         for (Material m : protoRepair.getMaterials().getKeySet()) {
             player.sendMessage(String.format("%s : %d", m, protoRepair.getMaterials().get(m)));
         }
@@ -192,15 +180,12 @@ public class RepairSign implements Listener {
 
         // Add to cache
         MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
-        MovecraftRepair.getInstance().getLogger().info("be");
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {
-        MovecraftRepair.getInstance().getLogger().info("ca");
         if (getItemInHand(player, hand) != Config.RepairTool)
             return;
 
-        MovecraftRepair.getInstance().getLogger().info("cb");
         Long lastLeftClick = leftClickCache.get(player.getUniqueId());
         if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
             // First click, just add to the map
@@ -208,13 +193,11 @@ public class RepairSign implements Listener {
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("cc");
         if (!WEUtils.saveCraftSchematic(craft, sign)) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - Could not save file"));
             return;
         }
 
-        MovecraftRepair.getInstance().getLogger().info("cd");
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - State saved"));
     }
 
