@@ -71,7 +71,7 @@ public class RepairSign implements Listener {
             player.sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
             return;
         }
-    
+
         if (!player.hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")) {
             player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
@@ -96,11 +96,12 @@ public class RepairSign implements Listener {
 
         // Cached repair, see if the player has the money (if the economy is enabled)
         double cost = 0;
+        boolean takeMoney = false;
         if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
             cost = protoRepair.getQueue().size() * Config.RepairMoneyPerBlock;
             if (MovecraftRepair.getInstance().getEconomy().has(player, cost)) {
                 // Player can afford it
-                MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
+                takeMoney = true;
             }
             else {
                 // Player can't afford it
@@ -129,6 +130,8 @@ public class RepairSign implements Listener {
         }
 
         // Start the repair
+        if (takeMoney)
+            MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
         final double finalCost = cost;
         MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun a repair with the cost of %.2f", player.getName(), finalCost));
         MovecraftRepair.getInstance().getRepairManager().add(repair);
@@ -160,7 +163,7 @@ public class RepairSign implements Listener {
 
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
         double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + String.format(": %.2f", percent));
         if (percent > Config.RepairMaxPercent) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
             return;
@@ -173,10 +176,11 @@ public class RepairSign implements Listener {
         long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
 
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %d", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %.2f", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
 
-        // Add to cache
-        MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
+        // Add to cache only if not empty
+        if (!protoRepair.getQueue().isEmpty())
+            MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {

@@ -16,6 +16,10 @@ public class Repair {
         lastExecution = System.nanoTime();
     }
 
+    public UUID getPlayerUUID() {
+        return uuid;
+    }
+
     public boolean isDone() {
         return queue.isEmpty();
     }
@@ -26,6 +30,9 @@ public class Repair {
 
         while (elapsedTicks > Config.RepairTicksPerBlock && placedBlocks <= Config.RepairMaxBlocksPerTick) {
             RepairTask task = queue.poll();
+            if (task == null)
+                break;
+
             task.execute();
             elapsedTicks -= Config.RepairTicksPerBlock;
             placedBlocks++;

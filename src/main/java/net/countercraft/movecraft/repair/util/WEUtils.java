@@ -61,7 +61,7 @@ public class WEUtils {
      */
     @Nullable
     public static Clipboard loadSchematic(File directory, String name) throws IOException {
-        name += SCHEMATIC_FORMAT.getPrimaryFileExtension();
+        name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File file = new File(directory, name);
         Clipboard clipboard;
         try {
@@ -83,11 +83,11 @@ public class WEUtils {
      */
     public static boolean saveCraftSchematic(@NotNull PilotedCraft craft, @NotNull Sign sign) {
         File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        if (!repairDirectory.exists())
-            repairDirectory.mkdirs();
         File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
+        if (!playerDirectory.exists())
+            playerDirectory.mkdirs();
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += SCHEMATIC_FORMAT.getPrimaryFileExtension();
+        repairName += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File repairFile = new File(playerDirectory, repairName);
 
         HitBox hitbox = craft.getHitBox();
@@ -100,7 +100,7 @@ public class WEUtils {
             new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
             new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ())
         );
-        surrounding = ((BitmapHitBox) surrounding).difference(hitbox);
+        surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
         World bukkitWorld = craft.getWorld();
         com.sk89q.worldedit.world.World world = new BukkitWorld(bukkitWorld);
@@ -151,7 +151,10 @@ public class WEUtils {
     @Nullable
     public static Counter<Material> getBlockContents(BaseBlock block) {
         Counter<Material> counter = new Counter<>();
-        ListTag blockItems = block.getNbtData().getListTag("Items");
+        CompoundTag blockNBT = block.getNbtData();
+        if (blockNBT == null)
+            return null;
+        ListTag blockItems = blockNBT.getListTag("Items");
         if (blockItems == null)
             return null;
 
@@ -164,9 +167,9 @@ public class WEUtils {
             BlockType type = new BlockType(id);
             Material material = BukkitAdapter.adapt(type);
 
-            byte count = ct.getByte("count");
+            byte count = ct.getByte("Count");
 
-            counter.add(material, (int) count);
+            counter.add(material, count);
         }
         return counter;
     }

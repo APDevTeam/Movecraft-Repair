@@ -69,7 +69,7 @@ public class ProtoRepair {
             NotEnoughItemsException {
         if (isExpired())
             throw new ProtoRepairExpiredException(); // Check for expired
-        if (MathUtils.bukkit2MovecraftLoc(sign.getLocation()) != origin)
+        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
 
         // Check materials
@@ -93,7 +93,7 @@ public class ProtoRepair {
             if (!(state instanceof Container))
                 throw new ItemRemovalException();
 
-            removeInventory((Inventory) state, entry.getValue());
+            removeInventory(((Container) state).getInventory(), entry.getValue());
         }
 
         // Start repair
@@ -121,15 +121,16 @@ public class ProtoRepair {
                     continue;
 
                 int remainingCount = remaining.get(m);
-                int currentCount = contents.get(m);
-                if (remainingCount >= currentCount) {
+                int contentsCount = contents.get(m);
+                if (contentsCount >= remainingCount) {
                     // Enough items found, clear the material from remaining
                     remaining.clear(m);
+                    toRemove.add(m, remainingCount);
                 } else {
                     // Not enough items found, subtract what we have
-                    remaining.set(m, remainingCount - currentCount);
+                    remaining.set(m, remainingCount - contentsCount);
+                    toRemove.add(m, remainingCount - contentsCount);
                 }
-                toRemove.add(m, remainingCount - currentCount);
             }
             itemsToRemove.put(location, toRemove);
         }
@@ -139,6 +140,9 @@ public class ProtoRepair {
     private Counter<Material> sumInventory(Inventory inventory) {
         Counter<Material> result = new Counter<>();
         for (ItemStack item : inventory.getContents()) {
+            if (item == null)
+                continue;
+
             result.add(item.getType(), item.getAmount());
         }
         return result;
@@ -147,21 +151,24 @@ public class ProtoRepair {
     private void removeInventory(Inventory inventory, Counter<Material> remaining) throws ItemRemovalException {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
+            if (stack == null)
+                continue;
+
             Material m = stack.getType();
             if (!remaining.getKeySet().contains(m))
                 continue;
 
             int remainingCount = remaining.get(m);
             int currentCount = stack.getAmount();
-            if (remainingCount >= currentCount) {
+            if (currentCount >= remainingCount) {
                 // Enough items found, clear the material from remaining
                 remaining.clear(m);
-                inventory.setItem(i, null);
+                stack.setAmount(currentCount - remainingCount);
+                inventory.setItem(i, stack);
             } else {
                 // Not enough items found, subtract what we have
                 remaining.set(m, remainingCount - currentCount);
-                stack.setAmount(remainingCount - currentCount);
-                inventory.setItem(i, stack);
+                inventory.setItem(i, null);
             }
         }
         if (remaining.size() > 0)

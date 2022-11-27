@@ -36,8 +36,8 @@ public class RepairState {
     private UUID uuid;
     private String name;
     private Clipboard schematic;
-    private BlockVector3 minPos;
-    private BlockVector3 worldOffset;
+    private BlockVector3 schematicMinPos;
+    private BlockVector3 schematicSignOffset;
     private BlockVector3 size;
 
     public RepairState(UUID uuid, String name) throws IOException, IllegalStateException {
@@ -49,8 +49,8 @@ public class RepairState {
             throw new IllegalStateException("Unable to create player directory");
 
         schematic = WEUtils.loadSchematic(playerDirectory, name);
-        minPos = schematic.getMinimumPoint();
-        worldOffset = schematic.getOrigin().subtract(minPos);
+        schematicMinPos = schematic.getMinimumPoint();
+        schematicSignOffset = schematic.getOrigin().subtract(schematicMinPos);
         size = schematic.getDimensions();
     }
 
@@ -65,8 +65,8 @@ public class RepairState {
     private Clipboard rotate(Sign sign) throws WorldEditException {
         BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
 
-        BlockVector3 offset = signPosition.subtract(worldOffset);
-        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(minPos);
+        BlockVector3 offset = signPosition.subtract(schematicSignOffset);
+        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(schematicMinPos);
         BaseBlock schematicSign = schematic.getFullBlock(schematicSignPosition);
         BlockFace schematicSignFacing = RotationUtils.getRotation(schematicSign);
 
@@ -79,22 +79,23 @@ public class RepairState {
 
     public ProtoRepair execute(Sign sign) throws WorldEditException {
         // Rotate repair around the sign
-        Clipboard clipboard = rotate(sign);
+        Clipboard clipboard = schematic;//rotate(sign);
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
         Counter<Material> materials = new Counter<>(); // TODO: Handle partial blocks (ex: doors)
         RepairQueue queue = new RepairQueue();
         int damagedBlockCount = 0;
+        Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
-                    BlockVector3 schematicPosition = minPos.add(x, y, z);
+                    BlockVector3 schematicPosition = schematicMinPos.add(x, y, z);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
-                    Location worldPosition = new Location(world, x, y, z);
+                    Location worldPosition = new Location(world, x, y, z).add(worldMinPos);
                     Block worldBlock = worldPosition.getBlock();
                     Material worldMaterial = worldBlock.getType();
                     BlockState worldState = worldBlock.getState();
@@ -108,8 +109,7 @@ public class RepairState {
 
                     // Handle inventory repair
                     Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
-                    Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial,
-                            worldState, schematicContents);
+                    Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial, worldState, schematicContents);
                     if (!inventoryRepair.getLeft())
                         continue;
 

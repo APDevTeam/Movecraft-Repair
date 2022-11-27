@@ -37,7 +37,7 @@ public class RepairUtils {
     public static Pair<Boolean, Counter<Material>> checkInventoryRepair(Material currentType, BlockState currentState,
             @Nullable Counter<Material> targetContents) {
         if (targetContents == null || targetContents.getKeySet().isEmpty())
-            return new Pair<>(false, null);
+            return new Pair<>(false, new Counter<>());
 
         if (!(currentState instanceof Container))
             return new Pair<>(true, targetContents);
@@ -46,6 +46,8 @@ public class RepairUtils {
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
         for (ItemStack stack : items) {
+            if (stack == null)
+                continue;
             if (!checkAllowedInventoryFill(currentType, stack.getType()))
                 continue;
 
@@ -54,9 +56,12 @@ public class RepairUtils {
 
         Counter<Material> result = new Counter<>();
         for (Material material : targetContents.getKeySet()) {
+            if (!checkAllowedInventoryFill(currentType, material))
+                continue; // Skip un-allowed materials
+
             int target = targetContents.get(material);
-            Integer current = currentContents.get(material);
-            if (current == null) { // TODO?
+            int current = currentContents.get(material);
+            if (current == 0) {
                 result.add(material, target);
             }
             else {
@@ -65,9 +70,9 @@ public class RepairUtils {
                     result.add(material, target - current);
             }
         }
-        if (result.getKeySet().isEmpty()) {
-            return new Pair<>(false, null);
-        }
+
+        if (result.getKeySet().isEmpty())
+            return new Pair<>(false, new Counter<>());
 
         return new Pair<>(true, result);
     }
