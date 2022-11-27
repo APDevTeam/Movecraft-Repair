@@ -70,11 +70,8 @@ public class ProtoRepair {
             NotEnoughItemsException {
         if (isExpired())
             throw new ProtoRepairExpiredException(); // Check for expired
-        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation()))) {
-            MovecraftRepair.getInstance().getLogger().info("Calculated origin: " + origin);
-            MovecraftRepair.getInstance().getLogger().info("sign location: " + MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
+        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
-        }
 
         // Check materials
         Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
@@ -143,6 +140,9 @@ public class ProtoRepair {
     private Counter<Material> sumInventory(Inventory inventory) {
         Counter<Material> result = new Counter<>();
         for (ItemStack item : inventory.getContents()) {
+            if (item == null)
+                continue;
+
             result.add(item.getType(), item.getAmount());
         }
         return result;

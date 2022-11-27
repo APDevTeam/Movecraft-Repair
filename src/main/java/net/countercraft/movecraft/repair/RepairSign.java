@@ -122,18 +122,15 @@ public class RepairSign implements Listener {
         // Try running the repair
         Repair repair;
         try {
-            MovecraftRepair.getInstance().getLogger().info("11");
             repair = protoRepair.execute(craft, sign);
         }
         catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
-            MovecraftRepair.getInstance().getLogger().info("12: " + e.getClass().getName());
             // ItemRemovalException shouldn't happen, but go back to first click regardless
             // Expired or wrong location, go back to first click
             createProtoRepair(sign, uuid, player, craft);
             return;
         }
         catch (ProtoRepair.NotEnoughItemsException e) {
-            MovecraftRepair.getInstance().getLogger().info("13");
             // Not enough items, tell the player
             for (Material m : e.getRemaining().getKeySet()) {
                 player.sendMessage(I18nSupport.getInternationalisedString("Repair - Need more of material") + String.format(": %s - %d", m, e.getRemaining().get(m)));
