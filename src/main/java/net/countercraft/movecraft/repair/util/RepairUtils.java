@@ -6,6 +6,7 @@ import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.Pair;
@@ -36,12 +37,17 @@ public class RepairUtils {
      */
     public static Pair<Boolean, Counter<Material>> checkInventoryRepair(Material currentType, BlockState currentState,
             @Nullable Counter<Material> targetContents) {
-        if (targetContents == null || targetContents.getKeySet().isEmpty())
-            return new Pair<>(false, null);
+        MovecraftRepair.getInstance().getLogger().info("Checking inventory of type: " + currentType + " for " + targetContents);
+        if (targetContents == null || targetContents.getKeySet().isEmpty()) {
+            return new Pair<>(false, new Counter<>());
+        }
 
-        if (!(currentState instanceof Container))
+        MovecraftRepair.getInstance().getLogger().info("a");
+        if (!(currentState instanceof Container)) {
             return new Pair<>(true, targetContents);
+        }
 
+        MovecraftRepair.getInstance().getLogger().info("b");
         Container container = (Container) currentState;
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
@@ -54,11 +60,12 @@ public class RepairUtils {
             currentContents.add(stack.getType(), stack.getAmount());
         }
 
+        MovecraftRepair.getInstance().getLogger().info("c");
         Counter<Material> result = new Counter<>();
         for (Material material : targetContents.getKeySet()) {
             int target = targetContents.get(material);
-            Integer current = currentContents.get(material);
-            if (current == null) { // TODO?
+            int current = currentContents.get(material);
+            if (current == 0) {
                 result.add(material, target);
             }
             else {
@@ -67,10 +74,12 @@ public class RepairUtils {
                     result.add(material, target - current);
             }
         }
+        MovecraftRepair.getInstance().getLogger().info("d");
         if (result.getKeySet().isEmpty()) {
-            return new Pair<>(false, null);
+            return new Pair<>(false, new Counter<>());
         }
 
+        MovecraftRepair.getInstance().getLogger().info("e");
         return new Pair<>(true, result);
     }
 
