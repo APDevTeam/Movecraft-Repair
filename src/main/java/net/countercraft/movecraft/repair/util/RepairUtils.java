@@ -37,17 +37,18 @@ public class RepairUtils {
      */
     public static Pair<Boolean, Counter<Material>> checkInventoryRepair(Material currentType, BlockState currentState,
             @Nullable Counter<Material> targetContents) {
-        MovecraftRepair.getInstance().getLogger().info("Checking inventory of type: " + currentType + " for " + targetContents);
         if (targetContents == null || targetContents.getKeySet().isEmpty()) {
             return new Pair<>(false, new Counter<>());
         }
 
-        MovecraftRepair.getInstance().getLogger().info("a");
+        MovecraftRepair.getInstance().getLogger().info("Checking inventory of type " + currentType + " for:");
+        for (Material m : targetContents.getKeySet()) {
+            MovecraftRepair.getInstance().getLogger().info("\t- " + targetContents.get(m) + "x "+ m);
+        }
         if (!(currentState instanceof Container)) {
             return new Pair<>(true, targetContents);
         }
 
-        MovecraftRepair.getInstance().getLogger().info("b");
         Container container = (Container) currentState;
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
@@ -60,7 +61,11 @@ public class RepairUtils {
             currentContents.add(stack.getType(), stack.getAmount());
         }
 
-        MovecraftRepair.getInstance().getLogger().info("c");
+        MovecraftRepair.getInstance().getLogger().info("Found:");
+        for (Material m : currentContents.getKeySet()) {
+            MovecraftRepair.getInstance().getLogger().info("\t- " + currentContents.get(m) + "x "+ m);
+        }
+
         Counter<Material> result = new Counter<>();
         for (Material material : targetContents.getKeySet()) {
             int target = targetContents.get(material);
@@ -74,12 +79,15 @@ public class RepairUtils {
                     result.add(material, target - current);
             }
         }
-        MovecraftRepair.getInstance().getLogger().info("d");
+
+        MovecraftRepair.getInstance().getLogger().info("Result:");
+        for (Material m : result.getKeySet()) {
+            MovecraftRepair.getInstance().getLogger().info("\t- " + result.get(m) + "x "+ m);
+        }
         if (result.getKeySet().isEmpty()) {
             return new Pair<>(false, new Counter<>());
         }
 
-        MovecraftRepair.getInstance().getLogger().info("e");
         return new Pair<>(true, result);
     }
 
