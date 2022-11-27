@@ -164,7 +164,7 @@ public class ProtoRepair {
             if (currentCount >= remainingCount) {
                 // Enough items found, clear the material from remaining
                 remaining.clear(m);
-                stack.setAmount(remainingCount - currentCount);
+                stack.setAmount(currentCount - remainingCount);
                 inventory.setItem(i, stack);
             } else {
                 // Not enough items found, subtract what we have
