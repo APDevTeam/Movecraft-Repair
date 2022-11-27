@@ -20,6 +20,9 @@ public class RepairManager extends BukkitRunnable {
         Set<Repair> executed = new HashSet<>();
         while (System.nanoTime() - start < Config.RepairMaxTickTime) {
             Repair repair = repairs.peek();
+            if (repair == null)
+                return; // No repairs, jump out
+
             if (repair.run()) {
                 // Repair placed at least a block, return to back of queue
                 executed.add(repairs.poll());
