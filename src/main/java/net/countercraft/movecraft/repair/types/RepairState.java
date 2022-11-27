@@ -109,8 +109,7 @@ public class RepairState {
 
                     // Handle inventory repair
                     Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
-                    Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial,
-                            worldState, schematicContents);
+                    Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial, worldState, schematicContents);
                     if (!inventoryRepair.getLeft())
                         continue;
 

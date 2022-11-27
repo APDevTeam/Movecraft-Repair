@@ -6,7 +6,6 @@ import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.Pair;
@@ -37,17 +36,11 @@ public class RepairUtils {
      */
     public static Pair<Boolean, Counter<Material>> checkInventoryRepair(Material currentType, BlockState currentState,
             @Nullable Counter<Material> targetContents) {
-        if (targetContents == null || targetContents.getKeySet().isEmpty()) {
+        if (targetContents == null || targetContents.getKeySet().isEmpty())
             return new Pair<>(false, new Counter<>());
-        }
 
-        MovecraftRepair.getInstance().getLogger().info("Checking inventory of type " + currentType + " for:");
-        for (Material m : targetContents.getKeySet()) {
-            MovecraftRepair.getInstance().getLogger().info("\t- " + targetContents.get(m) + "x "+ m);
-        }
-        if (!(currentState instanceof Container)) {
+        if (!(currentState instanceof Container))
             return new Pair<>(true, targetContents);
-        }
 
         Container container = (Container) currentState;
         ItemStack[] items = container.getInventory().getContents();
@@ -59,11 +52,6 @@ public class RepairUtils {
                 continue;
 
             currentContents.add(stack.getType(), stack.getAmount());
-        }
-
-        MovecraftRepair.getInstance().getLogger().info("Found:");
-        for (Material m : currentContents.getKeySet()) {
-            MovecraftRepair.getInstance().getLogger().info("\t- " + currentContents.get(m) + "x "+ m);
         }
 
         Counter<Material> result = new Counter<>();
@@ -83,13 +71,8 @@ public class RepairUtils {
             }
         }
 
-        MovecraftRepair.getInstance().getLogger().info("Result:");
-        for (Material m : result.getKeySet()) {
-            MovecraftRepair.getInstance().getLogger().info("\t- " + result.get(m) + "x "+ m);
-        }
-        if (result.getKeySet().isEmpty()) {
+        if (result.getKeySet().isEmpty())
             return new Pair<>(false, new Counter<>());
-        }
 
         return new Pair<>(true, result);
     }

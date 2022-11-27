@@ -22,8 +22,8 @@ public class InventoryRepair extends RepairTask {
 
     @Override
     public void execute() {
-        MovecraftRepair.getInstance().getLogger().info("Repairing inventory at " + location);
-        MovecraftRepair.getInstance().getLogger().info("with " + item);
+        MovecraftRepair.getInstance().getLogger().info("Repairing inventory at " + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + " with " + item.getAmount() + "x " + item.getType());
+
         Block block = location.getBlock();
         BlockState state = block.getState();
         if (!(state instanceof Container)) {
@@ -33,7 +33,7 @@ public class InventoryRepair extends RepairTask {
         }
 
         Container container = (Container) state;
-        container.getInventory().addItem(item);
+        container.getInventory().addItem(item); // Ignore overflow
         container.update(true, false);
         done = true;
         MovecraftRepair.getInstance().getLogger().info("Done");
