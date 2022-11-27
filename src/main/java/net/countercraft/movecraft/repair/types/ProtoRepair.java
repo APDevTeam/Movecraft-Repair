@@ -70,7 +70,7 @@ public class ProtoRepair {
             NotEnoughItemsException {
         if (isExpired())
             throw new ProtoRepairExpiredException(); // Check for expired
-        if (MathUtils.bukkit2MovecraftLoc(sign.getLocation()) != origin) {
+        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation()))) {
             MovecraftRepair.getInstance().getLogger().info("Calculated origin: " + origin);
             MovecraftRepair.getInstance().getLogger().info("sign location: " + MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
             throw new ProtoRepairLocationException(); // Check for origin
