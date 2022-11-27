@@ -178,8 +178,9 @@ public class RepairSign implements Listener {
 
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %.2f", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
 
-        // Add to cache
-        MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
+        // Add to cache only if not empty
+        if (!protoRepair.getQueue().isEmpty())
+            MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {
