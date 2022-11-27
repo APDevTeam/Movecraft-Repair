@@ -122,15 +122,16 @@ public class ProtoRepair {
                     continue;
 
                 int remainingCount = remaining.get(m);
-                int currentCount = contents.get(m);
-                if (remainingCount >= currentCount) {
+                int contentsCount = contents.get(m);
+                if (contentsCount >= remainingCount) {
                     // Enough items found, clear the material from remaining
                     remaining.clear(m);
+                    toRemove.add(m, remainingCount);
                 } else {
                     // Not enough items found, subtract what we have
-                    remaining.set(m, remainingCount - currentCount);
+                    remaining.set(m, remainingCount - contentsCount);
+                    toRemove.add(m, remainingCount - contentsCount);
                 }
-                toRemove.add(m, remainingCount - currentCount);
             }
             itemsToRemove.put(location, toRemove);
         }
