@@ -151,6 +151,9 @@ public class ProtoRepair {
     private void removeInventory(Inventory inventory, Counter<Material> remaining) throws ItemRemovalException {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
+            if (stack == null)
+                continue;
+
             Material m = stack.getType();
             if (!remaining.getKeySet().contains(m))
                 continue;
