@@ -46,6 +46,8 @@ public class RepairUtils {
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
         for (ItemStack stack : items) {
+            if (stack == null)
+                continue;
             if (!checkAllowedInventoryFill(currentType, stack.getType()))
                 continue;
 
