@@ -100,7 +100,7 @@ public class WEUtils {
             new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
             new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ())
         );
-        surrounding = ((BitmapHitBox) surrounding).difference(hitbox);
+        surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
         World bukkitWorld = craft.getWorld();
         com.sk89q.worldedit.world.World world = new BukkitWorld(bukkitWorld);
