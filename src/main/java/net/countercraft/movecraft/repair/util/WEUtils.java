@@ -151,7 +151,10 @@ public class WEUtils {
     @Nullable
     public static Counter<Material> getBlockContents(BaseBlock block) {
         Counter<Material> counter = new Counter<>();
-        ListTag blockItems = block.getNbtData().getListTag("Items");
+        CompoundTag blockNBT = block.getNbtData();
+        if (blockNBT == null)
+            return null;
+        ListTag blockItems = blockNBT.getListTag("Items");
         if (blockItems == null)
             return null;
 
