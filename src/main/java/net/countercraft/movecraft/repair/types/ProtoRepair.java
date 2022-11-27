@@ -94,7 +94,7 @@ public class ProtoRepair {
             if (!(state instanceof Container))
                 throw new ItemRemovalException();
 
-            removeInventory((Inventory) state, entry.getValue());
+            removeInventory(((Container) state).getInventory(), entry.getValue());
         }
 
         // Start repair
