@@ -188,7 +188,7 @@ public class RepairSign implements Listener {
         long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
 
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %d", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %.2f", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
 
         // Add to cache
         MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
