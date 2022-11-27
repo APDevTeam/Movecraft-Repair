@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,9 +34,36 @@ public class InventoryRepair extends RepairTask {
         }
 
         Container container = (Container) state;
-        container.getInventory().addItem(item); // Ignore overflow
-        container.update(true, false);
+        addInventory(container.getInventory(), item);
         done = true;
         MovecraftRepair.getInstance().getLogger().info("Done");
+    }
+
+    private void addInventory(Inventory inventory, ItemStack item) {
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack == null) {
+                // Empty stack, set to the target and return
+                inventory.setItem(i, item);
+                return;
+            }
+
+            if (stack.getType() != item.getType())
+                continue; // Wrong type
+
+            int currentCount = stack.getAmount();
+            int remainingCount = item.getAmount();
+            int toSetCount = Math.min(currentCount + remainingCount, item.getType().getMaxStackSize());
+            remainingCount -= (toSetCount - currentCount);
+
+            // Set stack and update inventory
+            stack.setAmount(toSetCount);
+            inventory.setItem(i, stack);
+
+            // Update remaining count
+            if (remainingCount == 0)
+                return; // Completed adding to inventory
+            item.setAmount(remainingCount);
+        }
     }
 }
