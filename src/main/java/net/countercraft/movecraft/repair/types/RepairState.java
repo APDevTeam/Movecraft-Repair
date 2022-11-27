@@ -79,7 +79,7 @@ public class RepairState {
 
     public ProtoRepair execute(Sign sign) throws WorldEditException {
         // Rotate repair around the sign
-        Clipboard clipboard = rotate(sign);
+        Clipboard clipboard = schematic;//rotate(sign);
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
