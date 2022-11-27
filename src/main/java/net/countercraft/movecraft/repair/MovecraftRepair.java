@@ -1,7 +1,7 @@
 package net.countercraft.movecraft.repair;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.EnumSet;
 
 import org.bukkit.Material;
@@ -94,14 +94,14 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);
         Config.RepairTool = Material.valueOf(config.getString("RepairTool", "firework_rocket").toUpperCase());
         Object entry = config.get("RepairBlobs");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairBlobs must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             EnumSet<Material> result = EnumSet.noneOf(Material.class);
-            if (object instanceof ArrayList) {
+            if (object instanceof List) {
                 // Handle an array of materials and/or tags
-                for (Object o : (ArrayList<?>) object) {
+                for (Object o : (List<?>) object) {
                     if (!(o instanceof String)) {
                         throw new InvalidValueException("RepairBlobs array entries must be strings.");
                     }
@@ -116,10 +116,10 @@ public final class MovecraftRepair extends JavaPlugin {
             Config.RepairBlobs.add(result);
         }
         entry = config.get("RepairDispenserItems");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairDispenserItems must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             if (object instanceof String) {
                 // Handle a single material or tag
                 Config.RepairDispenserItems.addAll(Tags.parseMaterials((String) object));
@@ -128,10 +128,10 @@ public final class MovecraftRepair extends JavaPlugin {
             }
         }
         entry = config.get("RepairFurnaceItems");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairFurnaceItems must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             if (object instanceof String) {
                 // Handle a single material or tag
                 Config.RepairFurnaceItems.addAll(Tags.parseMaterials((String) object));
@@ -140,10 +140,10 @@ public final class MovecraftRepair extends JavaPlugin {
             }
         }
         entry = config.get("RepairDropperItems");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairDropperItems must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             if (object instanceof String) {
                 // Handle a single material or tag
                 Config.RepairDropperItems.addAll(Tags.parseMaterials((String) object));
@@ -152,10 +152,10 @@ public final class MovecraftRepair extends JavaPlugin {
             }
         }
         entry = config.get("RepairFirstPass");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairFirstPass must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             if (object instanceof String) {
                 // Handle a single material or tag
                 Config.RepairFirstPass.addAll(Tags.parseMaterials((String) object));
@@ -164,10 +164,10 @@ public final class MovecraftRepair extends JavaPlugin {
             }
         }
         entry = config.get("RepairLastPass");
-        if (!(entry instanceof ArrayList)) {
+        if (!(entry instanceof List)) {
             throw new InvalidValueException("RepairLastPass must be a list.");
         }
-        for (Object object : (ArrayList<?>) entry) {
+        for (Object object : (List<?>) entry) {
             if (object instanceof String) {
                 // Handle a single material or tag
                 Config.RepairLastPass.addAll(Tags.parseMaterials((String) object));
