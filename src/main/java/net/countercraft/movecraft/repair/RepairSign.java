@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -24,6 +22,7 @@ import com.sk89q.worldedit.WorldEditException;
 import net.countercraft.movecraft.craft.CraftManager;
 import net.countercraft.movecraft.craft.PlayerCraft;
 import net.countercraft.movecraft.craft.type.CraftType;
+import net.countercraft.movecraft.events.CraftReleaseEvent;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.ProtoRepair;
@@ -91,66 +90,93 @@ public class RepairSign implements Listener {
         ProtoRepair protoRepair = MovecraftRepair.getInstance().getProtoRepairCache().get(uuid);
         if (protoRepair == null) {
             // No cached repair (or expired)
-            String stateName = ChatColor.stripColor(sign.getLine(1));
-
-            // Get the repair state from file
-            RepairState state;
-            try {
-                state = new RepairState(uuid, stateName);
-            }
-            catch (IOException e) {
-                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
-                return;
-            }
-
-            // Convert to a proto repair
-            try {
-                protoRepair = state.execute(sign);
-            }
-            catch (WorldEditException e) {
-                player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
-                return;
-            }
-
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
-            double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
-            if (percent > Config.RepairMaxPercent) {
-                player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
-                return;
-            }
-
-            for (Material m : protoRepair.getMaterials().getKeySet()) {
-                player.sendMessage(String.format("%s : %d", m, protoRepair.getMaterials().get(m)));
-            }
-
-            long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
-
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %d", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
-
-            // Add to cache
-            MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
+            createProtoRepair(sign, uuid, player, craft);
+            return;
         }
-        else {
-            // Cached and repair, try running it
-            Repair repair;
-            try {
-                repair = protoRepair.execute(craft, sign);
+
+        // Cached repair, see if the player has the money (if the economy is enabled)
+        double cost = 0;
+        if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
+            cost = protoRepair.getQueue().size() * Config.RepairMoneyPerBlock;
+            if (MovecraftRepair.getInstance().getEconomy().has(player, cost)) {
+                // Player can afford it
+                MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
             }
-            catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
-                // ItemRemovalException shouldn't happen, but fall through regardless
-                return; // Expired or wrong location, just fall through
-            }
-            catch (ProtoRepair.NotEnoughItemsException e) {
-                // Not enough items
+            else {
+                // Player can't afford it
+                player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
                 return;
             }
-
-            MovecraftRepair.getInstance().getRepairManager().add(repair);
-
-            // TODO: Tell the player?
         }
+
+        // Try running the repair
+        Repair repair;
+        try {
+            repair = protoRepair.execute(craft, sign);
+        }
+        catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
+            // ItemRemovalException shouldn't happen, but go back to first click regardless
+            // Expired or wrong location, go back to first click
+            createProtoRepair(sign, uuid, player, craft);
+            return;
+        }
+        catch (ProtoRepair.NotEnoughItemsException e) {
+            // Not enough items, tell the player
+            for (Material m : e.getRemaining().getKeySet()) {
+                player.sendMessage(I18nSupport.getInternationalisedString("Repair - Need more of material") + String.format(": %s - %d", m, e.getRemaining().get(m)));
+            }
+            return;
+        }
+
+        // Start the repair
+        final double finalCost = cost;
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun a repair with the cost of %.2f", player.getName(), finalCost));
+        MovecraftRepair.getInstance().getRepairManager().add(repair);
+        CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
+    }
+
+    private void createProtoRepair(Sign sign, UUID uuid, Player player, PlayerCraft craft) {
+        String stateName = ChatColor.stripColor(sign.getLine(1));
+
+        // Get the repair state from file
+        RepairState state;
+        try {
+            state = new RepairState(uuid, stateName);
+        }
+        catch (IOException e) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
+            return;
+        }
+
+        // Convert to a proto repair
+        ProtoRepair protoRepair;
+        try {
+            protoRepair = state.execute(sign);
+        }
+        catch (WorldEditException e) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
+            return;
+        }
+
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
+        double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
+        if (percent > Config.RepairMaxPercent) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
+            return;
+        }
+
+        for (Material m : protoRepair.getMaterials().getKeySet()) {
+            player.sendMessage(String.format("%s : %d", m, protoRepair.getMaterials().get(m)));
+        }
+
+        long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
+
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %d", protoRepair.getMaterials().size() * Config.RepairMoneyPerBlock));
+
+        // Add to cache
+        MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {
