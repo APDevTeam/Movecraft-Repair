@@ -19,16 +19,15 @@ public class RepairManager extends BukkitRunnable {
         Set<Repair> completed = new HashSet<>();
         Set<Repair> executed = new HashSet<>();
         while (System.nanoTime() - start < Config.RepairMaxTickTime) {
-            Repair repair = repairs.poll();
+            Repair repair = repairs.peek();
             if (repair == null) {
-                MovecraftRepair.getInstance().getLogger().info("End of queue");
                 break; // No repairs, jump out
             }
 
             MovecraftRepair.getInstance().getLogger().info("Running repair for " + repair.getPlayerUUID());
             if (repair.run()) {
                 // Repair placed at least a block, return to back of queue
-                executed.add(repair);
+                executed.add(repairs.poll());
                 MovecraftRepair.getInstance().getLogger().info("Repair executed");
             }
             // Else leave at top of queue
