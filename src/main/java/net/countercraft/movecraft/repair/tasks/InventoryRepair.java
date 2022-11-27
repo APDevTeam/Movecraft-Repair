@@ -57,6 +57,7 @@ public class InventoryRepair extends RepairTask {
             remainingCount -= (toSetCount - currentCount);
 
             // Set stack and update inventory
+            MovecraftRepair.getInstance().getLogger().info("Changing " + i + " from " + currentCount + " to " + toSetCount);
             stack.setAmount(toSetCount);
             inventory.setItem(i, stack);
 
