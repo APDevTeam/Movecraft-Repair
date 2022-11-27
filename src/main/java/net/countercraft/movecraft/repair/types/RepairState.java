@@ -88,28 +88,17 @@ public class RepairState {
         int damagedBlockCount = 0;
         Location signLocation = sign.getLocation();
         Location worldMinPos = signLocation.subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
-        MovecraftRepair.getInstance().getLogger().info("signLocation: " + signLocation);
-        MovecraftRepair.getInstance().getLogger().info("worldMinPos: " + worldMinPos);
-        MovecraftRepair.getInstance().getLogger().info("schematicMinPos: " + schematicMinPos);
-        MovecraftRepair.getInstance().getLogger().info("schematicSignOffset: " + schematicSignOffset);
-        MovecraftRepair.getInstance().getLogger().info("size: " + size);
-
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
-                    MovecraftRepair.getInstance().getLogger().info("x,y,z: " + x + "," + y + "," + z);
                     BlockVector3 schematicPosition = schematicMinPos.add(x, y, z);
-                    MovecraftRepair.getInstance().getLogger().info("schematicPosition: " + schematicPosition);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
-                    MovecraftRepair.getInstance().getLogger().info("schematicMaterial: " + schematicMaterial);
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
                     Location worldPosition = new Location(world, x, y, z).add(worldMinPos);
-                    MovecraftRepair.getInstance().getLogger().info("worldPosition: " + worldPosition);
                     Block worldBlock = worldPosition.getBlock();
                     Material worldMaterial = worldBlock.getType();
-                    MovecraftRepair.getInstance().getLogger().info("worldMaterial: " + worldMaterial);
                     BlockState worldState = worldBlock.getState();
 
                     // Handle block repair
