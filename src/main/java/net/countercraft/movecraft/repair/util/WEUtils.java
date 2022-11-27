@@ -167,9 +167,9 @@ public class WEUtils {
             BlockType type = new BlockType(id);
             Material material = BukkitAdapter.adapt(type);
 
-            byte count = ct.getByte("count");
+            byte count = ct.getByte("Count");
 
-            counter.add(material, (int) count);
+            counter.add(material, count);
         }
         return counter;
     }
