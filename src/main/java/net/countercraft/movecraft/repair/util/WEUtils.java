@@ -61,7 +61,7 @@ public class WEUtils {
      */
     @Nullable
     public static Clipboard loadSchematic(File directory, String name) throws IOException {
-        name += SCHEMATIC_FORMAT.getPrimaryFileExtension();
+        name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File file = new File(directory, name);
         Clipboard clipboard;
         try {
@@ -83,11 +83,11 @@ public class WEUtils {
      */
     public static boolean saveCraftSchematic(@NotNull PilotedCraft craft, @NotNull Sign sign) {
         File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        if (!repairDirectory.exists())
-            repairDirectory.mkdirs();
         File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
+        if (!playerDirectory.exists())
+            playerDirectory.mkdirs();
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += SCHEMATIC_FORMAT.getPrimaryFileExtension();
+        repairName += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File repairFile = new File(playerDirectory, repairName);
 
         HitBox hitbox = craft.getHitBox();
