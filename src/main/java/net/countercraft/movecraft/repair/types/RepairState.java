@@ -86,17 +86,25 @@ public class RepairState {
         Counter<Material> materials = new Counter<>(); // TODO: Handle partial blocks (ex: doors)
         RepairQueue queue = new RepairQueue();
         int damagedBlockCount = 0;
+        MovecraftRepair.getInstance().getLogger().info("minPos: " + minPos);
+        MovecraftRepair.getInstance().getLogger().info("worldOffset: " + worldOffset);
+        MovecraftRepair.getInstance().getLogger().info("size: " + size);
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
+                    MovecraftRepair.getInstance().getLogger().info("x,y,z: " + x + "," + y + "," + z);
                     BlockVector3 schematicPosition = minPos.add(x, y, z);
+                    MovecraftRepair.getInstance().getLogger().info("schematicPosition: " + schematicPosition);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
+                    MovecraftRepair.getInstance().getLogger().info("schematicMaterial: " + schematicMaterial);
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
-                    Location worldPosition = new Location(world, x, y, z);
+                    Location worldPosition = new Location(world, x, y, z).add(worldOffset.getBlockX(), worldOffset.getBlockY(), worldOffset.getBlockZ());
+                    MovecraftRepair.getInstance().getLogger().info("worldPosition: " + worldPosition);
                     Block worldBlock = worldPosition.getBlock();
                     Material worldMaterial = worldBlock.getType();
+                    MovecraftRepair.getInstance().getLogger().info("worldMaterial: " + worldMaterial);
                     BlockState worldState = worldBlock.getState();
 
                     // Handle block repair
