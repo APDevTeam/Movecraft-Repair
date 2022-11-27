@@ -32,7 +32,7 @@ RepairDispenserItems: # Items which can be repaired into dispensers
  - "tnt"
  - "fire_charge"
  - "water_bucket"
-RepairFuranceItems: # Items which can be repaired into furnaces
+RepairFurnaceItems: # Items which can be repaired into furnaces
  - "coal_block"
  - "charcoal"
  - "coal"

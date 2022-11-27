@@ -129,7 +129,6 @@ public final class MovecraftRepair extends JavaPlugin {
         }
         entry = config.get("RepairFurnaceItems");
         if (!(entry instanceof List)) {
-            MovecraftRepair.getInstance().getLogger().info("RepairFurnaceItems Type: " + entry.getClass().getName());
             throw new InvalidValueException("RepairFurnaceItems must be a list.");
         }
         for (Object object : (List<?>) entry) {
