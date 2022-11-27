@@ -86,8 +86,7 @@ public class RepairState {
         Counter<Material> materials = new Counter<>(); // TODO: Handle partial blocks (ex: doors)
         RepairQueue queue = new RepairQueue();
         int damagedBlockCount = 0;
-        Location signLocation = sign.getLocation();
-        Location worldMinPos = signLocation.subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
+        Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
@@ -123,7 +122,7 @@ public class RepairState {
 
         // TODO: Do stuff with repair blobs
 
-        return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(signLocation));
+        return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
     }
 
     private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {
