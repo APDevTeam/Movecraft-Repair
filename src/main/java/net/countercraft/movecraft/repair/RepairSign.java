@@ -174,7 +174,7 @@ public class RepairSign implements Listener {
         MovecraftRepair.getInstance().getLogger().info("bc");
         player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
         double percent = protoRepair.getDamagedBlockCount() * 100.0 / craft.getHitBox().size();
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + ": " + percent);
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + String.format(": %.2f", percent));
         if (percent > Config.RepairMaxPercent) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
             return;
