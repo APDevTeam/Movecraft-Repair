@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
@@ -69,8 +70,11 @@ public class ProtoRepair {
             NotEnoughItemsException {
         if (isExpired())
             throw new ProtoRepairExpiredException(); // Check for expired
-        if (MathUtils.bukkit2MovecraftLoc(sign.getLocation()) != origin)
+        if (MathUtils.bukkit2MovecraftLoc(sign.getLocation()) != origin) {
+            MovecraftRepair.getInstance().getLogger().info("Calculated origin: " + origin);
+            MovecraftRepair.getInstance().getLogger().info("sign location: " + MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
             throw new ProtoRepairLocationException(); // Check for origin
+        }
 
         // Check materials
         Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
