@@ -41,31 +41,33 @@ public class InventoryRepair extends RepairTask {
     }
 
     private void addInventory(Inventory inventory, ItemStack item) {
+        int remainingCount = item.getAmount();
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack == null || stack.getType() == Material.AIR) {
-                // Empty stack, set to the target and return
-                inventory.setItem(i, item);
-                return;
+                // Empty stack, set to the max size
+                item.setAmount(item.getType().getMaxStackSize());
+                remainingCount -= item.getType().getMaxStackSize();
+                MovecraftRepair.getInstance().getLogger().info("Setting" + i + " to " + item.getType().getMaxStackSize());
+            }
+            else {
+                if (stack.getType() != item.getType())
+                    continue; // Wrong type
+
+                // Fill stack up to the max
+                int currentCount = stack.getAmount();
+                int toSetCount = Math.min(currentCount + remainingCount, item.getType().getMaxStackSize());
+                item.setAmount(toSetCount);
+                remainingCount -= (toSetCount - currentCount);
+                MovecraftRepair.getInstance().getLogger().info("Changing " + i + " from " + currentCount + " to " + toSetCount);
             }
 
-            if (stack.getType() != item.getType())
-                continue; // Wrong type
+            // Update inventory
+            inventory.setItem(i, item);
 
-            int currentCount = stack.getAmount();
-            int remainingCount = item.getAmount();
-            int toSetCount = Math.min(currentCount + remainingCount, item.getType().getMaxStackSize());
-            remainingCount -= (toSetCount - currentCount);
-
-            // Set stack and update inventory
-            MovecraftRepair.getInstance().getLogger().info("Changing " + i + " from " + currentCount + " to " + toSetCount);
-            stack.setAmount(toSetCount);
-            inventory.setItem(i, stack);
-
-            // Update remaining count
+            // Return if we are done
             if (remainingCount == 0)
-                return; // Completed adding to inventory
-            item.setAmount(remainingCount);
+                return;
         }
     }
 }
