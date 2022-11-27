@@ -36,8 +36,8 @@ public class RepairState {
     private UUID uuid;
     private String name;
     private Clipboard schematic;
-    private BlockVector3 minPos;
-    private BlockVector3 worldOffset;
+    private BlockVector3 schematicMinPos;
+    private BlockVector3 schematicSignOffset;
     private BlockVector3 size;
 
     public RepairState(UUID uuid, String name) throws IOException, IllegalStateException {
@@ -49,8 +49,8 @@ public class RepairState {
             throw new IllegalStateException("Unable to create player directory");
 
         schematic = WEUtils.loadSchematic(playerDirectory, name);
-        minPos = schematic.getMinimumPoint();
-        worldOffset = schematic.getOrigin().subtract(minPos);
+        schematicMinPos = schematic.getMinimumPoint();
+        schematicSignOffset = schematic.getOrigin().subtract(schematicMinPos);
         size = schematic.getDimensions();
     }
 
@@ -65,8 +65,8 @@ public class RepairState {
     private Clipboard rotate(Sign sign) throws WorldEditException {
         BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
 
-        BlockVector3 offset = signPosition.subtract(worldOffset);
-        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(minPos);
+        BlockVector3 offset = signPosition.subtract(schematicSignOffset);
+        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(schematicMinPos);
         BaseBlock schematicSign = schematic.getFullBlock(schematicSignPosition);
         BlockFace schematicSignFacing = RotationUtils.getRotation(schematicSign);
 
@@ -86,21 +86,26 @@ public class RepairState {
         Counter<Material> materials = new Counter<>(); // TODO: Handle partial blocks (ex: doors)
         RepairQueue queue = new RepairQueue();
         int damagedBlockCount = 0;
-        MovecraftRepair.getInstance().getLogger().info("minPos: " + minPos);
-        MovecraftRepair.getInstance().getLogger().info("worldOffset: " + worldOffset);
+        Location signLocation = sign.getLocation();
+        Location worldMinPos = signLocation.subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
+        MovecraftRepair.getInstance().getLogger().info("signLocation: " + signLocation);
+        MovecraftRepair.getInstance().getLogger().info("worldMinPos: " + worldMinPos);
+        MovecraftRepair.getInstance().getLogger().info("schematicMinPos: " + schematicMinPos);
+        MovecraftRepair.getInstance().getLogger().info("schematicSignOffset: " + schematicSignOffset);
         MovecraftRepair.getInstance().getLogger().info("size: " + size);
+
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
                     MovecraftRepair.getInstance().getLogger().info("x,y,z: " + x + "," + y + "," + z);
-                    BlockVector3 schematicPosition = minPos.add(x, y, z);
+                    BlockVector3 schematicPosition = schematicMinPos.add(x, y, z);
                     MovecraftRepair.getInstance().getLogger().info("schematicPosition: " + schematicPosition);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
                     MovecraftRepair.getInstance().getLogger().info("schematicMaterial: " + schematicMaterial);
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
-                    Location worldPosition = new Location(world, x, y, z).add(worldOffset.getBlockX(), worldOffset.getBlockY(), worldOffset.getBlockZ());
+                    Location worldPosition = new Location(world, x, y, z).add(worldMinPos);
                     MovecraftRepair.getInstance().getLogger().info("worldPosition: " + worldPosition);
                     Block worldBlock = worldPosition.getBlock();
                     Material worldMaterial = worldBlock.getType();
