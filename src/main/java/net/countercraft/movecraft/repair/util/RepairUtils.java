@@ -68,6 +68,9 @@ public class RepairUtils {
 
         Counter<Material> result = new Counter<>();
         for (Material material : targetContents.getKeySet()) {
+            if (!checkAllowedInventoryFill(currentType, material))
+                continue; // Skip un-allowed materials
+
             int target = targetContents.get(material);
             int current = currentContents.get(material);
             if (current == 0) {
