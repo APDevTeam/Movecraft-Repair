@@ -2,6 +2,7 @@ package net.countercraft.movecraft.repair.types;
 
 import java.util.Comparator;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 
 import net.countercraft.movecraft.repair.config.Config;
@@ -33,13 +34,17 @@ public class RepairComparator implements Comparator<RepairTask> {
     @Override
     public int compare(RepairTask first, RepairTask second) {
         Result result = compareClasses(first, second);
-        if (result != Result.UNKNOWN) {
+        if (result != Result.UNKNOWN)
             return resultToCompare(result);
-        }
 
         if (!(first instanceof BlockRepair) || !(second instanceof BlockRepair))
             throw new IllegalStateException();
+
         result = compareMaterials((BlockRepair) first, (BlockRepair) second);
+        if (result != Result.NO_ORDER)
+            return resultToCompare(result);
+
+        result = compareLocations((BlockRepair) first, (BlockRepair) second);
         return resultToCompare(result);
     }
 
@@ -102,5 +107,27 @@ public class RepairComparator implements Comparator<RepairTask> {
                 return Result.NO_ORDER;
             }
         }
+    }
+
+    private Result compareLocations(BlockRepair first, BlockRepair second) {
+        Location firstLocation = first.getLocation();
+        Location secondLocation = second.getLocation();
+
+        if (firstLocation.getBlockX() < secondLocation.getBlockX())
+            return Result.FIRST;
+        else if (secondLocation.getBlockX() < firstLocation.getBlockX())
+            return Result.SECOND;
+
+        if (firstLocation.getBlockZ() < secondLocation.getBlockZ())
+            return Result.FIRST;
+        else if (secondLocation.getBlockZ() < firstLocation.getBlockZ())
+            return Result.SECOND;
+
+        if (firstLocation.getBlockY() < secondLocation.getBlockY())
+            return Result.FIRST;
+        else if (secondLocation.getBlockY() < firstLocation.getBlockY())
+            return Result.SECOND;
+
+        return Result.NO_ORDER; // Somehow two repairs of the same location and material?!?
     }
 }
