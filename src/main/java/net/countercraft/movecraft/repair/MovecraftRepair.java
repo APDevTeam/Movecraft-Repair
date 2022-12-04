@@ -2,7 +2,7 @@ package net.countercraft.movecraft.repair;
 
 import java.io.File;
 import java.util.List;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,6 +16,10 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
+import net.countercraft.movecraft.repair.types.ListBlob;
+import net.countercraft.movecraft.repair.types.MaterialBlob;
+import net.countercraft.movecraft.repair.types.RepairBlob;
+import net.countercraft.movecraft.repair.types.TagBlob;
 import net.countercraft.movecraft.util.Tags;
 import net.milkbowl.vault.economy.Economy;
 
@@ -98,22 +102,26 @@ public final class MovecraftRepair extends JavaPlugin {
             throw new InvalidValueException("RepairBlobs must be a list.");
         }
         for (Object object : (List<?>) entry) {
-            EnumSet<Material> result = EnumSet.noneOf(Material.class);
+            RepairBlob blob;
+
             if (object instanceof List) {
-                // Handle an array of materials and/or tags
-                for (Object o : (List<?>) object) {
-                    if (!(o instanceof String)) {
-                        throw new InvalidValueException("RepairBlobs array entries must be strings.");
-                    }
-                    result.addAll(Tags.parseMaterials((String) o));
+                blob = new ListBlob((List<?>) object);
+            }
+            else if (object instanceof String) {
+                String s = (String) object;
+                Set<Material> set = Tags.parseBlockRegistry(s);
+                if (set == null) {
+                    blob = new MaterialBlob(s);
                 }
-            } else if (object instanceof String) {
-                // Handle a single material or tag
-                result.addAll(Tags.parseMaterials((String) object));
-            } else {
+                else {
+                    blob = new TagBlob(s, set);
+                }
+            }
+            else {
                 throw new InvalidValueException("RepairBlobs entries must be a list or material name.");
             }
-            Config.RepairBlobs.add(result);
+
+            RepairBlobManager.add(blob);
         }
         entry = config.get("RepairDispenserItems");
         if (!(entry instanceof List)) {
