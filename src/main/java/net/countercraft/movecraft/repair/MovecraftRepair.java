@@ -111,14 +111,14 @@ public final class MovecraftRepair extends JavaPlugin {
                 String s = (String) object;
                 Set<Material> set = Tags.parseBlockRegistry(s);
                 if (set == null) {
-                    blob = new MaterialBlob(s);
+                    throw new InvalidValueException("RepairBlobs entries must be a list or tag name.");
                 }
                 else {
                     blob = new TagBlob(s, set);
                 }
             }
             else {
-                throw new InvalidValueException("RepairBlobs entries must be a list or material name.");
+                throw new InvalidValueException("RepairBlobs entries must be a list or tag name.");
             }
 
             RepairBlobManager.add(blob);
