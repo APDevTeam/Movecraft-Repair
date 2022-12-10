@@ -23,7 +23,9 @@ public class RepairUtils {
     static {
         materialRemapping.put(Material.REDSTONE_WIRE, Material.REDSTONE);
         materialRemapping.put(Material.LAVA_BUCKET, Material.AIR);
+        materialRemapping.put(Material.LAVA, Material.AIR);
         materialRemapping.put(Material.WATER_BUCKET, Material.AIR);
+        materialRemapping.put(Material.WATER, Material.AIR);
 
         // Doors and beds are two blocks each, so only charge half for each block
         for (Material m : Tag.DOORS.getValues()) {
