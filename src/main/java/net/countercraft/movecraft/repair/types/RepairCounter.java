@@ -4,6 +4,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 
 public class RepairCounter {
     private Object2DoubleMap<RepairBlob> backing = new Object2DoubleOpenHashMap<>();

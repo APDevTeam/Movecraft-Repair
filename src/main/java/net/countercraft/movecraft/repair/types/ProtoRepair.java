@@ -25,12 +25,12 @@ import net.countercraft.movecraft.util.Tags;
 public class ProtoRepair {
     private UUID uuid;
     private RepairQueue queue;
-    private Counter<Material> materials;
+    private RepairCounter materials;
     private int damagedBlockCount;
     private MovecraftLocation origin;
     private long calculationTime;
 
-    public ProtoRepair(UUID uuid, RepairQueue queue, Counter<Material> materials, int damagedBlockCount, MovecraftLocation origin) {
+    public ProtoRepair(UUID uuid, RepairQueue queue, RepairCounter materials, int damagedBlockCount, MovecraftLocation origin) {
         this.uuid = uuid;
         this.queue = queue;
         this.materials = materials;
@@ -47,7 +47,7 @@ public class ProtoRepair {
         return queue;
     }
 
-    public Counter<Material> getMaterials() {
+    public RepairCounter getMaterials() {
         return materials;
     }
 

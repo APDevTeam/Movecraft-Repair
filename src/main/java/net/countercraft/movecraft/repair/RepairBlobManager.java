@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
-import net.countercraft.movecraft.repair.types.RepairBlob;
+import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 
 public class RepairBlobManager {
     private static Object2ObjectMap<Material, RepairBlob> backing = new Object2ObjectOpenHashMap<>();

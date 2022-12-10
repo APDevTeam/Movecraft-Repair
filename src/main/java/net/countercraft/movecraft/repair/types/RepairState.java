@@ -22,6 +22,7 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.repair.MovecraftRepair;
+import net.countercraft.movecraft.repair.RepairBlobManager;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
@@ -83,7 +84,7 @@ public class RepairState {
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
-        Counter<Material> materials = new Counter<>(); // TODO: Handle partial blocks (ex: doors)
+        RepairCounter materials = new RepairCounter();
         RepairQueue queue = new RepairQueue();
         int damagedBlockCount = 0;
         Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
@@ -102,7 +103,7 @@ public class RepairState {
 
                     // Handle block repair
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
-                        materials.add(schematicMaterial);
+                        materials.add(RepairBlobManager.get(schematicMaterial), 1); // TODO
                         queue.add(new BlockRepair(worldPosition, schematicData));
                         damagedBlockCount++;
                     }
@@ -113,7 +114,9 @@ public class RepairState {
                     if (!inventoryRepair.getLeft())
                         continue;
 
-                    materials.add(inventoryRepair.getRight());
+                    for (Material m : inventoryRepair.getRight().getKeySet()) {
+                        materials.add(RepairBlobManager.get(m), inventoryRepair.getRight().get(m));
+                    }
                     addInventoryTasks(queue, worldPosition, inventoryRepair.getRight());
                 }
             }
