@@ -1,5 +1,6 @@
 # Movecraft-Repair Addon
-![Repair](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
+![CI](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
+[![Codebeat](https://codebeat.co/badges/ff25e74b-fac0-4b21-8dc3-adf7121a6dca)](https://codebeat.co/projects/github-com-apdevteam-movecraft-repair-main)
 
 Home of the code for the following features:
  - Craft repair signs
