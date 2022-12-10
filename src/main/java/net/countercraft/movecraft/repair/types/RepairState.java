@@ -124,8 +124,6 @@ public class RepairState {
             }
         }
 
-        // TODO: Do stuff with repair blobs
-
         return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
     }
 

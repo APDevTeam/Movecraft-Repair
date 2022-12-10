@@ -28,6 +28,7 @@ import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.ProtoRepair;
 import net.countercraft.movecraft.repair.types.Repair;
 import net.countercraft.movecraft.repair.types.RepairState;
+import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.repair.util.WEUtils;
 
 public class RepairSign implements Listener {
@@ -123,8 +124,15 @@ public class RepairSign implements Listener {
         }
         catch (ProtoRepair.NotEnoughItemsException e) {
             // Not enough items, tell the player
-            for (Material m : e.getRemaining().getKeySet()) {
-                player.sendMessage(I18nSupport.getInternationalisedString("Repair - Need more of material") + String.format(": %s - %d", m, e.getRemaining().get(m)));
+            for (RepairBlob blob : e.getRemaining().getKeySet()) {
+                player.sendMessage(
+                    I18nSupport.getInternationalisedString("Repair - Need more of material")
+                    + String.format(
+                        ": %s - %d",
+                        blob.getName(),
+                        (int) Math.ceil(e.getRemaining().get(blob))
+                    )
+                );
             }
             return;
         }
@@ -169,8 +177,8 @@ public class RepairSign implements Listener {
             return;
         }
 
-        for (Material m : protoRepair.getMaterials().getKeySet()) {
-            player.sendMessage(String.format("%s : %d", m, protoRepair.getMaterials().get(m)));
+        for (RepairBlob blob : protoRepair.getMaterials().getKeySet()) {
+            player.sendMessage(String.format("%s : %d", blob.getName(), protoRepair.getMaterials().get(blob)));
         }
 
         long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);

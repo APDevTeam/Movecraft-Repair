@@ -17,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.repair.RepairBlobManager;
+import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
@@ -73,10 +75,10 @@ public class ProtoRepair {
             throw new ProtoRepairLocationException(); // Check for origin
 
         // Check materials
-        Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
+        Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
 
         // Make sure we have enough
-        Counter<Material> remaining = pair.getLeft();
+        RepairCounter remaining = pair.getLeft();
         if (remaining.size() > 0)
             throw new NotEnoughItemsException(remaining);
 
@@ -100,8 +102,8 @@ public class ProtoRepair {
         return new Repair(uuid, queue);
     }
 
-    public Pair<Counter<Material>, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
-        Counter<Material> remaining = new Counter<>(materials);
+    public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
+        RepairCounter remaining = new RepairCounter(materials);
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = new HashMap<>();
 
         World world = craft.getWorld();
@@ -117,19 +119,20 @@ public class ProtoRepair {
             Counter<Material> contents = sumInventory(((Container) state).getInventory());
             Counter<Material> toRemove = new Counter<>();
             for (Material m : contents.getKeySet()) {
-                if (!remaining.getKeySet().contains(m))
+                RepairBlob blob = RepairBlobManager.get(m);
+                if (!remaining.getKeySet().contains(blob))
                     continue;
 
-                int remainingCount = remaining.get(m);
+                double remainingCount = remaining.get(blob);
                 int contentsCount = contents.get(m);
                 if (contentsCount >= remainingCount) {
                     // Enough items found, clear the material from remaining
-                    remaining.clear(m);
-                    toRemove.add(m, remainingCount);
+                    remaining.clear(blob);
+                    toRemove.add(m, (int) Math.ceil(remainingCount));
                 } else {
                     // Not enough items found, subtract what we have
-                    remaining.set(m, remainingCount - contentsCount);
-                    toRemove.add(m, remainingCount - contentsCount);
+                    remaining.set(blob, remainingCount - contentsCount);
+                    toRemove.add(m, contentsCount);
                 }
             }
             itemsToRemove.put(location, toRemove);
@@ -176,13 +179,13 @@ public class ProtoRepair {
     }
 
     public class NotEnoughItemsException extends IllegalStateException {
-        private final transient Counter<Material> remaining;
+        private final transient RepairCounter remaining;
 
-        public NotEnoughItemsException(Counter<Material> remaining) {
+        public NotEnoughItemsException(RepairCounter remaining) {
             this.remaining = remaining;
         }
 
-        public Counter<Material> getRemaining() {
+        public RepairCounter getRemaining() {
             return remaining;
         }
     }

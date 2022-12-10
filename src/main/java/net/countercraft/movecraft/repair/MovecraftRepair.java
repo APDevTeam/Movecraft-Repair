@@ -17,7 +17,6 @@ import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.blobs.ListBlob;
-import net.countercraft.movecraft.repair.types.blobs.MaterialBlob;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.repair.types.blobs.TagBlob;
 import net.countercraft.movecraft.util.Tags;

@@ -13,12 +13,21 @@ public class RepairCounter {
         backing.defaultReturnValue(0.0);
     }
 
+    public RepairCounter(RepairCounter other) {
+        backing.defaultReturnValue(0.0);
+        backing.putAll(other.backing);
+    }
+
     public double get(RepairBlob blob) {
         return backing.getDouble(blob);
     }
 
     public double add(RepairBlob blob, double count) {
         return backing.put(blob, backing.getDouble(blob) + count);
+    }
+
+    public void set(RepairBlob blob, double count) {
+        backing.put(blob, count);
     }
 
     public double subtract(RepairBlob blob, double count) {
@@ -35,5 +44,9 @@ public class RepairCounter {
 
     public boolean isEmpty() {
         return backing.isEmpty();
+    }
+
+    public int size() {
+        return backing.size();
     }
 }
