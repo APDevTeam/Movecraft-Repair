@@ -104,6 +104,9 @@ public class RepairState {
                     // Handle block repair
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
                         Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
+                        if (requiredMaterial == Material.AIR)
+                            continue;
+
                         materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
                         queue.add(new BlockRepair(worldPosition, schematicData));
                         damagedBlockCount++;
@@ -117,6 +120,9 @@ public class RepairState {
 
                     for (Material m : inventoryRepair.getRight().getKeySet()) {
                         Material requiredMaterial = RepairUtils.remapMaterial(m);
+                        if (requiredMaterial == Material.AIR)
+                            continue;
+
                         materials.add(RepairBlobManager.get(requiredMaterial), inventoryRepair.getRight().get(m));
                     }
                     addInventoryTasks(queue, worldPosition, inventoryRepair.getRight());
