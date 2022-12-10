@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair.types;
+package net.countercraft.movecraft.repair.types.blobs;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
