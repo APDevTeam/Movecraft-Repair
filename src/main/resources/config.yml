@@ -17,7 +17,6 @@ RepairBlobs: # "Blobs" of materials which can be used interchangably to repair
  - "#terracotta"
  - "#beds"
  - "#carpets"
- - "#fences"
  - "#planks"
  - "#signs"
  - "#wooden_buttons"
