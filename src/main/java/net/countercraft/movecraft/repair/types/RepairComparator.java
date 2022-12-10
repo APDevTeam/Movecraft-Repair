@@ -113,6 +113,11 @@ public class RepairComparator implements Comparator<RepairTask> {
         Location firstLocation = first.getLocation();
         Location secondLocation = second.getLocation();
 
+        if (firstLocation.getBlockY() < secondLocation.getBlockY())
+            return Result.FIRST;
+        else if (secondLocation.getBlockY() < firstLocation.getBlockY())
+            return Result.SECOND;
+
         if (firstLocation.getBlockX() < secondLocation.getBlockX())
             return Result.FIRST;
         else if (secondLocation.getBlockX() < firstLocation.getBlockX())
@@ -121,11 +126,6 @@ public class RepairComparator implements Comparator<RepairTask> {
         if (firstLocation.getBlockZ() < secondLocation.getBlockZ())
             return Result.FIRST;
         else if (secondLocation.getBlockZ() < firstLocation.getBlockZ())
-            return Result.SECOND;
-
-        if (firstLocation.getBlockY() < secondLocation.getBlockY())
-            return Result.FIRST;
-        else if (secondLocation.getBlockY() < firstLocation.getBlockY())
             return Result.SECOND;
 
         return Result.NO_ORDER; // Somehow two repairs of the same location and material?!?
