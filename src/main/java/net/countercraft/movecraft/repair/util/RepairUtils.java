@@ -74,16 +74,16 @@ public class RepairUtils {
             case NONE:
                 return null;
             case UP:
-                return location.add(0, 1, 0);
+                return location.clone().add(0, 1, 0);
             case DOWN:
-                return location.add(0, -1, 0);
+                return location.clone().add(0, -1, 0);
             case ANY:
             case SIDE:
                 BlockFace direction = getFaceFromBlockData(blockData);
                 if (direction == null)
                     return null;
 
-                return location.add(direction.getModX(), direction.getModY(), direction.getModZ());
+                return location.clone().add(direction.getModX(), direction.getModY(), direction.getModZ());
             case UNKNOWN:
             default:
                 return null;
