@@ -103,13 +103,14 @@ public class RepairState {
 
                     // Handle block repair
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
+                        queue.add(new BlockRepair(worldPosition, schematicData));
+                        damagedBlockCount++;
+
                         Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
                         if (requiredMaterial == Material.AIR)
                             continue;
 
                         materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
-                        queue.add(new BlockRepair(worldPosition, schematicData));
-                        damagedBlockCount++;
                     }
 
                     // Handle inventory repair
