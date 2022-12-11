@@ -80,6 +80,11 @@ public class RepairComparator implements Comparator<RepairTask> {
         Material firstMaterial = first.getMaterial();
         Material secondMaterial = second.getMaterial();
 
+        if (firstMaterial == Material.OBSERVER && secondMaterial != Material.OBSERVER)
+            return Result.FIRST;
+        if (firstMaterial != Material.OBSERVER && secondMaterial == Material.OBSERVER)
+            return Result.SECOND;
+
         if (Config.RepairFirstPass.contains(firstMaterial)) {
             if (Config.RepairFirstPass.contains(secondMaterial)) {
                 return Result.NO_ORDER;
@@ -131,3 +136,4 @@ public class RepairComparator implements Comparator<RepairTask> {
         return Result.NO_ORDER; // Somehow two repairs of the same location and material?!?
     }
 }
+
