@@ -1,39 +1,29 @@
 package net.countercraft.movecraft.repair.util;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.Tags;
 
 public class RepairUtils {
-    private static Object2ObjectMap<Material, Material> materialRemapping = new Object2ObjectOpenHashMap<>();
-    private static Object2DoubleMap<Material> materialCosts = new Object2DoubleOpenHashMap<>();
-
-    static {
-        materialRemapping.put(Material.REDSTONE_WIRE, Material.REDSTONE);
-        materialRemapping.put(Material.LAVA_BUCKET, Material.AIR);
-        materialRemapping.put(Material.LAVA, Material.AIR);
-        materialRemapping.put(Material.WATER_BUCKET, Material.AIR);
-        materialRemapping.put(Material.WATER, Material.AIR);
-
-        // Doors and beds are two blocks each, so only charge half for each block
-        for (Material m : Tag.DOORS.getValues()) {
-            materialCosts.put(m, 0.5);
-        }
-        for (Material m : Tag.BEDS.getValues()) {
-            materialCosts.put(m, 0.5);
-        }
+    private enum Dependency {
+        NONE,
+        UP,
+        SIDE,
+        DOWN,
+        ANY,
+        UNKNOWN
     }
 
     /**
@@ -44,10 +34,14 @@ public class RepairUtils {
      * @return The material to require
      */
     public static Material remapMaterial(Material material) {
-        if (!materialRemapping.containsKey(material))
-            return material;
+        if (Material.REDSTONE_WIRE == material)
+            return Material.REDSTONE;
+        if (Tags.FLUID.contains(material))
+            return Material.AIR;
+        if (Tags.BUCKETS.contains(material))
+            return Material.AIR;
 
-        return materialRemapping.apply(material);
+        return material;
     }
 
     /**
@@ -57,10 +51,112 @@ public class RepairUtils {
      * @return The cost of the block (half for doors)
      */
     public static double blockCost(Material material) {
-        if (!materialCosts.containsKey(material))
-            return 1;
+        if (Tag.BEDS.isTagged(material))
+            return 0.5;
+        if (Tag.DOORS.isTagged(material))
+            return 0.5;
 
-        return materialCosts.apply(material);
+        return 1;
+    }
+
+    /**
+     * Get the dependency blocks from a material and location
+     * 
+     * @param material The material to check
+     * @param blockData The block data to check
+     * @param location The location of the block to check
+     * @return The location of the dependency
+     */
+    @Nullable
+    public static Location getDependency(Material material, BlockData blockData, Location location) {
+        Dependency dependency = getDependencyType(material);
+        switch (dependency) {
+            case NONE:
+                return null;
+            case UP:
+                return location.add(0, 1, 0);
+            case DOWN:
+                return location.add(0, -1, 0);
+            case ANY:
+            case SIDE:
+                BlockFace direction = getFaceFromBlockData(blockData);
+                if (direction == null)
+                    return null;
+
+                return location.add(direction.getModX(), direction.getModY(), direction.getModZ());
+            case UNKNOWN:
+            default:
+                return null;
+        }
+    }
+
+    @Nullable
+    private static BlockFace getFaceFromBlockData(BlockData data) {
+        if (!(data instanceof Directional))
+            return null;
+
+        return ((Directional) data).getFacing();
+    }
+
+    private static Dependency getDependencyType(Material material) {
+        switch (material) {
+            case LEVER:
+                return Dependency.ANY;
+            case LADDER:
+                return Dependency.SIDE;
+            case WALL_TORCH:
+                return Dependency.SIDE;
+            case TORCH:
+                return Dependency.DOWN;
+            case REDSTONE_WALL_TORCH:
+                return Dependency.SIDE;
+            case REDSTONE_TORCH:
+                return Dependency.DOWN;
+            case REPEATER:
+                return Dependency.DOWN;
+            case COMPARATOR:
+                return Dependency.DOWN;
+            case HEAVY_WEIGHTED_PRESSURE_PLATE:
+                return Dependency.DOWN;
+            case LIGHT_WEIGHTED_PRESSURE_PLATE:
+                return Dependency.DOWN;
+            case SNOW:
+                return Dependency.DOWN;
+            case TRIPWIRE_HOOK:
+                return Dependency.SIDE;
+            case TRIPWIRE:
+                return Dependency.DOWN;
+            default:
+                break;
+        }
+
+        if (material.hasGravity())
+            return Dependency.DOWN;
+
+        if (Tag.WALL_SIGNS.isTagged(material))
+            return Dependency.SIDE;
+        else if (Tag.SIGNS.isTagged(material))
+            return Dependency.DOWN;
+
+        if (Tag.BUTTONS.isTagged(material))
+            return Dependency.ANY;
+
+        if (Tag.CARPETS.isTagged(material))
+            return Dependency.DOWN;
+        if (Tags.FLUID.contains(material))
+            return Dependency.DOWN;
+        if (Tag.DOORS.isTagged(material))
+            return Dependency.DOWN;
+        if (Tag.BEDS.isTagged(material))
+            return Dependency.DOWN;
+        if (Tag.WOODEN_PRESSURE_PLATES.isTagged(material))
+            return Dependency.DOWN;
+        if (Tag.BANNERS.isTagged(material))
+            return Dependency.ANY;
+        if (Tag.RAILS.isTagged(material))
+            return Dependency.DOWN;
+
+        return Dependency.UNKNOWN;
     }
 
     /**

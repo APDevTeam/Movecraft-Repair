@@ -18,9 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
+import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.blocks.SignBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.Extent;
@@ -172,5 +174,19 @@ public class WEUtils {
             counter.add(material, count);
         }
         return counter;
+    }
+
+    /**
+     * Get the sign contents of a WorldEdit block
+     * 
+     * @param block block to check
+     * @return Array of sign lines in the block
+     */
+    @Nullable
+    public static String[] getBlockSignLines(BaseBlock block) {
+        if (!(block instanceof SignBlock))
+            return null;
+
+        return ((SignBlock) block).getText();
     }
 }

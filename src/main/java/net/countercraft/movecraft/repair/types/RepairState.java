@@ -2,10 +2,13 @@ package net.countercraft.movecraft.repair.types;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -26,6 +29,7 @@ import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
+import net.countercraft.movecraft.repair.tasks.SignRepair;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
@@ -87,6 +91,7 @@ public class RepairState {
         World world = sign.getWorld();
         RepairCounter materials = new RepairCounter();
         RepairQueue queue = new RepairQueue();
+        Map<Location, BlockRepair> blockRepairs = new HashMap<>();
         int damagedBlockCount = 0;
         Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
         for (int x = 0; x < size.getBlockX(); x++) {
@@ -107,18 +112,30 @@ public class RepairState {
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
                         blockRepair = new BlockRepair(worldPosition, schematicData);
                         queue.add(blockRepair);
+                        blockRepairs.put(worldPosition, blockRepair);
                         damagedBlockCount++;
+
+                        // Handle dependent block repairs
+                        Location dependency = RepairUtils.getDependency(schematicMaterial, schematicData, worldPosition);
+                        if (dependency != null) {
+                            // Found a dependency, set the block repair's dependency to the respective block repair
+                            blockRepair.setDependency(blockRepairs.get(dependency));
+                        }
 
                         Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
                         if (requiredMaterial == Material.AIR)
                             continue;
 
-                        // TODO: Handle dependant block repairs
-
                         materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
                     }
 
-                    // TODO: Handle sign repair
+                    // Handle sign repair
+                    if (Tag.SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
+                        String[] lines = WEUtils.getBlockSignLines(schematicBlock);
+                        SignRepair signRepair = new SignRepair(worldPosition, lines);
+                        signRepair.setDependency(blockRepair);
+                        queue.add(signRepair);
+                    }
 
                     // Handle inventory repair
                     Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
