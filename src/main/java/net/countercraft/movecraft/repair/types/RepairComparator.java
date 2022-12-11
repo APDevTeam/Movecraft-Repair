@@ -7,9 +7,7 @@ import org.bukkit.Material;
 
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
-import net.countercraft.movecraft.repair.tasks.InventoryRepair;
 import net.countercraft.movecraft.repair.tasks.RepairTask;
-import net.countercraft.movecraft.repair.tasks.SignRepair;
 
 public class RepairComparator implements Comparator<RepairTask> {
     private enum Result {
@@ -35,65 +33,28 @@ public class RepairComparator implements Comparator<RepairTask> {
     @Override
     public int compare(RepairTask first, RepairTask second) {
         Result result = compareClasses(first, second);
-        if (result != Result.UNKNOWN)
-            return resultToCompare(result);
-
-        if (!(first instanceof BlockRepair) || !(second instanceof BlockRepair))
-            throw new IllegalStateException();
-
-        result = compareMaterials((BlockRepair) first, (BlockRepair) second);
         if (result != Result.NO_ORDER)
             return resultToCompare(result);
+
+        if ((first instanceof BlockRepair) && (second instanceof BlockRepair)) {
+            result = compareMaterials((BlockRepair) first, (BlockRepair) second);
+            if (result != Result.NO_ORDER)
+                return resultToCompare(result);
+        }
 
         result = compareLocations((BlockRepair) first, (BlockRepair) second);
         return resultToCompare(result);
     }
 
     private Result compareClasses(RepairTask first, RepairTask second) {
-        if (first instanceof BlockRepair) {
-            // Block repairs are before all other types of repairs
-            if (second instanceof BlockRepair) {
-                return Result.UNKNOWN;
-            } else if (second instanceof SignRepair) {
-                return Result.FIRST;
-            } else if (second instanceof InventoryRepair) {
-                return Result.FIRST;
-            } else {
-                return Result.FIRST;
-            }
-        } else if (first instanceof SignRepair) {
-            // Sign repairs are after block repairs, but before inventory and other repairs
-            if (second instanceof BlockRepair) {
-                return Result.SECOND;
-            } else if (second instanceof SignRepair) {
-                return Result.UNKNOWN;
-            } else if (second instanceof InventoryRepair) {
-                return Result.FIRST;
-            } else {
-                return Result.FIRST;
-            }
-        } else if (first instanceof InventoryRepair) {
-            // Inventory repairs are after block repairs and sign repairs, but before other repairs
-            if (second instanceof BlockRepair) {
-                return Result.SECOND;
-            } else if (second instanceof SignRepair) {
-                return Result.SECOND;
-            } else if (second instanceof InventoryRepair) {
-                return Result.UNKNOWN;
-            } else {
-                return Result.FIRST;
-            }
-        } else {
-            // Other repairs are after all but other repairs
-            if (second instanceof BlockRepair) {
-                return Result.SECOND;
-            } else if (second instanceof SignRepair) {
-                return Result.SECOND;
-            } else if (second instanceof InventoryRepair) {
-                return Result.SECOND;
-            } else {
-                return Result.UNKNOWN;
-            }
+        if (first.getPriority() == second.getPriority()) {
+            return Result.NO_ORDER;
+        }
+        else if (first.getPriority() > second.getPriority()) {
+            return Result.FIRST;
+        }
+        else {
+            return Result.SECOND;
         }
     }
 
@@ -133,21 +94,22 @@ public class RepairComparator implements Comparator<RepairTask> {
         Location firstLocation = first.getLocation();
         Location secondLocation = second.getLocation();
 
+        // Lower is higher priority, with the craft building across z, then x, then y
         if (firstLocation.getBlockY() < secondLocation.getBlockY())
             return Result.FIRST;
-        else if (secondLocation.getBlockY() < firstLocation.getBlockY())
-            return Result.SECOND;
-
-        if (firstLocation.getBlockZ() < secondLocation.getBlockZ())
-            return Result.FIRST;
-        else if (secondLocation.getBlockZ() < firstLocation.getBlockZ())
+        else if (firstLocation.getBlockY() > secondLocation.getBlockY())
             return Result.SECOND;
 
         if (firstLocation.getBlockX() < secondLocation.getBlockX())
             return Result.FIRST;
-        else if (secondLocation.getBlockX() < firstLocation.getBlockX())
+        else if (firstLocation.getBlockX() > secondLocation.getBlockX())
             return Result.SECOND;
 
-        return Result.NO_ORDER; // Somehow two repairs of the same location and material?!?
+        if (firstLocation.getBlockZ() < secondLocation.getBlockZ())
+            return Result.FIRST;
+        else if (firstLocation.getBlockZ() > secondLocation.getBlockZ())
+            return Result.SECOND;
+
+        return Result.NO_ORDER; // Somehow two repairs of the same location, class and material?!?
     }
 }

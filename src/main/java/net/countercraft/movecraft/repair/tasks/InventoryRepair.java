@@ -62,4 +62,9 @@ public class InventoryRepair extends RepairTask {
                 return;
         }
     }
+
+    @Override
+    public int getPriority() {
+        return -1000;
+    }
 }

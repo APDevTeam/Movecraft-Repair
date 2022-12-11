@@ -20,4 +20,9 @@ public class SignRepair extends RepairTask {
         Block block = location.getBlock();
         done = true;
     }
+
+    @Override
+    public int getPriority() {
+        return 1000;
+    }
 }

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 public class RepairTask {
     protected boolean done = false;
     @Nullable
-    private RepairTask dependency;
+    private RepairTask dependency = null;
 
     public boolean isDone() {
         return done;
@@ -22,5 +22,9 @@ public class RepairTask {
 
     public void execute() {
         // Do nothing
+    }
+
+    public int getPriority() {
+        return Integer.MIN_VALUE;
     }
 }

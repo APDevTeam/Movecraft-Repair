@@ -31,4 +31,9 @@ public class BlockRepair extends RepairTask {
         Movecraft.getInstance().getWorldHandler().setBlockFast(location, data);
         done = true;
     }
+
+    @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
+    }
 }
