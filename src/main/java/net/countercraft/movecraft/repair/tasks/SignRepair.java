@@ -7,12 +7,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class SignRepair extends RepairTask {
     @NotNull
-    private Location location;
-    @NotNull
     String[] lines;
 
     public SignRepair(Location location, String[] lines) {
-        this.location = location;
+        super(location);
         this.lines = lines;
     }
 

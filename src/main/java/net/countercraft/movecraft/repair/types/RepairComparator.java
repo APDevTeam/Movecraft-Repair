@@ -42,55 +42,44 @@ public class RepairComparator implements Comparator<RepairTask> {
                 return resultToCompare(result);
         }
 
-        result = compareLocations((BlockRepair) first, (BlockRepair) second);
+        result = compareLocations(first, second);
         return resultToCompare(result);
     }
 
     private Result compareClasses(RepairTask first, RepairTask second) {
         if (first.getPriority() == second.getPriority()) {
             return Result.NO_ORDER;
-        }
-        else if (first.getPriority() > second.getPriority()) {
+        } else if (first.getPriority() > second.getPriority()) {
             return Result.FIRST;
-        }
-        else {
+        } else {
             return Result.SECOND;
         }
     }
 
     private Result compareMaterials(BlockRepair first, BlockRepair second) {
-        Material firstMaterial = first.getMaterial();
-        Material secondMaterial = second.getMaterial();
+        int firstPriority = materialPriority(first.getMaterial());
+        int secondPriority = materialPriority(second.getMaterial());
 
-        if (firstMaterial == Material.OBSERVER && secondMaterial != Material.OBSERVER)
+        if (firstPriority == secondPriority) {
+            return Result.NO_ORDER;
+        } else if (firstPriority > secondPriority) {
             return Result.FIRST;
-        if (firstMaterial != Material.OBSERVER && secondMaterial == Material.OBSERVER)
-            return Result.SECOND;
-
-        if (Config.RepairFirstPass.contains(firstMaterial)) {
-            if (Config.RepairFirstPass.contains(secondMaterial)) {
-                return Result.NO_ORDER;
-            } else {
-                return Result.FIRST;
-            }
-        } else if (Config.RepairLastPass.contains(firstMaterial)) {
-            if (Config.RepairLastPass.contains(secondMaterial)) {
-                return Result.NO_ORDER;
-            } else {
-                return Result.SECOND;
-            }
         } else {
-            if (Config.RepairFirstPass.contains(secondMaterial)) {
-                return Result.SECOND;
-            } else if (Config.RepairLastPass.contains(secondMaterial)) {
-                return Result.FIRST;
-            } else {
-                return Result.NO_ORDER;
-            }
+            return Result.SECOND;
         }
     }
 
-    private Result compareLocations(BlockRepair first, BlockRepair second) {
+    private int materialPriority(Material material) {
+        if (material == Material.OBSERVER)
+            return Integer.MIN_VALUE;
+        if (Config.RepairFirstPass.contains(material))
+            return Integer.MAX_VALUE;
+        if (Config.RepairLastPass.contains(material))
+            return -1000;
+        return 0;
+    }
+
+    private Result compareLocations(RepairTask first, RepairTask second) {
         Location firstLocation = first.getLocation();
         Location secondLocation = second.getLocation();
 

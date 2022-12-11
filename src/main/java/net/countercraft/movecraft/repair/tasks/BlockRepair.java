@@ -9,17 +9,11 @@ import net.countercraft.movecraft.Movecraft;
 
 public class BlockRepair extends RepairTask {
     @NotNull
-    private Location location;
-    @NotNull
     private BlockData data;
 
     public BlockRepair(Location location, BlockData data) {
-        this.location = location;
+        super(location);
         this.data = data;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public Material getMaterial() {

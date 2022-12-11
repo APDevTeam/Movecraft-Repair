@@ -1,11 +1,23 @@
 package net.countercraft.movecraft.repair.tasks;
 
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RepairTask {
     protected boolean done = false;
+    @NotNull
+    protected Location location;
     @Nullable
     private RepairTask dependency = null;
+
+    public RepairTask(Location location) {
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
 
     public boolean isDone() {
         return done;
