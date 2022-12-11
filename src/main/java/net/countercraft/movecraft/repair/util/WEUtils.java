@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -184,9 +183,13 @@ public class WEUtils {
      */
     @Nullable
     public static String[] getBlockSignLines(BaseBlock block) {
-        if (!(block instanceof SignBlock))
+        if (!(block instanceof SignBlock)) {
+            MovecraftRepair.getInstance().getLogger().info("Block is not sign: " + block.getNbtData().toString());
             return null;
+        }
 
-        return ((SignBlock) block).getText();
+        String[] text = ((SignBlock) block).getText();
+        MovecraftRepair.getInstance().getLogger().info("Block is a sign: " + text);
+        return text;
     }
 }
