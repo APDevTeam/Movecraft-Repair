@@ -11,6 +11,10 @@ public class RepairTask {
         return done;
     }
 
+    public void setDependency(@Nullable RepairTask dependency) {
+        this.dependency = dependency;
+    }
+
     @Nullable
     public RepairTask getDependency() {
         return dependency;

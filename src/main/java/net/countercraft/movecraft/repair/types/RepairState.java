@@ -13,6 +13,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -102,16 +103,22 @@ public class RepairState {
                     BlockState worldState = worldBlock.getState();
 
                     // Handle block repair
+                    BlockRepair blockRepair = null;
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
-                        queue.add(new BlockRepair(worldPosition, schematicData));
+                        blockRepair = new BlockRepair(worldPosition, schematicData);
+                        queue.add(blockRepair);
                         damagedBlockCount++;
 
                         Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
                         if (requiredMaterial == Material.AIR)
                             continue;
 
+                        // TODO: Handle dependant block repairs
+
                         materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
                     }
+
+                    // TODO: Handle sign repair
 
                     // Handle inventory repair
                     Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
@@ -126,7 +133,7 @@ public class RepairState {
 
                         materials.add(RepairBlobManager.get(requiredMaterial), inventoryRepair.getRight().get(m));
                     }
-                    addInventoryTasks(queue, worldPosition, inventoryRepair.getRight());
+                    addInventoryTasks(queue, blockRepair, worldPosition, inventoryRepair.getRight());
                 }
             }
         }
@@ -134,10 +141,12 @@ public class RepairState {
         return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
     }
 
-    private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {
+    private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, Counter<Material> counter) {
         for (Material m : counter.getKeySet()) {
             ItemStack items = new ItemStack(m, counter.get(m));
-            tasks.add(new InventoryRepair(location, items));
+            InventoryRepair inventoryRepair = new InventoryRepair(location, items);
+            inventoryRepair.setDependency(blockRepair);
+            tasks.add(inventoryRepair);
         }
     }
 }
