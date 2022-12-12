@@ -190,16 +190,10 @@ public class WEUtils {
             return null;
 
         String[] result = new String[4];
-        result[0] = blockNBT.getString("Text1");
-        result[1] = blockNBT.getString("Text2");
-        result[2] = blockNBT.getString("Text3");
-        result[3] = blockNBT.getString("Text4");
-        MovecraftRepair.getInstance().getLogger().info("Got the following raw text : '" + result[0] + "','" + result[1] + "','" + result[2] + "','" + result[3]);
-        result[0] = getSignTextFromJSON(result[0]);
-        result[1] = getSignTextFromJSON(result[1]);
-        result[2] = getSignTextFromJSON(result[2]);
-        result[3] = getSignTextFromJSON(result[3]);
-        MovecraftRepair.getInstance().getLogger().info("Got the following sign text: '" + result[0] + "','" + result[1] + "','" + result[2] + "','" + result[3]);
+        result[0] = getSignTextFromJSON(blockNBT.getString("Text1"));
+        result[1] = getSignTextFromJSON(blockNBT.getString("Text2"));
+        result[2] = getSignTextFromJSON(blockNBT.getString("Text3"));
+        result[3] = getSignTextFromJSON(blockNBT.getString("Text4"));
         return result;
     }
 
