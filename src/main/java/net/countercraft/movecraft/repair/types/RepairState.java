@@ -2,10 +2,13 @@ package net.countercraft.movecraft.repair.types;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -13,6 +16,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -25,6 +29,7 @@ import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
+import net.countercraft.movecraft.repair.tasks.SignRepair;
 import net.countercraft.movecraft.repair.util.ClipboardUtils;
 import net.countercraft.movecraft.repair.util.RepairUtils;
 import net.countercraft.movecraft.repair.util.RotationUtils;
@@ -86,6 +91,7 @@ public class RepairState {
         World world = sign.getWorld();
         RepairCounter materials = new RepairCounter();
         RepairQueue queue = new RepairQueue();
+        Map<Location, BlockRepair> blockRepairs = new HashMap<>();
         int damagedBlockCount = 0;
         Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
         for (int x = 0; x < size.getBlockX(); x++) {
@@ -102,11 +108,33 @@ public class RepairState {
                     BlockState worldState = worldBlock.getState();
 
                     // Handle block repair
+                    BlockRepair blockRepair = null;
                     if (RepairUtils.needsBlockRepair(schematicMaterial, worldMaterial)) {
-                        Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
-                        materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
-                        queue.add(new BlockRepair(worldPosition, schematicData));
+                        blockRepair = new BlockRepair(worldPosition, schematicData);
+                        queue.add(blockRepair);
+                        blockRepairs.put(worldPosition, blockRepair);
                         damagedBlockCount++;
+
+                        // Handle dependent block repairs
+                        Location dependency = RepairUtils.getDependency(schematicMaterial, schematicData, worldPosition);
+                        if (dependency != null) {
+                            // Found a dependency, set the block repair's dependency to the respective block repair
+                            blockRepair.setDependency(blockRepairs.get(dependency));
+                        }
+
+                        Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
+                        if (requiredMaterial == Material.AIR)
+                            continue;
+
+                        materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
+                    }
+
+                    // Handle sign repair
+                    if (Tag.SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
+                        String[] lines = WEUtils.getBlockSignLines(schematicBlock);
+                        SignRepair signRepair = new SignRepair(worldPosition, lines);
+                        signRepair.setDependency(blockRepair);
+                        queue.add(signRepair);
                     }
 
                     // Handle inventory repair
@@ -117,9 +145,12 @@ public class RepairState {
 
                     for (Material m : inventoryRepair.getRight().getKeySet()) {
                         Material requiredMaterial = RepairUtils.remapMaterial(m);
+                        if (requiredMaterial == Material.AIR)
+                            continue;
+
                         materials.add(RepairBlobManager.get(requiredMaterial), inventoryRepair.getRight().get(m));
                     }
-                    addInventoryTasks(queue, worldPosition, inventoryRepair.getRight());
+                    addInventoryTasks(queue, blockRepair, worldPosition, inventoryRepair.getRight());
                 }
             }
         }
@@ -127,10 +158,12 @@ public class RepairState {
         return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
     }
 
-    private void addInventoryTasks(RepairQueue tasks, Location location, Counter<Material> counter) {
+    private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, Counter<Material> counter) {
         for (Material m : counter.getKeySet()) {
             ItemStack items = new ItemStack(m, counter.get(m));
-            tasks.add(new InventoryRepair(location, items));
+            InventoryRepair inventoryRepair = new InventoryRepair(location, items);
+            inventoryRepair.setDependency(blockRepair);
+            tasks.add(inventoryRepair);
         }
     }
 }

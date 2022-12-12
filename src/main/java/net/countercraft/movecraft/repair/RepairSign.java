@@ -178,7 +178,11 @@ public class RepairSign implements Listener {
         }
 
         for (RepairBlob blob : protoRepair.getMaterials().getKeySet()) {
-            player.sendMessage(String.format("%s : %d", blob.getName(), protoRepair.getMaterials().get(blob)));
+            player.sendMessage(String.format(
+                "%s : %d",
+                blob.getName(),
+                (int) Math.ceil(protoRepair.getMaterials().get(blob))
+            ));
         }
 
         long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);

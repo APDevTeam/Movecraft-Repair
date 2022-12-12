@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
@@ -16,6 +18,7 @@ import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.google.gson.Gson;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
 import com.sk89q.jnbt.Tag;
@@ -172,5 +175,61 @@ public class WEUtils {
             counter.add(material, count);
         }
         return counter;
+    }
+
+    /**
+     * Get the sign contents of a WorldEdit block
+     * 
+     * @param block block to check
+     * @return Array of sign lines in the block
+     */
+    @Nullable
+    public static String[] getBlockSignLines(BaseBlock block) {
+        CompoundTag blockNBT = block.getNbtData();
+        if (blockNBT == null)
+            return null;
+
+        String[] result = new String[4];
+        result[0] = getSignTextFromJSON(blockNBT.getString("Text1"));
+        result[1] = getSignTextFromJSON(blockNBT.getString("Text2"));
+        result[2] = getSignTextFromJSON(blockNBT.getString("Text3"));
+        result[3] = getSignTextFromJSON(blockNBT.getString("Text4"));
+        return result;
+    }
+
+    private static String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
+
+    private static String getSignTextFromJSON(String json) {
+        Gson gson = new Gson();
+        Map<?, ?> lineData = gson.fromJson(json, Map.class);
+        if (!lineData.containsKey("extra"))
+            return "";
+
+        Object extrasObject = lineData.get("extra");
+        if (!(extrasObject instanceof List))
+            return "";
+
+        List<?> extras = (List<?>) extrasObject;
+        StringBuilder builder = new StringBuilder();
+        for (Object componentObject : extras) {
+            if (!(componentObject instanceof Map))
+                continue;
+
+            Map<?, ?> component = (Map<?, ?>) componentObject;
+            if (component.containsKey("color")) {
+                builder.append(ChatColor.valueOf((
+                    (String) component.get("color")
+                ).toUpperCase()));
+            }
+            for (String style : TEXT_STYLES) {
+                if (component.containsKey(style)) {
+                    builder.append(ChatColor.valueOf((
+                        (String) component.get(style)
+                    ).toUpperCase()));
+                }
+            }
+            builder.append(component.get("text"));
+        }
+        return builder.toString();
     }
 }
