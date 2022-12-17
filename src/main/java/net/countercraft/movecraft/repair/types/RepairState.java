@@ -41,18 +41,18 @@ import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
 
 public class RepairState {
-    private UUID uuid;
+    private UUID playerUUID;
     private String name;
     private Clipboard schematic;
     private BlockVector3 schematicMinPos;
     private BlockVector3 schematicSignOffset;
     private BlockVector3 size;
 
-    public RepairState(UUID uuid, String name) throws IOException, IllegalStateException {
-        this.uuid = uuid;
+    public RepairState(UUID plauerUUID, String name) throws IOException, IllegalStateException {
+        this.playerUUID = plauerUUID;
         this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        File playerDirectory = new File(dataDirectory, uuid.toString());
+        File playerDirectory = new File(dataDirectory, plauerUUID.toString());
         if (!playerDirectory.exists())
             throw new IllegalStateException("Unable to create player directory");
 
@@ -63,7 +63,7 @@ public class RepairState {
     }
 
     public UUID getUUID() {
-        return uuid;
+        return playerUUID;
     }
 
     public String getName() {
@@ -158,13 +158,13 @@ public class RepairState {
             }
         }
 
-        ProtoRepair result = new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
-    
+        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
+
         ProtoRepairCreateEvent event = new ProtoRepairCreateEvent(result);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
             return null;
-    
+
         return result;
     }
 

@@ -95,32 +95,14 @@ public class RepairSign implements Listener {
             return;
         }
 
-        // Cached repair, see if the player has the money (if the economy is enabled)
-        double cost = 0;
-        boolean takeMoney = false;
-        if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
-            cost = protoRepair.getQueue().size() * Config.RepairMoneyPerBlock;
-            if (MovecraftRepair.getInstance().getEconomy().has(player, cost)) {
-                // Player can afford it
-                takeMoney = true;
-            }
-            else {
-                // Player can't afford it
-                player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
-                return;
-            }
-        }
-
-        // Try running the repair
-        Repair repair;
+        // Cached repair, try running the repair
+        Repair repair = null;
         try {
             repair = protoRepair.execute(craft, sign);
         }
-        catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
-            // Expired or wrong location, go back to first click
-            // ItemRemovalException shouldn't happen, but go back to first click regardless
-            createProtoRepair(sign, uuid, player, craft);
-            return;
+        catch (ProtoRepair.NotEnoughMoneyException e) {
+            // Not enough money, tell the player
+            player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
         }
         catch (ProtoRepair.NotEnoughItemsException e) {
             // Not enough items, tell the player
@@ -136,13 +118,20 @@ public class RepairSign implements Listener {
             }
             return;
         }
+        catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
+            // Expired or wrong location, go back to first click
+            // ItemRemovalException shouldn't happen, but go back to first click regardless
+            createProtoRepair(sign, uuid, player, craft);
+            return;
+        }
+        catch (Exception e) {
+            // Something weird went wrong, let it fail silently
+            return;
+        }
 
-        // Start the repair
-        if (takeMoney)
-            MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
-        final double finalCost = cost;
-        MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun a repair with the cost of %.2f", player.getName(), finalCost));
+        // Release the craft, and start the repair
         CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
+        MovecraftRepair.getInstance().getRepairManager().start(repair);
     }
 
     private void createProtoRepair(Sign sign, UUID uuid, Player player, PlayerCraft craft) {

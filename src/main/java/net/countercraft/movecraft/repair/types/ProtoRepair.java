@@ -14,13 +14,12 @@ import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
-import net.countercraft.movecraft.repair.events.RepairStartedEvent;
+import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
@@ -28,15 +27,17 @@ import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.Tags;
 
 public class ProtoRepair {
-    private UUID uuid;
+    private UUID playerUUID;
+    private String name;
     private RepairQueue queue;
     private RepairCounter materials;
     private int damagedBlockCount;
     private MovecraftLocation origin;
     private long calculationTime;
 
-    public ProtoRepair(UUID uuid, RepairQueue queue, RepairCounter materials, int damagedBlockCount, MovecraftLocation origin) {
-        this.uuid = uuid;
+    public ProtoRepair(UUID playerUUID, String name, RepairQueue queue, RepairCounter materials, int damagedBlockCount, MovecraftLocation origin) {
+        this.playerUUID = playerUUID;
+        this.name = name;
         this.queue = queue;
         this.materials = materials;
         this.origin = origin;
@@ -45,7 +46,7 @@ public class ProtoRepair {
     }
 
     public UUID playerUUID() {
-        return uuid;
+        return playerUUID;
     }
 
     public RepairQueue getQueue() {
@@ -68,7 +69,7 @@ public class ProtoRepair {
         return System.nanoTime() - calculationTime > 5000000000L; // 5 seconds
     }
 
-    @Nullable
+    @NotNull
     public Repair execute(@NotNull Craft craft, Sign sign)
             throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
             NotEnoughItemsException {
@@ -76,6 +77,14 @@ public class ProtoRepair {
             throw new ProtoRepairExpiredException(); // Check for expired
         if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
+
+        // Check for balance
+        double cost = 0;
+        if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
+            cost = queue.size() * Config.RepairMoneyPerBlock;
+            if (!MovecraftRepair.getInstance().getEconomy().has(Bukkit.getOfflinePlayer(playerUUID), cost))
+                throw new NotEnoughMoneyException();
+        }
 
         // Check materials
         Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
@@ -101,15 +110,10 @@ public class ProtoRepair {
             removeInventory(((Container) state).getInventory(), entry.getValue());
         }
 
-        Repair result = new Repair(uuid, queue);
+        // Take money
+        MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
 
-        RepairStartedEvent event = new RepairStartedEvent(result);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
-            return null;
-
-        MovecraftRepair.getInstance().getRepairManager().add(result);
-        return result;
+        return new Repair(playerUUID, name, cost, queue);
     }
 
     public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
@@ -198,6 +202,9 @@ public class ProtoRepair {
         public RepairCounter getRemaining() {
             return remaining;
         }
+    }
+
+    public class NotEnoughMoneyException extends IllegalStateException {
     }
 
     public class ItemRemovalException extends IllegalStateException {

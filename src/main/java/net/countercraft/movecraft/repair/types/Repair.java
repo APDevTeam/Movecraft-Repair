@@ -8,13 +8,15 @@ import net.countercraft.movecraft.repair.tasks.RepairTask;
 public class Repair {
     private UUID playerUUID;
     private String name;
+    private double cost;
     private RepairQueue queue;
     private int size;
     private long lastExecution;
 
-    public Repair(UUID playerUUID, String name, RepairQueue queue) {
+    public Repair(UUID playerUUID, String name, double cost, RepairQueue queue) {
         this.playerUUID = playerUUID;
         this.name = name;
+        this.cost = cost;
         this.queue = queue;
         this.size = queue.size();
         lastExecution = System.nanoTime();
@@ -26,6 +28,10 @@ public class Repair {
 
     public String getName() {
         return name;
+    }
+
+    public double getCost() {
+        return cost;
     }
 
     public boolean isDone() {

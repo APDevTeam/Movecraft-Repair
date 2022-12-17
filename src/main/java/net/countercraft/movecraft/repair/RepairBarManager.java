@@ -56,7 +56,5 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         bossBars.remove(repair);
         bossBar.setVisible(false);
-
-        MovecraftRepair.getInstance().getLogger().info("Repair " + repair.getName() + " for " + repair.getPlayerUUID() + " complete");
     }
 }

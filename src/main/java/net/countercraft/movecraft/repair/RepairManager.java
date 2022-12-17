@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
+import net.countercraft.movecraft.repair.events.RepairStartedEvent;
 import net.countercraft.movecraft.repair.types.Repair;
 
 public class RepairManager extends BukkitRunnable {
@@ -28,8 +29,7 @@ public class RepairManager extends BukkitRunnable {
             if (repair.run()) {
                 // Repair placed at least a block, return to back of queue
                 executed.add(repairs.poll());
-            }
-            // Else leave at top of queue
+            } // Else leave at top of queue
 
             if (repair.isDone())
                 completed.add(repair);
@@ -41,16 +41,24 @@ public class RepairManager extends BukkitRunnable {
         }
     }
 
-    public void start(Repair repair) {
-        repairs.add(repair);
-    }
-
     public Set<Repair> get() {
         return new HashSet<>(repairs);
     }
 
+    public void start(Repair repair) {
+        RepairStartedEvent event = new RepairStartedEvent(repair);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun repair %s with the cost of %.2f", repair.getPlayerUUID(), repair.getName(), repair.getCost()));
+        repairs.add(repair);
+    }
+
     private void end(Repair repair) {
         Bukkit.getPluginManager().callEvent(new RepairFinishedEvent(repair));
+
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has completed repair %s with the cost of %.2f", repair.getPlayerUUID(), repair.getName(), repair.getCost()));
         repairs.remove(repair);
-    }    
+    }
 }
