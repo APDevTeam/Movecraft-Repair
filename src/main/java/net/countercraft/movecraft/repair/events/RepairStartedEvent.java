@@ -9,7 +9,7 @@ public class RepairStartedEvent extends RepairEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean isCancelled = false;
 
-    protected RepairStartedEvent(Repair repair) {
+    public RepairStartedEvent(Repair repair) {
         super(repair);
     }
 

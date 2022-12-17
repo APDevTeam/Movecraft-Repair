@@ -117,8 +117,8 @@ public class RepairSign implements Listener {
             repair = protoRepair.execute(craft, sign);
         }
         catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
-            // ItemRemovalException shouldn't happen, but go back to first click regardless
             // Expired or wrong location, go back to first click
+            // ItemRemovalException shouldn't happen, but go back to first click regardless
             createProtoRepair(sign, uuid, player, craft);
             return;
         }
@@ -142,7 +142,6 @@ public class RepairSign implements Listener {
             MovecraftRepair.getInstance().getEconomy().withdrawPlayer(player, cost);
         final double finalCost = cost;
         MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun a repair with the cost of %.2f", player.getName(), finalCost));
-        MovecraftRepair.getInstance().getRepairManager().add(repair);
         CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
     }
 
@@ -165,6 +164,10 @@ public class RepairSign implements Listener {
             protoRepair = state.execute(sign);
         }
         catch (WorldEditException e) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
+            return;
+        }
+        if (protoRepair == null) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
             return;
         }

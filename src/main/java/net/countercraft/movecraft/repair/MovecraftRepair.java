@@ -82,6 +82,11 @@ public final class MovecraftRepair extends JavaPlugin {
         protoRepairCache = new ProtoRepairCache();
         protoRepairCache.runTaskTimerAsynchronously(this, 10, 200);
 
+        // Startup repair bar manager (every second)
+        RepairBarManager repairBarManager = new RepairBarManager();
+        repairBarManager.runTaskTimerAsynchronously(this, 15, 20);
+        getServer().getPluginManager().registerEvents(repairBarManager, this);
+
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
     }
 

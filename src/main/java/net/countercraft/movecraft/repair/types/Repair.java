@@ -6,20 +6,26 @@ import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.tasks.RepairTask;
 
 public class Repair {
-    private UUID uuid;
+    private UUID playerUUID;
+    private String name;
     private RepairQueue queue;
     private int size;
     private long lastExecution;
 
-    public Repair(UUID uuid, RepairQueue queue) {
-        this.uuid = uuid;
+    public Repair(UUID playerUUID, String name, RepairQueue queue) {
+        this.playerUUID = playerUUID;
+        this.name = name;
         this.queue = queue;
         this.size = queue.size();
         lastExecution = System.nanoTime();
     }
 
     public UUID getPlayerUUID() {
-        return uuid;
+        return playerUUID;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean isDone() {

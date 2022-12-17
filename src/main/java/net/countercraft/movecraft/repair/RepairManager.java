@@ -5,8 +5,10 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.types.Repair;
 
 public class RepairManager extends BukkitRunnable {
@@ -33,14 +35,22 @@ public class RepairManager extends BukkitRunnable {
                 completed.add(repair);
         }
         repairs.addAll(executed);
-        repairs.removeAll(completed);
+
+        for (Repair repair : completed) {
+            end(repair);
+        }
     }
 
-    public void add(Repair repair) {
+    public void start(Repair repair) {
         repairs.add(repair);
     }
 
     public Set<Repair> get() {
         return new HashSet<>(repairs);
     }
+
+    private void end(Repair repair) {
+        Bukkit.getPluginManager().callEvent(new RepairFinishedEvent(repair));
+        repairs.remove(repair);
+    }    
 }

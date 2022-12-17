@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -17,7 +18,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
+import net.countercraft.movecraft.repair.events.RepairStartedEvent;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
@@ -98,8 +101,15 @@ public class ProtoRepair {
             removeInventory(((Container) state).getInventory(), entry.getValue());
         }
 
-        // Start repair
-        return new Repair(uuid, queue);
+        Repair result = new Repair(uuid, queue);
+
+        RepairStartedEvent event = new RepairStartedEvent(result);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return null;
+
+        MovecraftRepair.getInstance().getRepairManager().add(result);
+        return result;
     }
 
     public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {

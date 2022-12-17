@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -27,6 +28,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
+import net.countercraft.movecraft.repair.events.ProtoRepairCreateEvent;
 import net.countercraft.movecraft.repair.tasks.BlockRepair;
 import net.countercraft.movecraft.repair.tasks.InventoryRepair;
 import net.countercraft.movecraft.repair.tasks.SignRepair;
@@ -83,6 +85,7 @@ public class RepairState {
         return ClipboardUtils.transform(schematic, new AffineTransform().rotateY(angle));
     }
 
+    @Nullable
     public ProtoRepair execute(Sign sign) throws WorldEditException {
         // Rotate repair around the sign
         Clipboard clipboard = schematic;//rotate(sign);
@@ -155,7 +158,14 @@ public class RepairState {
             }
         }
 
-        return new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
+        ProtoRepair result = new ProtoRepair(uuid, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
+    
+        ProtoRepairCreateEvent event = new ProtoRepairCreateEvent(result);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return null;
+    
+        return result;
     }
 
     private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, Counter<Material> counter) {

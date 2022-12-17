@@ -7,7 +7,7 @@ import net.countercraft.movecraft.repair.types.Repair;
 public class RepairFinishedEvent extends RepairEvent {
     private static final HandlerList HANDLERS = new HandlerList();
 
-    protected RepairFinishedEvent(Repair repair) {
+    public RepairFinishedEvent(Repair repair) {
         super(repair);
     }
 
