@@ -13,8 +13,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.events.RepairStartedEvent;
+import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.Repair;
 
 public class RepairBarManager extends BukkitRunnable implements Listener {
@@ -28,11 +30,13 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
             Player player = Bukkit.getPlayer(repair.getPlayerUUID());
             if (player != null) {
-                bossBar.addPlayer(player);                
+                bossBar.addPlayer(player);
             }
 
-            double percentDone = (100.0 * repair.remaining()) / repair.size();
-            bossBar.setProgress(percentDone);
+            bossBar.setProgress(100.0 * (repair.size() - repair.remaining()) / repair.size());
+            int remainingSeconds = (int) Math.ceil(repair.remaining() * Config.RepairTicksPerBlock / 20.0);
+            int totalSeconds = (int) Math.ceil(repair.size() * Config.RepairTicksPerBlock / 20.0);
+            bossBar.setTitle(String.format("%s: %d / %d", repair.getName(), remainingSeconds, totalSeconds));
         }
     }
 
@@ -45,7 +49,8 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         Player player = Bukkit.getPlayer(repair.getPlayerUUID());
         if (player != null) {
-            bossBar.addPlayer(player);                
+            bossBar.addPlayer(player);
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs underway"));
         }
     }
 
@@ -56,5 +61,11 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         bossBars.remove(repair);
         bossBar.setVisible(false);
+
+        Player player = Bukkit.getPlayer(repair.getPlayerUUID());
+        if (player == null)
+            return;
+
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs complete"));
     }
 }

@@ -12,6 +12,7 @@ public class Repair {
     private RepairQueue queue;
     private int size;
     private long lastExecution;
+    private long start;
 
     public Repair(UUID playerUUID, String name, double cost, RepairQueue queue) {
         this.playerUUID = playerUUID;
@@ -20,6 +21,7 @@ public class Repair {
         this.queue = queue;
         this.size = queue.size();
         lastExecution = System.nanoTime();
+        start = System.currentTimeMillis();
     }
 
     public UUID getPlayerUUID() {
@@ -32,6 +34,10 @@ public class Repair {
 
     public double getCost() {
         return cost;
+    }
+
+    public long getStart() {
+        return start;
     }
 
     public boolean isDone() {
