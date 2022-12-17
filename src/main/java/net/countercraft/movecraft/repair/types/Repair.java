@@ -8,11 +8,13 @@ import net.countercraft.movecraft.repair.tasks.RepairTask;
 public class Repair {
     private UUID uuid;
     private RepairQueue queue;
+    private int size;
     private long lastExecution;
 
     public Repair(UUID uuid, RepairQueue queue) {
         this.uuid = uuid;
         this.queue = queue;
+        this.size = queue.size();
         lastExecution = System.nanoTime();
     }
 
@@ -22,6 +24,14 @@ public class Repair {
 
     public boolean isDone() {
         return queue.isEmpty();
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public int remaining() {
+        return queue.size();
     }
 
     public boolean run() {
