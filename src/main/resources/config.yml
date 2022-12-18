@@ -1,4 +1,49 @@
 Locale: en
-RepairTicksPerBlock: 10
+RepairTicksPerBlock: 10 # Ticks per block placed
+RepairMaxBlocksPerTick: 2 # Maximum number of blocks to place per tick if the server is trying to catch up
+RepairMaxTickTime: 5000000 # Maximum time spent per tick, in nanoseconds
 RepairMoneyPerBlock: 10
 RepairMaxPercent: 50
+RepairTool: "firework_rocket"
+RepairBlobs: # "Blobs" of materials which can be used interchangably to repair
+ - "#chests"
+ - "#concrete"
+ - "#concrete_powder"
+ - "#fence_gates"
+ - "#glazed_terracotta"
+ - "#redstone_torches"
+ - "#stained_glass_blocks"
+ - "#stained_glass_pane"
+ - "#terracotta"
+ - "#beds"
+ - "#carpets"
+ - "#planks"
+ - "#signs"
+ - "#wooden_buttons"
+ - "#wooden_doors"
+ - "#wooden_fences"
+ - "#wooden_pressure_plates"
+ - "#wooden_slabs"
+ - "#wooden_stairs"
+ - "#wooden_trapdoors"
+ - "#wool"
+RepairDispenserItems: # Items which can be repaired into dispensers
+ - "tnt"
+ - "fire_charge"
+ - "water_bucket"
+RepairFurnaceItems: # Items which can be repaired into furnaces
+ - "coal_block"
+ - "charcoal"
+ - "coal"
+RepairDropperItems: # Items which can be repaired into droppers
+ - "#wool"
+RepairFirstPass: # First pass to construct a hull without heavy armor
+ - "#wool"
+ - "#concrete"
+ - "#terracotta"
+ - "#planks"
+ - "iron_block"
+RepairLastPass:
+ - "end_stone"
+ - "end_stone_bricks"
+# Observers are placed second to last (after RepairLastPass), with fragile blocks placed last.

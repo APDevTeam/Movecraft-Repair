@@ -1,5 +1,6 @@
 # Movecraft-Repair Addon
-![Repair](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
+![CI](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
+[![Codebeat](https://codebeat.co/badges/ff25e74b-fac0-4b21-8dc3-adf7121a6dca)](https://codebeat.co/projects/github-com-apdevteam-movecraft-repair-main)
 
 Home of the code for the following features:
  - Craft repair signs
@@ -8,7 +9,7 @@ Home of the code for the following features:
 ## Version support
 The `legacy` branch is coded for 1.10.2 to 1.16.5 and Movecraft 7.x.
 
-The `main` branch is coded for 1.14.4 to 1.18.1 and Movecraft 8.x.
+The `main` branch is coded for 1.14.4+ and Movecraft 8.x.
  
  ## Download
 
