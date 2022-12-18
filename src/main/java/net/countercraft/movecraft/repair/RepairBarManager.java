@@ -13,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.events.RepairStartedEvent;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
@@ -33,11 +32,10 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
                 bossBar.addPlayer(player);
             }
 
-            double remaining = repair.remaining() * Config.RepairTicksPerBlock / 20.0;
-            double total = repair.size() * Config.RepairTicksPerBlock / 20.0;
-            double done = total - remaining;
-            bossBar.setTitle(String.format("%s: %d / %d", repair.getName(), (int) Math.ceil(done), (int) Math.ceil(total)));
-            double progress = done / total;
+            int remaining = repair.remaining();
+            int total = repair.size();
+            bossBar.setTitle(String.format("%s: %d / %d", repair.getName(), total - remaining, total));
+            double progress = (double) (total - remaining) / total;
             progress = Math.min(Math.max(progress, 0.0), 1.0);
             bossBar.setProgress(progress);
         }
