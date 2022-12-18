@@ -33,10 +33,12 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
                 bossBar.addPlayer(player);
             }
 
-            bossBar.setProgress(100.0 * (repair.size() - repair.remaining()) / repair.size());
-            int remainingSeconds = (int) Math.ceil(repair.remaining() * Config.RepairTicksPerBlock / 20.0);
-            int totalSeconds = (int) Math.ceil(repair.size() * Config.RepairTicksPerBlock / 20.0);
-            bossBar.setTitle(String.format("%s: %d / %d", repair.getName(), remainingSeconds, totalSeconds));
+            double remainingSeconds = repair.remaining() * Config.RepairTicksPerBlock / 20.0;
+            double totalSeconds = repair.size() * Config.RepairTicksPerBlock / 20.0;
+            bossBar.setTitle(String.format("%s: %d / %d", repair.getName(), (int) Math.ceil(remainingSeconds), (int) Math.ceil(totalSeconds)));
+            double progress = 1.0 - (remainingSeconds / totalSeconds);
+            progress = Math.min(Math.max(progress, 0.0), 1.0);
+            bossBar.setProgress(progress);
         }
     }
 
