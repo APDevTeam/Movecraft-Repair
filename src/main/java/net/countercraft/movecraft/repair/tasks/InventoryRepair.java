@@ -37,9 +37,10 @@ public class InventoryRepair extends RepairTask {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack == null || stack.getType() == Material.AIR) {
-                // Empty stack, set to the max size
-                item.setAmount(item.getType().getMaxStackSize());
-                remainingCount -= item.getType().getMaxStackSize();
+                // Empty stack, set to the max
+                int toSetCount = Math.min(remainingCount, item.getType().getMaxStackSize());
+                item.setAmount(toSetCount);
+                remainingCount -= toSetCount;
             }
             else {
                 if (stack.getType() != item.getType())
