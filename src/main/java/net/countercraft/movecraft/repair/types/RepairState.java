@@ -53,7 +53,7 @@ public class RepairState {
         this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
         File playerDirectory = new File(dataDirectory, plauerUUID.toString());
-        if (!playerDirectory.exists())
+        if (!playerDirectory.exists() && !playerDirectory.mkdirs())
             throw new IllegalStateException("Unable to create player directory");
 
         schematic = WEUtils.loadSchematic(playerDirectory, name);
