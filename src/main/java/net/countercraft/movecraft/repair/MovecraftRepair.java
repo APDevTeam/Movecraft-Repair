@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -54,7 +55,7 @@ public final class MovecraftRepair extends JavaPlugin {
                 economy = rsp.getProvider();
                 getLogger().info("Found a compatible Vault plugin. Enabling Vault integration.");
             } else {
-                getLogger().severe("Movecraft-Repair did not find a compatible Vault plugin. Disabling Vault integration.");
+                getLogger().severe("Movecraft-Repair did not find a compatible Economy plugin. Disabling Vault integration.");
                 economy = null;
                 return;
             }
@@ -189,10 +190,12 @@ public final class MovecraftRepair extends JavaPlugin {
         }
     }
 
+    @NotNull
     public WorldEditPlugin getWorldEditPlugin() {
         return worldEditPlugin;
     }
 
+    @Nullable
     public Economy getEconomy() {
         return economy;
     }

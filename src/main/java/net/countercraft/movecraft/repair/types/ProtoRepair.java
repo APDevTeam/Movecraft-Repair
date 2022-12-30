@@ -111,7 +111,8 @@ public class ProtoRepair {
         }
 
         // Take money
-        MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
+        if (MovecraftRepair.getInstance().getEconomy() != null && cost != 0)
+            MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
 
         return new Repair(playerUUID, name, cost, queue);
     }
