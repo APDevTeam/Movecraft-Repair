@@ -81,7 +81,11 @@ public class RepairSign implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             onRightClick(sign, player, craft);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            onLeftClick(sign, player, craft, event.getHand());
+            if (getItemInHand(player, event.getHand()) != Config.RepairTool)
+                return;
+
+            event.setCancelled(true);
+            onLeftClick(sign, player, craft);
         }
     }
 
@@ -187,10 +191,7 @@ public class RepairSign implements Listener {
             MovecraftRepair.getInstance().getProtoRepairCache().add(protoRepair);
     }
 
-    public void onLeftClick(Sign sign, Player player, PlayerCraft craft, EquipmentSlot hand) {
-        if (getItemInHand(player, hand) != Config.RepairTool)
-            return;
-
+    public void onLeftClick(Sign sign, Player player, PlayerCraft craft) {
         Long lastLeftClick = leftClickCache.get(player.getUniqueId());
         if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
             // First click, just add to the map
