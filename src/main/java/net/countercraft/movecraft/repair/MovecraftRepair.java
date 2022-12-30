@@ -57,13 +57,12 @@ public final class MovecraftRepair extends JavaPlugin {
             } else {
                 getLogger().severe("Movecraft-Repair did not find a compatible Economy plugin. Disabling Vault integration.");
                 economy = null;
-                return;
             }
         } else {
             getLogger().severe("Movecraft-Repair did not find a compatible Vault plugin. Disabling Vault integration.");
             economy = null;
-            return;
         }
+
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldEdit");
         if (!(plugin instanceof WorldEditPlugin)) {
             getLogger().severe(
