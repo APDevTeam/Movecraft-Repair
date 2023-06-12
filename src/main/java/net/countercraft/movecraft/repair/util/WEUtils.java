@@ -167,7 +167,10 @@ public class WEUtils {
 
             CompoundTag ct = (CompoundTag) t;
             String id = ct.getString("id");
-            BlockType type = new BlockType(id);
+            BlockType type = BlockTypes.get(id);
+            if (type == null) {
+                continue;
+            }
             Material material = BukkitAdapter.adapt(type);
 
             byte count = ct.getByte("Count");
