@@ -13,7 +13,7 @@ public class SignRepair extends RepairTask {
 
     public SignRepair(Location location, String[] lines) {
         super(location);
-        MovecraftRepair.getInstance().getLogger().info("SignRepair: <" + location + ">: [" + String.join(", ", lines) + "]");
+        MovecraftRepair.getInstance().getLogger().info("SignRepair: <" + location + ">: ['" + String.join("'', '", lines) + "']");
         this.lines = lines;
     }
 
@@ -28,13 +28,15 @@ public class SignRepair extends RepairTask {
         }
 
         Sign sign = (Sign) block.getState();
-        MovecraftRepair.getInstance().getLogger().info("Before: [" + String.join(", ", sign.getLines()) + "]");
+        MovecraftRepair.getInstance().getLogger().info("Before: ['" + String.join("'', '", sign.getLines()) + "']");
         sign.setLine(0, lines[0]);
         sign.setLine(1, lines[1]);
         sign.setLine(2, lines[2]);
         sign.setLine(3, lines[3]);
         sign.update(false, false);
-        MovecraftRepair.getInstance().getLogger().info("After: [" + String.join(", ", sign.getLines()) + "]");
+        MovecraftRepair.getInstance().getLogger().info("Mid: ['" + String.join("'', '", sign.getLines()) + "']");
+        sign = (Sign) (location.getBlock().getState());
+        MovecraftRepair.getInstance().getLogger().info("After: ['" + String.join("'', '", sign.getLines()) + "']");
         done = true;
     }
 
