@@ -98,11 +98,11 @@ public class WEUtils {
         BlockVector3 maxPos = BlockVector3.at(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ());
         BlockVector3 origin = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
         CuboidRegion region = new CuboidRegion(minPos, maxPos);
-        // Calculate a hitbox of all blocks within the cuboid region but not within the hitbox (so we don't save them)
+        // Calculate a hitbox of all blocks within the cuboid region but not within the
+        // hitbox (so we don't save them)
         HitBox surrounding = new SolidHitBox(
-            new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
-            new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ())
-        );
+                new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
+                new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ()));
         surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
         World bukkitWorld = craft.getWorld();
@@ -120,15 +120,13 @@ public class WEUtils {
             Operations.complete(copy);
             for (MovecraftLocation location : surrounding) {
                 clipboard.setBlock(
-                    BlockVector3.at(location.getX(), location.getY(), location.getZ()),
-                    BlockTypes.AIR.getDefaultState().toBaseBlock()
-                );
+                        BlockVector3.at(location.getX(), location.getY(), location.getZ()),
+                        BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
             ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
             writer.write(clipboard);
             writer.close();
-        }
-        catch (IOException | NullPointerException | WorldEditException e) {
+        } catch (IOException | NullPointerException | WorldEditException e) {
             e.printStackTrace();
             return false;
         }
@@ -200,13 +198,13 @@ public class WEUtils {
         return result;
     }
 
-    private static String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
+    private static String[] TEXT_STYLES = { "bold", "italic", "underline", "strikethrough" };
 
     private static String getSignTextFromJSON(String json) {
         Gson gson = new Gson();
         Map<?, ?> lineData = gson.fromJson(json, Map.class);
         if (!lineData.containsKey("extra"))
-            return "";
+            return getSignTextFromMap(lineData);
 
         Object extrasObject = lineData.get("extra");
         if (!(extrasObject instanceof List))
@@ -218,21 +216,22 @@ public class WEUtils {
             if (!(componentObject instanceof Map))
                 continue;
 
-            Map<?, ?> component = (Map<?, ?>) componentObject;
-            if (component.containsKey("color")) {
-                builder.append(ChatColor.valueOf((
-                    (String) component.get("color")
-                ).toUpperCase()));
-            }
-            for (String style : TEXT_STYLES) {
-                if (component.containsKey(style)) {
-                    builder.append(ChatColor.valueOf((
-                        (String) component.get(style)
-                    ).toUpperCase()));
-                }
-            }
-            builder.append(component.get("text"));
+            builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
         }
+        return builder.toString();
+    }
+
+    private static String getSignTextFromMap(Map<?, ?> component) {
+        StringBuilder builder = new StringBuilder();
+        if (component.containsKey("color")) {
+            builder.append(ChatColor.valueOf(((String) component.get("color")).toUpperCase()));
+        }
+        for (String style : TEXT_STYLES) {
+            if (component.containsKey(style)) {
+                builder.append(ChatColor.valueOf(((String) component.get(style)).toUpperCase()));
+            }
+        }
+        builder.append(component.get("text"));
         return builder.toString();
     }
 }
