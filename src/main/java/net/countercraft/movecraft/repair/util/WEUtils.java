@@ -191,6 +191,7 @@ public class WEUtils {
         CompoundTag blockNBT = block.getNbtData();
         if (blockNBT == null)
             return null;
+        MovecraftRepair.getInstance().getLogger().info("NBT: " + blockNBT);
 
         String[] result = new String[4];
         result[0] = getSignTextFromJSON(blockNBT.getString("Text1"));
@@ -205,6 +206,7 @@ public class WEUtils {
     private static String getSignTextFromJSON(String json) {
         Gson gson = new Gson();
         Map<?, ?> lineData = gson.fromJson(json, Map.class);
+        MovecraftRepair.getInstance().getLogger().info("Line data: " + json);
         if (!lineData.containsKey("extra"))
             return "";
 
