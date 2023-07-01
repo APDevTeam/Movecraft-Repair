@@ -28,7 +28,6 @@ public class SignRepair extends RepairTask {
         sign.setLine(2, lines[2]);
         sign.setLine(3, lines[3]);
         sign.update(false, false);
-        sign = (Sign) (location.getBlock().getState());
         done = true;
     }
 
