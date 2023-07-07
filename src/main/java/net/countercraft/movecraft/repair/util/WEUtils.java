@@ -41,6 +41,8 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
+import com.sk89q.worldedit.world.item.ItemType;
+import com.sk89q.worldedit.world.item.ItemTypes;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.PilotedCraft;
@@ -155,6 +157,7 @@ public class WEUtils {
         CompoundTag blockNBT = block.getNbtData();
         if (blockNBT == null)
             return null;
+
         ListTag blockItems = blockNBT.getListTag("Items");
         if (blockItems == null)
             return null;
@@ -165,17 +168,27 @@ public class WEUtils {
 
             CompoundTag ct = (CompoundTag) t;
             String id = ct.getString("id");
-            BlockType type = BlockTypes.get(id);
-            if (type == null) {
-                continue;
-            }
-            Material material = BukkitAdapter.adapt(type);
-
+            Material material = getMaterial(id);
             byte count = ct.getByte("Count");
+            if (material == null)
+                continue;
 
             counter.add(material, count);
         }
         return counter;
+    }
+
+    @Nullable
+    private static Material getMaterial(String str) {
+        BlockType block = BlockTypes.get(str);
+        if (block != null)
+            return BukkitAdapter.adapt(block);
+
+        ItemType item = ItemTypes.get(str);
+        if (item != null)
+            return BukkitAdapter.adapt(item);
+
+        return null;
     }
 
     /**
