@@ -34,15 +34,18 @@ public class ProtoRepair {
     private int damagedBlockCount;
     private MovecraftLocation origin;
     private long calculationTime;
+    private boolean valid;
 
-    public ProtoRepair(UUID playerUUID, String name, RepairQueue queue, RepairCounter materials, int damagedBlockCount, MovecraftLocation origin) {
+    public ProtoRepair(UUID playerUUID, String name, RepairQueue queue, RepairCounter materials, int damagedBlockCount,
+            MovecraftLocation origin) {
         this.playerUUID = playerUUID;
         this.name = name;
         this.queue = queue;
         this.materials = materials;
         this.origin = origin;
         this.damagedBlockCount = damagedBlockCount;
-        this.calculationTime = System.nanoTime();
+        calculationTime = System.nanoTime();
+        valid = true;
     }
 
     public UUID playerUUID() {
@@ -65,15 +68,15 @@ public class ProtoRepair {
         return origin;
     }
 
-    public boolean isExpired() {
-        return System.nanoTime() - calculationTime > 5000000000L; // 5 seconds
+    public boolean isInvalid() {
+        return (System.nanoTime() - calculationTime > 5000000000L) || !valid; // 5 seconds
     }
 
     @NotNull
     public Repair execute(@NotNull Craft craft, Sign sign)
             throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
-            NotEnoughItemsException {
-        if (isExpired())
+            NotEnoughItemsException, NotEnoughMoneyException {
+        if (isInvalid())
             throw new ProtoRepairExpiredException(); // Check for expired
         if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
@@ -114,6 +117,7 @@ public class ProtoRepair {
         if (MovecraftRepair.getInstance().getEconomy() != null && cost != 0)
             MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
 
+        valid = false;
         return new Repair(playerUUID, name, cost, queue);
     }
 

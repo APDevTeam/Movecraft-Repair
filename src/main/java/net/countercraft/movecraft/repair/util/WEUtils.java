@@ -216,12 +216,14 @@ public class WEUtils {
     private static String getSignTextFromJSON(String json) {
         Gson gson = new Gson();
         Map<?, ?> lineData = gson.fromJson(json, Map.class);
+        String result = "";
+        result += getSignTextFromMap(lineData);
         if (!lineData.containsKey("extra"))
-            return getSignTextFromMap(lineData);
+            return result;
 
         Object extrasObject = lineData.get("extra");
         if (!(extrasObject instanceof List))
-            return "";
+            return result;
 
         List<?> extras = (List<?>) extrasObject;
         StringBuilder builder = new StringBuilder();
@@ -231,7 +233,8 @@ public class WEUtils {
 
             builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
         }
-        return builder.toString();
+        result += builder.toString();
+        return result;
     }
 
     private static String getSignTextFromMap(Map<?, ?> component) {

@@ -24,7 +24,7 @@ public class ProtoRepairCache extends BukkitRunnable {
         if (protoRepair == null)
             return null;
 
-        if (protoRepair.isExpired()) {
+        if (protoRepair.isInvalid()) {
             // Remove expired ones, but return anyways
             protoRepairs.remove(player);
         }
@@ -37,7 +37,7 @@ public class ProtoRepairCache extends BukkitRunnable {
         // Otherwise, remove expired repairs every so often
         Set<UUID> toRemove = new HashSet<>();
         for (Map.Entry<UUID, ProtoRepair> entry : protoRepairs.entrySet()) {
-            if (entry.getValue().isExpired()) {
+            if (entry.getValue().isInvalid()) {
                 toRemove.add(entry.getKey());
             }
         }
