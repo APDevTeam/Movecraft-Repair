@@ -88,6 +88,8 @@ public final class MovecraftRepair extends JavaPlugin {
         getServer().getPluginManager().registerEvents(repairBarManager, this);
 
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
+
+        getCommand("repairlist").setExecutor(new RepairListCommand());
     }
 
     private static void loadConfig(FileConfiguration config) {
