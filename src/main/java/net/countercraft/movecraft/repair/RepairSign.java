@@ -130,6 +130,7 @@ public class RepairSign implements Listener {
         }
         catch (Exception e) {
             // Something weird went wrong, let it fail silently
+            e.printStackTrace();
             return;
         }
 
