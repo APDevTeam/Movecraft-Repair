@@ -17,13 +17,13 @@ public class RepairListCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
             return true;
         }
         Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repairlist")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Insufficient Permissions"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return true;
         }
 
@@ -47,13 +47,8 @@ public class RepairListCommand implements CommandExecutor {
             }
         }
 
-        if (pageinator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Invalid Page") + "\"" + page + "\"");
-            return true;
-        }
-
         for (File schemFile : schemList) {
-            pageinator.addLine(schemFile.getName().replace((CharSequence) SCHEMATIC_FORMAT, ""));
+            pageinator.addLine(schemFile.getName().replace("." + SCHEMATIC_FORMAT.getPrimaryFileExtension(), ""));
         }
 
         if (pageinator.isEmpty()) {
@@ -61,8 +56,15 @@ public class RepairListCommand implements CommandExecutor {
             return true;
         }
 
-        for(String line :pageinator.getPage(page))
+        if (!pageinator.isInBounds(page)) {
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Out of Bounds"));
+            return true;
+        }
+
+        for(String line : pageinator.getPage(page)) {
             player.sendMessage(line);
+        }
+
         return true;
     }
 }
