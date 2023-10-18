@@ -14,41 +14,41 @@ import static net.countercraft.movecraft.repair.util.WEUtils.SCHEMATIC_FORMAT;
 import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX;
 
 public class RepairListCommand implements CommandExecutor {
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Repair - Must Be Player");
+            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+            return true;
         }
         Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repairlist")) {
-            player.sendMessage(I18nSupport.getInternationalisedString(MOVECRAFT_COMMAND_PREFIX + "Insufficient Permissions"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return true;
         }
 
         File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
         File playerDirectory = new File(repairDirectory, player.getUniqueId().toString());
         if (!playerDirectory.exists()) {
-            player.sendMessage(I18nSupport.getInternationalisedString(MOVECRAFT_COMMAND_PREFIX + "Repair - None Found"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
             return true;
         }
 
         File[] schemList = playerDirectory.listFiles();
-        TopicPaginator pageinator = new TopicPaginator(I18nSupport.getInternationalisedString("Repair States"));
+        TopicPaginator pageinator = new TopicPaginator(I18nSupport.getInternationalisedString("Repair - Saved States"));
 
         int page = 1; // Default page
         if (args.length > 0) {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Paginator - Invalid Page") +" \"" + args[0] + "\"");
+                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Invalid Page") +" \"" + args[0] + "\"");
                 return true;
             }
         }
 
         if (pageinator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Paginator - Invalid page") + "\"" + page + "\"");
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Invalid Page") + "\"" + page + "\"");
             return true;
         }
 
@@ -57,13 +57,12 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         if (pageinator.isEmpty()) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - None Found"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
             return true;
         }
 
         for(String line :pageinator.getPage(page))
             player.sendMessage(line);
         return true;
-
     }
 }
