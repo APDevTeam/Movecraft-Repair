@@ -54,7 +54,7 @@ public class WarfareUtils extends BukkitRunnable {
     public boolean repairChunk(Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
         // Load schematic from disk
         File file = new File(directory,
-                chunk.getX() + "_" + chunk.getZ() + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
+                chunk.getX() + "_" + chunk.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
         Clipboard clipboard;
         World world = chunk.getWorld();
         try {
@@ -127,7 +127,7 @@ public class WarfareUtils extends BukkitRunnable {
         }
 
         // Save chunk to disk
-        File file = new File(directory, c.getX() + "_" + c.getZ() + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
+        File file = new File(directory, c.getX() + "_" + c.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             Extent source = WorldEdit.getInstance().newEditSessionBuilder().world(world).maxBlocks(16 * 16 * (world.getMaxY() - world.getMinY() + 2)).build(); // Get enough space for the chunk, with a little extra wiggle room

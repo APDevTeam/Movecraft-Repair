@@ -41,6 +41,8 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
+import com.sk89q.worldedit.world.item.ItemType;
+import com.sk89q.worldedit.world.item.ItemTypes;
 
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.PilotedCraft;
@@ -98,11 +100,11 @@ public class WEUtils {
         BlockVector3 maxPos = BlockVector3.at(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ());
         BlockVector3 origin = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
         CuboidRegion region = new CuboidRegion(minPos, maxPos);
-        // Calculate a hitbox of all blocks within the cuboid region but not within the hitbox (so we don't save them)
+        // Calculate a hitbox of all blocks within the cuboid region but not within the
+        // hitbox (so we don't save them)
         HitBox surrounding = new SolidHitBox(
-            new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
-            new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ())
-        );
+                new MovecraftLocation(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ()),
+                new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ()));
         surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
         World bukkitWorld = craft.getWorld();
@@ -120,15 +122,13 @@ public class WEUtils {
             Operations.complete(copy);
             for (MovecraftLocation location : surrounding) {
                 clipboard.setBlock(
-                    BlockVector3.at(location.getX(), location.getY(), location.getZ()),
-                    BlockTypes.AIR.getDefaultState().toBaseBlock()
-                );
+                        BlockVector3.at(location.getX(), location.getY(), location.getZ()),
+                        BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
             ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
             writer.write(clipboard);
             writer.close();
-        }
-        catch (IOException | NullPointerException | WorldEditException e) {
+        } catch (IOException | NullPointerException | WorldEditException e) {
             e.printStackTrace();
             return false;
         }
@@ -157,6 +157,7 @@ public class WEUtils {
         CompoundTag blockNBT = block.getNbtData();
         if (blockNBT == null)
             return null;
+
         ListTag blockItems = blockNBT.getListTag("Items");
         if (blockItems == null)
             return null;
@@ -167,14 +168,27 @@ public class WEUtils {
 
             CompoundTag ct = (CompoundTag) t;
             String id = ct.getString("id");
-            BlockType type = new BlockType(id);
-            Material material = BukkitAdapter.adapt(type);
-
+            Material material = getMaterial(id);
             byte count = ct.getByte("Count");
+            if (material == null)
+                continue;
 
             counter.add(material, count);
         }
         return counter;
+    }
+
+    @Nullable
+    private static Material getMaterial(String str) {
+        BlockType block = BlockTypes.get(str);
+        if (block != null)
+            return BukkitAdapter.adapt(block);
+
+        ItemType item = ItemTypes.get(str);
+        if (item != null)
+            return BukkitAdapter.adapt(item);
+
+        return null;
     }
 
     /**
@@ -197,17 +211,19 @@ public class WEUtils {
         return result;
     }
 
-    private static String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
+    private static String[] TEXT_STYLES = { "bold", "italic", "underline", "strikethrough" };
 
     private static String getSignTextFromJSON(String json) {
         Gson gson = new Gson();
         Map<?, ?> lineData = gson.fromJson(json, Map.class);
+        String result = "";
+        result += getSignTextFromMap(lineData);
         if (!lineData.containsKey("extra"))
-            return "";
+            return result;
 
         Object extrasObject = lineData.get("extra");
         if (!(extrasObject instanceof List))
-            return "";
+            return result;
 
         List<?> extras = (List<?>) extrasObject;
         StringBuilder builder = new StringBuilder();
@@ -215,21 +231,23 @@ public class WEUtils {
             if (!(componentObject instanceof Map))
                 continue;
 
-            Map<?, ?> component = (Map<?, ?>) componentObject;
-            if (component.containsKey("color")) {
-                builder.append(ChatColor.valueOf((
-                    (String) component.get("color")
-                ).toUpperCase()));
-            }
-            for (String style : TEXT_STYLES) {
-                if (component.containsKey(style)) {
-                    builder.append(ChatColor.valueOf((
-                        (String) component.get(style)
-                    ).toUpperCase()));
-                }
-            }
-            builder.append(component.get("text"));
+            builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
         }
+        result += builder.toString();
+        return result;
+    }
+
+    private static String getSignTextFromMap(Map<?, ?> component) {
+        StringBuilder builder = new StringBuilder();
+        if (component.containsKey("color")) {
+            builder.append(ChatColor.valueOf(((String) component.get("color")).toUpperCase()));
+        }
+        for (String style : TEXT_STYLES) {
+            if (component.containsKey(style)) {
+                builder.append(ChatColor.valueOf(((String) component.get(style)).toUpperCase()));
+            }
+        }
+        builder.append(component.get("text"));
         return builder.toString();
     }
 }
