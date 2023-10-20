@@ -57,7 +57,10 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         if (!pageinator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Out of Bounds"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX +
+                    net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Page Number")
+                    + " " + page + " " +
+                    net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Exceeds Bounds"));
             return true;
         }
 
