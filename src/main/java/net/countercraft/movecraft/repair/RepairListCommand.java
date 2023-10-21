@@ -48,7 +48,11 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         for (File schemFile : schemList) {
-            pageinator.addLine(schemFile.getName().replace("." + SCHEMATIC_FORMAT.getPrimaryFileExtension(), ""));
+            String name = schemFile.getName();
+            if (!name.endsWith(SCHEMATIC_FORMAT.getPrimaryFileExtension()))
+                continue; // Don't display other format files
+
+            pageinator.addLine(name.replace("." + SCHEMATIC_FORMAT.getPrimaryFileExtension(), ""));
         }
 
         if (pageinator.isEmpty()) {
