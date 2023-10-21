@@ -6,3 +6,7 @@ description: Repair features of Movecraft
 authors: [TylerS1066, cccm5, BaccaYarro]
 website: https://github.com/APDevTeam/Movecraft-Repair
 main: net.countercraft.movecraft.repair.MovecraftRepair
+commands:
+  repairlist:
+    description: List saved repair states
+    permission: movecraft.repair.repairlist
