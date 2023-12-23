@@ -52,12 +52,6 @@ public class RepairSign implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
 
-        Player player = event.getPlayer();
-        if (Config.RepairTicksPerBlock == 0) {
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
-            return;
-        }
-
         BlockState state = event.getClickedBlock().getState();
         if (!(state instanceof Sign))
             return;
@@ -66,6 +60,13 @@ public class RepairSign implements Listener {
         String signText = ChatColor.stripColor(sign.getLine(0));
         if (signText == null || !signText.equalsIgnoreCase(HEADER))
             return;
+
+        event.setCancelled(true);
+        Player player = event.getPlayer();
+        if (Config.RepairTicksPerBlock == 0) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
+            return;
+        }
 
         PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(player);
         if (craft == null) {
@@ -84,7 +85,6 @@ public class RepairSign implements Listener {
             if (getItemInHand(player, event.getHand()) != Config.RepairTool)
                 return;
 
-            event.setCancelled(true);
             onLeftClick(sign, player, craft);
         }
     }
