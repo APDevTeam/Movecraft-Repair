@@ -64,7 +64,8 @@ public class RepairSign implements Listener {
         event.setCancelled(true);
         Player player = event.getPlayer();
         if (Config.RepairTicksPerBlock == 0) {
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
+            player.sendMessage(I18nSupport
+                    .getInternationalisedString("Repair functionality is disabled or WorldEdit was not detected"));
             return;
         }
 
@@ -78,7 +79,7 @@ public class RepairSign implements Listener {
             player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return;
         }
-    
+
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             onRightClick(sign, player, craft);
         } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -103,39 +104,38 @@ public class RepairSign implements Listener {
         Repair repair = null;
         try {
             repair = protoRepair.execute(craft, sign);
-        }
-        catch (ProtoRepair.NotEnoughMoneyException e) {
+        } catch (ProtoRepair.NotEnoughMoneyException e) {
             // Not enough money, tell the player
             player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
-        }
-        catch (ProtoRepair.NotEnoughItemsException e) {
+        } catch (ProtoRepair.NotEnoughItemsException e) {
             // Not enough items, tell the player
             for (RepairBlob blob : e.getRemaining().getKeySet()) {
                 player.sendMessage(
-                    I18nSupport.getInternationalisedString("Repair - Need more of material")
-                    + String.format(
-                        ": %s - %d",
-                        blob.getName(),
-                        (int) Math.ceil(e.getRemaining().get(blob))
-                    )
-                );
+                        I18nSupport.getInternationalisedString("Repair - Need more of material")
+                                + String.format(
+                                        ": %s - %d",
+                                        blob.getName(),
+                                        (int) Math.ceil(e.getRemaining().get(blob))));
             }
             return;
-        }
-        catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
+        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
             // Expired or wrong location, go back to first click
             // ItemRemovalException shouldn't happen, but go back to first click regardless
             createProtoRepair(sign, uuid, player, craft);
             return;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // Something weird went wrong, let it fail silently
             e.printStackTrace();
             return;
         }
 
         // Release the craft, and start the repair
-        CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
+        CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is
+                                                                                          // "temporary" and means that
+                                                                                          // repairs allow the player to
+                                                                                          // repilot and could have
+                                                                                          // damaging effects on combat
+                                                                                          // releases
         MovecraftRepair.getInstance().getRepairManager().start(repair);
     }
 
@@ -146,8 +146,7 @@ public class RepairSign implements Listener {
         RepairState state;
         try {
             state = new RepairState(uuid, stateName);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
             return;
         }
@@ -156,8 +155,7 @@ public class RepairSign implements Listener {
         ProtoRepair protoRepair;
         try {
             protoRepair = state.execute(sign);
-        }
-        catch (WorldEditException e) {
+        } catch (WorldEditException e) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
             return;
         }
@@ -166,9 +164,11 @@ public class RepairSign implements Listener {
             return;
         }
 
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": " + protoRepair.getDamagedBlockCount());
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Total damaged blocks") + ": "
+                + protoRepair.getDamagedBlockCount());
         double percent = 100.0 * protoRepair.getDamagedBlockCount() / craft.getHitBox().size();
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft") + String.format(": %.2f", percent));
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Percentage of craft")
+                + String.format(": %.2f", percent));
         if (percent > Config.RepairMaxPercent) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - Failed Craft Too Damaged"));
             return;
@@ -176,16 +176,17 @@ public class RepairSign implements Listener {
 
         for (RepairBlob blob : protoRepair.getMaterials().getKeySet()) {
             player.sendMessage(String.format(
-                "%s : %d",
-                blob.getName(),
-                (int) Math.ceil(protoRepair.getMaterials().get(blob))
-            ));
+                    "%s : %d",
+                    blob.getName(),
+                    (int) Math.ceil(protoRepair.getMaterials().get(blob))));
         }
 
         long duration = (long) Math.ceil(protoRepair.getQueue().size() * Config.RepairTicksPerBlock / 20.0);
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair") + String.format(": %d", duration));
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Seconds to complete repair")
+                + String.format(": %d", duration));
 
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair") + String.format(": %.2f", protoRepair.getQueue().size() * Config.RepairMoneyPerBlock));
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Money to complete repair")
+                + String.format(": %.2f", protoRepair.getQueue().size() * Config.RepairMoneyPerBlock));
 
         // Add to cache only if not empty
         if (!protoRepair.getQueue().isEmpty())
@@ -193,11 +194,13 @@ public class RepairSign implements Listener {
     }
 
     public void onLeftClick(Sign sign, Player player, PlayerCraft craft) {
-        Long lastLeftClick = leftClickCache.get(player.getUniqueId());
-        if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
-            // First click, just add to the map
-            leftClickCache.put(player.getUniqueId(), System.currentTimeMillis());
-            return;
+        if (!Config.DisableDoubleClick) {
+            Long lastLeftClick = leftClickCache.get(player.getUniqueId());
+            if (lastLeftClick == null || (System.currentTimeMillis() - lastLeftClick.longValue() > 5000)) {
+                // First click, just add to the map
+                leftClickCache.put(player.getUniqueId(), System.currentTimeMillis());
+                return;
+            }
         }
 
         if (!WEUtils.saveCraftSchematic(craft, sign)) {

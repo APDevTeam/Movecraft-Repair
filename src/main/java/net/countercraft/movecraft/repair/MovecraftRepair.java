@@ -102,6 +102,7 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxBlocksPerTick = config.getInt("RepairMaxBlocksPerTick", 2);
         Config.RepairMoneyPerBlock = config.getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);
+        Config.DisableDoubleClick = config.getBoolean("DisableDoubleClick", false);
         Config.RepairTool = Material.valueOf(config.getString("RepairTool", "firework_rocket").toUpperCase());
         Object entry = config.get("RepairBlobs");
         if (!(entry instanceof List)) {
