@@ -13,7 +13,7 @@ RepairBlobs: # "Blobs" of materials which can be used interchangably to repair
  - "#glazed_terracotta"
  - "#redstone_torches"
  - "#stained_glass_blocks"
- - "#stained_glass_pane"
+ - "#stained_glass_panes"
  - "#terracotta"
  - "#beds"
  - "#carpets"
