@@ -23,6 +23,14 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
     @Override
     public void run() {
+        if (bossBars.get(null) != null) {
+            // If we have a null key, remove the bossbar
+            BossBar bossBar = bossBars.get(null);
+            bossBars.remove(null);
+            bossBar.setVisible(false);
+            bossBar.removeAll();
+        }
+
         for (Map.Entry<Repair, BossBar> entry : bossBars.entrySet()) {
             Repair repair = entry.getKey();
             BossBar bossBar = entry.getValue();
@@ -62,6 +70,7 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         bossBars.remove(repair);
         bossBar.setVisible(false);
+        bossBar.removeAll();
 
         Player player = Bukkit.getPlayer(repair.getPlayerUUID());
         if (player == null)
