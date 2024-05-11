@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
+import net.countercraft.movecraft.repair.commands.RepairListCommand;
+import net.countercraft.movecraft.repair.commands.RepairReportCommand;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.blobs.ListBlob;
@@ -90,6 +92,7 @@ public final class MovecraftRepair extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
 
         getCommand("repairlist").setExecutor(new RepairListCommand());
+        getCommand("repairreport").setExecutor(new RepairReportCommand());
     }
 
     private static void loadConfig(FileConfiguration config) {

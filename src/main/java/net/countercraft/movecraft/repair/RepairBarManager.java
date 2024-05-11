@@ -53,7 +53,8 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
     public void onRepairStart(@NotNull RepairStartedEvent event) {
         Repair repair = event.getRepair();
 
-        BossBar bossBar = Bukkit.createBossBar(null, BarColor.WHITE, BarStyle.SOLID);
+        BossBar bossBar = Bukkit.createBossBar(repair.getName(), BarColor.WHITE, BarStyle.SOLID);
+        bossBar.setProgress(0.0);
         bossBars.put(repair, bossBar);
 
         Player player = Bukkit.getPlayer(repair.getPlayerUUID());

@@ -10,3 +10,6 @@ commands:
   repairlist:
     description: List saved repair states
     permission: movecraft.repair.repairlist
+  repairreport:
+    description: List ongoing repair states
+    permission: movecraft.repair.repairreport
