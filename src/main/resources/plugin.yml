@@ -10,6 +10,9 @@ commands:
   repairlist:
     description: List saved repair states
     permission: movecraft.repair.repairlist
+  repaircancel:
+    description: Cancel an ongoing repair state
+    permission: movecraft.repair.repaircancel
   repairreport:
     description: List ongoing repair states
     permission: movecraft.repair.repairreport

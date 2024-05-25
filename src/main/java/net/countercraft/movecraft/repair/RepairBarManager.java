@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import net.countercraft.movecraft.repair.events.RepairCancelledEvent;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.events.RepairStartedEvent;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
@@ -66,17 +67,25 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onRepairFinished(@NotNull RepairFinishedEvent event) {
-        Repair repair = event.getRepair();
+        remove(event.getRepair());
+
+        Player player = Bukkit.getPlayer(event.getRepair().getPlayerUUID());
+        if (player == null)
+            return;
+
+        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs complete"));
+    }
+
+    @EventHandler
+    public void onRepairCancelled(@NotNull RepairCancelledEvent event) {
+        remove(event.getRepair());
+    }
+
+    private void remove(Repair repair) {
         BossBar bossBar = bossBars.get(repair);
 
         bossBars.remove(repair);
         bossBar.setVisible(false);
         bossBar.removeAll();
-
-        Player player = Bukkit.getPlayer(repair.getPlayerUUID());
-        if (player == null)
-            return;
-
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs complete"));
     }
 }
