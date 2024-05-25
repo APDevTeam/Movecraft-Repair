@@ -1,4 +1,4 @@
-package net.countercraft.movecraft.repair;
+package net.countercraft.movecraft.repair.bar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import net.countercraft.movecraft.repair.bar.config.PlayerManager;
 import net.countercraft.movecraft.repair.events.RepairCancelledEvent;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.events.RepairStartedEvent;
@@ -20,7 +21,13 @@ import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.Repair;
 
 public class RepairBarManager extends BukkitRunnable implements Listener {
+    @NotNull
+    private final PlayerManager manager;
     private Map<Repair, BossBar> bossBars = new HashMap<>();
+
+    public RepairBarManager(@NotNull PlayerManager manager) {
+        this.manager = manager;
+    }
 
     @Override
     public void run() {
@@ -38,7 +45,11 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
             Player player = Bukkit.getPlayer(repair.getPlayerUUID());
             if (player != null) {
-                bossBar.addPlayer(player);
+                if (manager.getBarSetting(player)) {
+                    bossBar.addPlayer(player);
+                } else {
+                    bossBar.removePlayer(player);
+                }
             }
 
             int remaining = repair.remaining();
@@ -60,8 +71,12 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         Player player = Bukkit.getPlayer(repair.getPlayerUUID());
         if (player != null) {
-            bossBar.addPlayer(player);
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs underway"));
+            if (manager.getBarSetting(player)) {
+                bossBar.addPlayer(player);
+            } else {
+                bossBar.removePlayer(player);
+            }
         }
     }
 
