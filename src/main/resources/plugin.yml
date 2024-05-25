@@ -7,6 +7,18 @@ authors: [TylerS1066, cccm5, BaccaYarro]
 website: https://github.com/APDevTeam/Movecraft-Repair
 main: net.countercraft.movecraft.repair.MovecraftRepair
 commands:
+  repairbar:
+    description: Toggle the repair bar feature
+    permission: movecraft.repair.repairbar
+  repaircancel:
+    description: Cancel an ongoing repair state
+    permission: movecraft.repair.repaircancel
+  repairinventory:
+    description: Check the inventory of your craft
+    permission: movecraft.repair.repairinventory
   repairlist:
     description: List saved repair states
     permission: movecraft.repair.repairlist
+  repairreport:
+    description: List ongoing repair states
+    permission: movecraft.repair.repairreport

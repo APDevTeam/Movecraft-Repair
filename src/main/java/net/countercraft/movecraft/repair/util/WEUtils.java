@@ -57,15 +57,15 @@ public class WEUtils {
 
     /**
      * Load a schematic from disk
-     * 
+     *
      * @param directory Directory for the schematic file
      * @param name      Name of the schematic file (without the extension)
      * @return A clipboard containing the schematic
      * @throws FileNotFoundException Schematic file not found
-     * @throws IOException
+     * @throws IOException           Other I/O exception
      */
     @Nullable
-    public static Clipboard loadSchematic(File directory, String name) throws IOException {
+    public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException, IOException {
         name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File file = new File(directory, name);
         Clipboard clipboard;
@@ -82,7 +82,7 @@ public class WEUtils {
 
     /**
      * Save a schematic from a craft
-     * 
+     *
      * @param craft The craft to save
      * @return true on success
      */
@@ -147,7 +147,7 @@ public class WEUtils {
 
     /**
      * Get the contents of a WorldEdit block
-     * 
+     *
      * @param block block to check
      * @return Counter of the materials in the block
      */
@@ -193,7 +193,7 @@ public class WEUtils {
 
     /**
      * Get the sign contents of a WorldEdit block
-     * 
+     *
      * @param block block to check
      * @return Array of sign lines in the block
      */
@@ -211,33 +211,43 @@ public class WEUtils {
         return result;
     }
 
-    private static String[] TEXT_STYLES = { "bold", "italic", "underline", "strikethrough" };
+    private static final String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
 
     private static String getSignTextFromJSON(String json) {
-        Gson gson = new Gson();
-        Map<?, ?> lineData = gson.fromJson(json, Map.class);
-        String result = "";
-        result += getSignTextFromMap(lineData);
-        if (!lineData.containsKey("extra"))
+        try {
+            Gson gson = new Gson();
+            Map<?, ?> lineData = gson.fromJson(json, Map.class);
+            String result = "";
+            if (lineData == null)
+                return result;
+
+            result += getSignTextFromMap(lineData);
+            if (!lineData.containsKey("extra"))
+                return result;
+
+            Object extrasObject = lineData.get("extra");
+            if (!(extrasObject instanceof List))
+                return result;
+
+            List<?> extras = (List<?>) extrasObject;
+            StringBuilder builder = new StringBuilder();
+            for (Object componentObject : extras) {
+                if (!(componentObject instanceof Map))
+                    continue;
+
+                builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
+            }
+            result += builder.toString();
+
             return result;
-
-        Object extrasObject = lineData.get("extra");
-        if (!(extrasObject instanceof List))
-            return result;
-
-        List<?> extras = (List<?>) extrasObject;
-        StringBuilder builder = new StringBuilder();
-        for (Object componentObject : extras) {
-            if (!(componentObject instanceof Map))
-                continue;
-
-            builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
+        } catch (Exception e) {
+            MovecraftRepair.getInstance().getLogger().severe("Got exception when parsing '" + json + "'");
+            e.printStackTrace();
+            return "";
         }
-        result += builder.toString();
-        return result;
     }
 
-    private static String getSignTextFromMap(Map<?, ?> component) {
+    private static @NotNull String getSignTextFromMap(@NotNull Map<?, ?> component) {
         StringBuilder builder = new StringBuilder();
         if (component.containsKey("color")) {
             builder.append(ChatColor.valueOf(((String) component.get("color")).toUpperCase()));

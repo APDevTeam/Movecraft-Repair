@@ -1,5 +1,6 @@
-package net.countercraft.movecraft.repair;
+package net.countercraft.movecraft.repair.commands;
 
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.util.TopicPaginator;
 import org.bukkit.command.Command;
@@ -15,22 +16,26 @@ import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX
 
 public class RepairListCommand implements CommandExecutor {
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+            @NotNull String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+            sender.sendMessage(
+                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
             return true;
         }
         Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repairlist")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Insufficient Permissions"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
+                    .getInternationalisedString("Insufficient Permissions"));
             return true;
         }
 
         File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
         File playerDirectory = new File(repairDirectory, player.getUniqueId().toString());
         if (!playerDirectory.exists()) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
+            player.sendMessage(
+                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
             return true;
         }
 
@@ -42,7 +47,8 @@ public class RepairListCommand implements CommandExecutor {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Invalid Page") +" \"" + args[0] + "\"");
+                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
+                        .getInternationalisedString("Paginator - Invalid Page") + " \"" + args[0] + "\"");
                 return true;
             }
         }
@@ -56,19 +62,22 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         if (pageinator.isEmpty()) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
+            player.sendMessage(
+                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
             return true;
         }
 
         if (!pageinator.isInBounds(page)) {
             player.sendMessage(MOVECRAFT_COMMAND_PREFIX +
-                    net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Page Number")
+                    net.countercraft.movecraft.localisation.I18nSupport
+                            .getInternationalisedString("Paginator - Page Number")
                     + " " + page + " " +
-                    net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Exceeds Bounds"));
+                    net.countercraft.movecraft.localisation.I18nSupport
+                            .getInternationalisedString("Paginator - Exceeds Bounds"));
             return true;
         }
 
-        for(String line : pageinator.getPage(page)) {
+        for (String line : pageinator.getPage(page)) {
             player.sendMessage(line);
         }
 

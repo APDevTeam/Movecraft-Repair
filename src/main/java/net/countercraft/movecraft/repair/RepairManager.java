@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.events.RepairCancelledEvent;
 import net.countercraft.movecraft.repair.events.RepairFinishedEvent;
 import net.countercraft.movecraft.repair.events.RepairStartedEvent;
 import net.countercraft.movecraft.repair.types.Repair;
@@ -53,6 +54,13 @@ public class RepairManager extends BukkitRunnable {
 
         MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun repair %s with the cost of %.2f", repair.getPlayerUUID(), repair.getName(), repair.getCost()));
         repairs.add(repair);
+    }
+
+    public void cancel(Repair repair) {
+        Bukkit.getPluginManager().callEvent(new RepairCancelledEvent(repair));
+
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has cancelled repair %s with the cost of %.2f", repair.getPlayerUUID(), repair.getName(), repair.getCost()));
+        repairs.remove(repair);
     }
 
     private void end(Repair repair) {

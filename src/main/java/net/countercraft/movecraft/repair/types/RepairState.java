@@ -48,11 +48,11 @@ public class RepairState {
     private BlockVector3 schematicSignOffset;
     private BlockVector3 size;
 
-    public RepairState(UUID plauerUUID, String name) throws IOException, IllegalStateException {
-        this.playerUUID = plauerUUID;
+    public RepairState(UUID playerUUID, String name) throws IOException, IllegalStateException {
+        this.playerUUID = playerUUID;
         this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        File playerDirectory = new File(dataDirectory, plauerUUID.toString());
+        File playerDirectory = new File(dataDirectory, playerUUID.toString());
         if (!playerDirectory.exists() && !playerDirectory.mkdirs())
             throw new IllegalStateException("Unable to create player directory");
 

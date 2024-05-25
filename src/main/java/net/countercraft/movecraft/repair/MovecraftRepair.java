@@ -15,6 +15,13 @@ import org.jetbrains.annotations.Nullable;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import net.countercraft.movecraft.craft.type.TypeData.InvalidValueException;
+import net.countercraft.movecraft.repair.commands.RepairInventoryCommand;
+import net.countercraft.movecraft.repair.bar.RepairBarManager;
+import net.countercraft.movecraft.repair.bar.config.PlayerManager;
+import net.countercraft.movecraft.repair.commands.RepairBarCommand;
+import net.countercraft.movecraft.repair.commands.RepairCancelCommand;
+import net.countercraft.movecraft.repair.commands.RepairListCommand;
+import net.countercraft.movecraft.repair.commands.RepairReportCommand;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.blobs.ListBlob;
@@ -39,7 +46,14 @@ public final class MovecraftRepair extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        // Save default config, create default userdata and language if needed
         saveDefaultConfig();
+
+        File folder = new File(getDataFolder(), "userdata");
+        if (!folder.exists()) {
+            getLogger().info("Created userdata directory");
+            folder.mkdirs();
+        }
 
         String[] languages = { "en" };
         for (String s : languages) {
@@ -82,14 +96,21 @@ public final class MovecraftRepair extends JavaPlugin {
         protoRepairCache = new ProtoRepairCache();
         protoRepairCache.runTaskTimerAsynchronously(this, 10, 200);
 
+        var playerManager = new PlayerManager();
+        getServer().getPluginManager().registerEvents(playerManager, this);
+
         // Startup repair bar manager (every second)
-        RepairBarManager repairBarManager = new RepairBarManager();
+        RepairBarManager repairBarManager = new RepairBarManager(playerManager);
         repairBarManager.runTaskTimerAsynchronously(this, 15, 20);
         getServer().getPluginManager().registerEvents(repairBarManager, this);
 
         getServer().getPluginManager().registerEvents(new RepairSign(), this);
 
+        getCommand("repairbar").setExecutor(new RepairBarCommand(playerManager));
+        getCommand("repaircancel").setExecutor(new RepairCancelCommand());
+        getCommand("repairinventory").setExecutor(new RepairInventoryCommand());
         getCommand("repairlist").setExecutor(new RepairListCommand());
+        getCommand("repairreport").setExecutor(new RepairReportCommand());
     }
 
     private static void loadConfig(FileConfiguration config) {
@@ -102,6 +123,7 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.RepairMaxBlocksPerTick = config.getInt("RepairMaxBlocksPerTick", 2);
         Config.RepairMoneyPerBlock = config.getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);
+        Config.DisableDoubleClick = config.getBoolean("DisableDoubleClick", false);
         Config.RepairTool = Material.valueOf(config.getString("RepairTool", "firework_rocket").toUpperCase());
         Object entry = config.get("RepairBlobs");
         if (!(entry instanceof List)) {

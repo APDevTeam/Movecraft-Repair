@@ -5,7 +5,9 @@ RepairMaxTickTime: 5000000 # Maximum time spent per tick, in nanoseconds
 RepairMoneyPerBlock: 10
 RepairMaxPercent: 50
 RepairTool: "firework_rocket"
-RepairBlobs: # "Blobs" of materials which can be used interchangably to repair
+DisableDoubleClick: false # Disable a double click being required to save a repair
+RepairBlobs: # "Blobs" of materials which can be used interchangeably to repair
+ - ["cauldron", "water_cauldron"]
  - "#chests"
  - "#concrete"
  - "#concrete_powder"
