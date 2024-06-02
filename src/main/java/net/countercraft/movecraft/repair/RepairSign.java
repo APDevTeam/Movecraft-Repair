@@ -107,6 +107,7 @@ public class RepairSign implements Listener {
         } catch (ProtoRepair.NotEnoughMoneyException e) {
             // Not enough money, tell the player
             player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
+            return;
         } catch (ProtoRepair.NotEnoughItemsException e) {
             // Not enough items, tell the player
             for (RepairBlob blob : e.getRemaining().getKeySet()) {
@@ -118,10 +119,13 @@ public class RepairSign implements Listener {
                                         (int) Math.ceil(e.getRemaining().get(blob))));
             }
             return;
-        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
+        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
             // Expired or wrong location, go back to first click
             // ItemRemovalException shouldn't happen, but go back to first click regardless
             createProtoRepair(sign, uuid, player, craft);
+            return;
+        } catch (ProtoRepair.CancelledException e) {
+            e.printStackTrace();
             return;
         } catch (Exception e) {
             // Something weird went wrong, let it fail silently
@@ -130,12 +134,8 @@ public class RepairSign implements Listener {
         }
 
         // Release the craft, and start the repair
-        CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true); // Note: This change is
-                                                                                          // "temporary" and means that
-                                                                                          // repairs allow the player to
-                                                                                          // repilot and could have
-                                                                                          // damaging effects on combat
-                                                                                          // releases
+        CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true);
+        // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
         MovecraftRepair.getInstance().getRepairManager().start(repair);
     }
 

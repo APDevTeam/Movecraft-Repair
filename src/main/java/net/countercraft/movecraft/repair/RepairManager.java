@@ -47,10 +47,7 @@ public class RepairManager extends BukkitRunnable {
     }
 
     public void start(Repair repair) {
-        RepairStartedEvent event = new RepairStartedEvent(repair);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
-            return;
+        Bukkit.getPluginManager().callEvent(new RepairStartedEvent(repair));
 
         MovecraftRepair.getInstance().getLogger().info(() -> String.format("%s has begun repair %s with the cost of %.2f", repair.getPlayerUUID(), repair.getName(), repair.getCost()));
         repairs.add(repair);

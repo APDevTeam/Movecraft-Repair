@@ -20,6 +20,7 @@ import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.RepairBlobManager;
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.events.RepairPreStartedEvent;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
@@ -97,6 +98,12 @@ public class ProtoRepair {
         if (remaining.size() > 0)
             throw new NotEnoughItemsException(remaining);
 
+        Repair repair = new Repair(playerUUID, name, cost, queue);
+        RepairPreStartedEvent event = new RepairPreStartedEvent(repair);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            throw new CancelledException();
+
         // Remove materials
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = pair.getRight();
         World world = craft.getWorld();
@@ -118,7 +125,7 @@ public class ProtoRepair {
             MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
 
         valid = false;
-        return new Repair(playerUUID, name, cost, queue);
+        return repair;
     }
 
     public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
@@ -219,5 +226,8 @@ public class ProtoRepair {
     }
 
     public class ProtoRepairLocationException extends IllegalStateException {
+    }
+
+    public class CancelledException extends IllegalStateException {
     }
 }
