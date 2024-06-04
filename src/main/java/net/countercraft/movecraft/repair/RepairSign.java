@@ -103,7 +103,9 @@ public class RepairSign implements Listener {
         // Cached repair, try running the repair
         Repair repair = null;
         try {
+            MovecraftRepair.getInstance().getLogger().info("Executing ProtoRepair for " + uuid);
             repair = protoRepair.execute(craft, sign);
+            MovecraftRepair.getInstance().getLogger().info("Executed ProtoRepair for " + uuid);
         } catch (ProtoRepair.NotEnoughMoneyException e) {
             // Not enough money, tell the player
             player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
@@ -134,9 +136,12 @@ public class RepairSign implements Listener {
         }
 
         // Release the craft, and start the repair
+        MovecraftRepair.getInstance().getLogger().info("Releasing for " + uuid);
         CraftManager.getInstance().release(craft, CraftReleaseEvent.Reason.REPAIR, true);
         // Note: This change is "temporary" and means that repairs allow the player to repilot and could have damaging effects on combat releases
+        MovecraftRepair.getInstance().getLogger().info("Starting " + uuid);
         MovecraftRepair.getInstance().getRepairManager().start(repair);
+        MovecraftRepair.getInstance().getLogger().info("Done with " + uuid);
     }
 
     private void createProtoRepair(Sign sign, UUID uuid, Player player, PlayerCraft craft) {

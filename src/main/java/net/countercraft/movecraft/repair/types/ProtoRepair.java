@@ -47,6 +47,7 @@ public class ProtoRepair {
         this.damagedBlockCount = damagedBlockCount;
         calculationTime = System.nanoTime();
         valid = true;
+        MovecraftRepair.getInstance().getLogger().info("Created ProtoRepair for " + playerUUID + " at " + origin);
     }
 
     public UUID playerUUID() {
