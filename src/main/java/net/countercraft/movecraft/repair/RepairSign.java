@@ -82,7 +82,7 @@ public class RepairSign implements Listener {
         }
 
         Long lastClick = clickCache.get(player.getUniqueId());
-        if (lastClick == null || (System.currentTimeMillis() - lastClick.longValue() > 50)) {
+        if (lastClick == null || (System.currentTimeMillis() - lastClick.longValue() < 50)) {
             // Spam click, just add to the map
             MovecraftRepair.getInstance().getLogger().info("Spam for " + player.getUniqueId());
             clickCache.put(player.getUniqueId(), System.currentTimeMillis());
