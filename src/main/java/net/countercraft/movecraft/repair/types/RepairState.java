@@ -60,7 +60,6 @@ public class RepairState {
         schematicMinPos = schematic.getMinimumPoint();
         schematicSignOffset = schematic.getOrigin().subtract(schematicMinPos);
         size = schematic.getDimensions();
-        MovecraftRepair.getInstance().getLogger().info("Created RepairState for " + playerUUID + " of name " + name);
     }
 
     public UUID getUUID() {

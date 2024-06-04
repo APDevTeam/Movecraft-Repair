@@ -47,7 +47,6 @@ public class ProtoRepair {
         this.damagedBlockCount = damagedBlockCount;
         calculationTime = System.nanoTime();
         valid = true;
-        MovecraftRepair.getInstance().getLogger().info("Created ProtoRepair for " + playerUUID + " at " + origin);
     }
 
     public UUID playerUUID() {
@@ -78,48 +77,32 @@ public class ProtoRepair {
     public Repair execute(@NotNull Craft craft, Sign sign)
             throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
             NotEnoughItemsException, NotEnoughMoneyException {
-        if (isInvalid()) {
-            MovecraftRepair.getInstance().getLogger().info("Invalid for " + playerUUID);
+        if (isInvalid())
             throw new ProtoRepairExpiredException(); // Check for expired
-        }
-        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation()))) {
-            MovecraftRepair.getInstance().getLogger().info("Incorrect location for " + playerUUID);
+        if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
-        }
-        MovecraftRepair.getInstance().getLogger().info("Valid for " + playerUUID);
-        valid = false;
 
         // Check for balance
         double cost = 0;
         if (MovecraftRepair.getInstance().getEconomy() != null && Config.RepairMoneyPerBlock != 0) {
             cost = queue.size() * Config.RepairMoneyPerBlock;
-            if (!MovecraftRepair.getInstance().getEconomy().has(Bukkit.getOfflinePlayer(playerUUID), cost)) {
-                MovecraftRepair.getInstance().getLogger().info("Money for " + playerUUID);
+            if (!MovecraftRepair.getInstance().getEconomy().has(Bukkit.getOfflinePlayer(playerUUID), cost))
                 throw new NotEnoughMoneyException();
-            }
         }
-        MovecraftRepair.getInstance().getLogger().info("Balance good for " + playerUUID);
 
         // Check materials
         Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> pair = checkMaterials(craft);
-        MovecraftRepair.getInstance().getLogger().info("Materials checked for " + playerUUID);
 
         // Make sure we have enough
         RepairCounter remaining = pair.getLeft();
-        if (remaining.size() > 0) {
-            MovecraftRepair.getInstance().getLogger().info("Items for " + playerUUID);
+        if (remaining.size() > 0)
             throw new NotEnoughItemsException(remaining);
-        }
-        MovecraftRepair.getInstance().getLogger().info("Materials good for " + playerUUID);
 
         Repair repair = new Repair(playerUUID, name, cost, queue);
         RepairPreStartedEvent event = new RepairPreStartedEvent(repair);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
-            MovecraftRepair.getInstance().getLogger().info("Cancelled for " + playerUUID);
+        if (event.isCancelled())
             throw new CancelledException();
-        }
-        MovecraftRepair.getInstance().getLogger().info("Event good for " + playerUUID);
 
         // Remove materials
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = pair.getRight();
@@ -127,26 +110,21 @@ public class ProtoRepair {
         for (Map.Entry<MovecraftLocation, Counter<Material>> entry : itemsToRemove.entrySet()) {
             MovecraftLocation location = entry.getKey();
             Block block = world.getBlockAt(location.getX(), location.getY(), location.getZ());
-            if (!Tags.CHESTS.contains(block.getType())) {
-                MovecraftRepair.getInstance().getLogger().info("Not chest for " + playerUUID);
+            if (!Tags.CHESTS.contains(block.getType()))
                 throw new ItemRemovalException();
-            }
 
             BlockState state = block.getState();
-            if (!(state instanceof Container)) {
-                MovecraftRepair.getInstance().getLogger().info("Not container for " + playerUUID);
+            if (!(state instanceof Container))
                 throw new ItemRemovalException();
-            }
 
             removeInventory(((Container) state).getInventory(), entry.getValue());
         }
-        MovecraftRepair.getInstance().getLogger().info("Materials removed for " + playerUUID);
 
         // Take money
         if (MovecraftRepair.getInstance().getEconomy() != null && cost != 0)
             MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
-        MovecraftRepair.getInstance().getLogger().info("Balance removed for " + playerUUID);
 
+        valid = false;
         return repair;
     }
 
