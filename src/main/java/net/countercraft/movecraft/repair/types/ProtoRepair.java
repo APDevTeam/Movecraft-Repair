@@ -200,10 +200,8 @@ public class ProtoRepair {
                 inventory.setItem(i, null);
             }
         }
-        if (remaining.size() > 0) {
-            MovecraftRepair.getInstance().getLogger().info("Not enough for " + playerUUID + " at " + inventory.getLocation());
+        if (remaining.size() > 0)
             throw new ItemRemovalException();
-        }
     }
 
     public class NotEnoughItemsException extends IllegalStateException {
