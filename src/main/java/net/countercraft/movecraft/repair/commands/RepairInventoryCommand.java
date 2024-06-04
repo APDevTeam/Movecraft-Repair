@@ -10,6 +10,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.DoubleChestInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +30,8 @@ import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX
 
 public class RepairInventoryCommand implements CommandExecutor {
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+            @NotNull String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(
                     MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
@@ -63,18 +66,24 @@ public class RepairInventoryCommand implements CommandExecutor {
         List<RepairBlob> keys = new LinkedList<>(inventory.getKeySet());
         keys.sort((key1, key2) -> ((int) (inventory.get(key2) - inventory.get(key1))));
 
-        TopicPaginator paginator = new TopicPaginator(I18nSupport.getInternationalisedString("Inventory - Inventory Header"), false);
+        TopicPaginator paginator = new TopicPaginator(
+                I18nSupport.getInternationalisedString("Inventory - Inventory Header"), false);
         for (RepairBlob key : keys) {
             paginator.addLine(buildLine(key, inventory.get(key)));
         }
 
         if (paginator.isEmpty()) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Inventory - Empty Craft"));
+            player.sendMessage(
+                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Inventory - Empty Craft"));
             return true;
         }
 
         if (!paginator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Page Number") + " " + page + " " + net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedString("Paginator - Exceeds Bounds"));
+            player.sendMessage(MOVECRAFT_COMMAND_PREFIX
+                    + net.countercraft.movecraft.localisation.I18nSupport
+                            .getInternationalisedString("Paginator - Page Number")
+                    + " " + page + " " + net.countercraft.movecraft.localisation.I18nSupport
+                            .getInternationalisedString("Paginator - Exceeds Bounds"));
             return true;
         }
 
@@ -100,7 +109,10 @@ public class RepairInventoryCommand implements CommandExecutor {
             if (!(state instanceof Container))
                 continue;
 
-            for (ItemStack item : ((Container) state).getInventory().getContents()) {
+            Inventory inventory = ((Container) state).getInventory();
+            if (inventory instanceof DoubleChestInventory)
+                continue; // Don't take from double chests
+            for (ItemStack item : inventory.getContents()) {
                 if (item == null)
                     continue;
 
