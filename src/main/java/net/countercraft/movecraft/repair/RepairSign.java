@@ -119,7 +119,10 @@ public class RepairSign implements Listener {
                                         (int) Math.ceil(e.getRemaining().get(blob))));
             }
             return;
-        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ItemRemovalException e) {
+        } catch (ProtoRepair.ItemRemovalException e) {
+            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Removal exception"));
+            return;
+        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
             // Expired or wrong location, go back to first click
             // ItemRemovalException shouldn't happen, but go back to first click regardless
             createProtoRepair(sign, uuid, player, craft);
