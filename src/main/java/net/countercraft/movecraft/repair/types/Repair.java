@@ -20,7 +20,7 @@ public class Repair {
         this.cost = cost;
         this.queue = queue;
         this.size = queue.size();
-        lastExecution = System.nanoTime();
+        lastExecution = System.currentTimeMillis();
         start = System.currentTimeMillis();
     }
 
@@ -53,7 +53,7 @@ public class Repair {
     }
 
     public boolean run() {
-        double elapsedTicks = (System.nanoTime() - lastExecution) * 20.0 / 1000000000;
+        double elapsedTicks = (System.currentTimeMillis() - lastExecution) * 20.0 / 1000;
         int placedBlocks = 0;
 
         while (elapsedTicks > Config.RepairTicksPerBlock && placedBlocks <= Config.RepairMaxBlocksPerTick) {
@@ -67,7 +67,7 @@ public class Repair {
         }
 
         if (placedBlocks > 0) {
-            lastExecution = System.nanoTime();
+            lastExecution = System.currentTimeMillis();
             return true;
         }
 

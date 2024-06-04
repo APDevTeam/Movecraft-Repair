@@ -18,11 +18,11 @@ public class RepairManager extends BukkitRunnable {
 
     @Override
     public void run() {
-        long start = System.nanoTime();
+        long start = System.currentTimeMillis();
 
         Set<Repair> completed = new HashSet<>();
         Set<Repair> executed = new HashSet<>();
-        while (System.nanoTime() - start < Config.RepairMaxTickTime) {
+        while (System.currentTimeMillis() - start < Config.RepairMaxTickTime) {
             Repair repair = repairs.peek();
             if (repair == null)
                 break; // No repairs, jump out
