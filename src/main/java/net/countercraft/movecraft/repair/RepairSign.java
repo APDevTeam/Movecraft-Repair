@@ -111,6 +111,7 @@ public class RepairSign implements Listener {
             player.sendMessage(I18nSupport.getInternationalisedString("Economy - Not Enough Money"));
             return;
         } catch (ProtoRepair.NotEnoughItemsException e) {
+            MovecraftRepair.getInstance().getLogger().info("Not enough items for " + uuid + "\n- " + e.getRemaining().size() + " size with " + e.getRemaining().getKeySet().size() + " keys");
             // Not enough items, tell the player
             for (RepairBlob blob : e.getRemaining().getKeySet()) {
                 player.sendMessage(
