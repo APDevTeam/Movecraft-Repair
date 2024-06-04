@@ -87,6 +87,7 @@ public class ProtoRepair {
             throw new ProtoRepairLocationException(); // Check for origin
         }
         MovecraftRepair.getInstance().getLogger().info("Valid for " + playerUUID);
+        valid = false;
 
         // Check for balance
         double cost = 0;
@@ -146,7 +147,6 @@ public class ProtoRepair {
             MovecraftRepair.getInstance().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(playerUUID), cost);
         MovecraftRepair.getInstance().getLogger().info("Balance removed for " + playerUUID);
 
-        valid = false;
         return repair;
     }
 
@@ -223,7 +223,7 @@ public class ProtoRepair {
             }
         }
         if (remaining.size() > 0) {
-            MovecraftRepair.getInstance().getLogger().info("Not enough for " + playerUUID);
+            MovecraftRepair.getInstance().getLogger().info("Not enough for " + playerUUID + " at " + inventory.getLocation());
             throw new ItemRemovalException();
         }
     }
