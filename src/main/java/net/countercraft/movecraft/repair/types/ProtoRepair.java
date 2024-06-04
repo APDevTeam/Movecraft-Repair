@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -168,6 +169,8 @@ public class ProtoRepair {
 
     private Counter<Material> sumInventory(Inventory inventory) {
         Counter<Material> result = new Counter<>();
+        if (inventory instanceof DoubleChestInventory)
+            return result; // Don't take from double chests
         for (ItemStack item : inventory.getContents()) {
             if (item == null)
                 continue;
