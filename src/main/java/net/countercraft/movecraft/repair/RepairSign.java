@@ -33,6 +33,7 @@ import net.countercraft.movecraft.repair.util.WEUtils;
 
 public class RepairSign implements Listener {
     private final String HEADER = "Repair:";
+    private final Map<UUID, Long> clickCache = new WeakHashMap<>();
     private final Map<UUID, Long> leftClickCache = new WeakHashMap<>();
 
     @EventHandler
@@ -77,6 +78,14 @@ public class RepairSign implements Listener {
 
         if (!player.hasPermission("movecraft." + craft.getType().getStringProperty(CraftType.NAME) + ".repair")) {
             player.sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
+            return;
+        }
+
+        Long lastClick = clickCache.get(player.getUniqueId());
+        if (lastClick == null || (System.currentTimeMillis() - lastClick.longValue() > 50)) {
+            // Spam click, just add to the map
+            MovecraftRepair.getInstance().getLogger().info("Spam for " + player.getUniqueId());
+            clickCache.put(player.getUniqueId(), System.currentTimeMillis());
             return;
         }
 
