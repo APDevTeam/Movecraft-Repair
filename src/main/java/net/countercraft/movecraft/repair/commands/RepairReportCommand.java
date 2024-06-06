@@ -18,20 +18,13 @@ public class RepairReportCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
             @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
-            return true;
-        }
-        Player player = (Player) sender;
-
-        if (!player.hasPermission("movecraft.repair.repairreport")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
+        if (!sender.hasPermission("movecraft.repair.repairreport")) {
+            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
                     .getInternationalisedString("Insufficient Permissions"));
             return true;
         }
 
-        TopicPaginator pageinator = new TopicPaginator(
+        TopicPaginator paginator = new TopicPaginator(
                 I18nSupport.getInternationalisedString("Repair - Ongoing Repairs"));
 
         int page = 1; // Default page
@@ -39,7 +32,7 @@ public class RepairReportCommand implements CommandExecutor {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
+                sender.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
                         .getInternationalisedString("Paginator - Invalid Page") + " \"" + args[0] + "\"");
                 return true;
             }
@@ -47,18 +40,18 @@ public class RepairReportCommand implements CommandExecutor {
 
         for (Repair repair : MovecraftRepair.getInstance().getRepairManager().get()) {
             Player p = Bukkit.getPlayer(repair.getPlayerUUID());
-            pageinator.addLine(repair.getName() + " " + (p == null ? "None" : p.getName()) + " @ " + repair.remaining()
+            paginator.addLine(repair.getName() + " " + (p == null ? "None" : p.getName()) + " @ " + repair.remaining()
                     + ", " + (repair.size() - repair.remaining()) + " / " + repair.size());
         }
 
-        if (pageinator.isEmpty()) {
-            player.sendMessage(
+        if (paginator.isEmpty()) {
+            sender.sendMessage(
                     MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - No Repairs"));
             return true;
         }
 
-        if (!pageinator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX +
+        if (!paginator.isInBounds(page)) {
+            sender.sendMessage(MOVECRAFT_COMMAND_PREFIX +
                     net.countercraft.movecraft.localisation.I18nSupport
                             .getInternationalisedString("Paginator - Page Number")
                     + " " + page + " " +
@@ -67,8 +60,8 @@ public class RepairReportCommand implements CommandExecutor {
             return true;
         }
 
-        for (String line : pageinator.getPage(page)) {
-            player.sendMessage(line);
+        for (String line : paginator.getPage(page)) {
+            sender.sendMessage(line);
         }
 
         return true;
