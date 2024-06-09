@@ -119,7 +119,7 @@ public final class MovecraftRepair extends JavaPlugin {
         Config.Locale = config.getString("Locale", "en");
         I18nSupport.init();
         Config.RepairTicksPerBlock = config.getInt("RepairTicksPerBlock", 0);
-        Config.RepairMaxTickTime = config.getLong("RepairMaxTickTime", 5000000);
+        Config.RepairMaxTickTime = config.getLong("RepairMaxTickTime", 5000000) / 1000000;
         Config.RepairMaxBlocksPerTick = config.getInt("RepairMaxBlocksPerTick", 2);
         Config.RepairMoneyPerBlock = config.getDouble("RepairMoneyPerBlock", 0.0);
         Config.RepairMaxPercent = config.getDouble("RepairMaxPercent", 50);

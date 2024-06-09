@@ -44,9 +44,9 @@ public class WarfareUtils extends BukkitRunnable {
 
     @Override
     public void run() {
-        long start = System.nanoTime();
+        long start = System.currentTimeMillis();
 
-        while (System.nanoTime() - start < Config.RepairMaxTickTime && !tasks.isEmpty()) {
+        while (System.currentTimeMillis() - start < Config.RepairMaxTickTime && !tasks.isEmpty()) {
             tasks.poll().execute();
         }
     }

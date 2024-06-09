@@ -46,7 +46,7 @@ public class ProtoRepair {
         this.materials = materials;
         this.origin = origin;
         this.damagedBlockCount = damagedBlockCount;
-        calculationTime = System.nanoTime();
+        calculationTime = System.currentTimeMillis();
         valid = true;
     }
 
@@ -71,7 +71,7 @@ public class ProtoRepair {
     }
 
     public boolean isInvalid() {
-        return (System.nanoTime() - calculationTime > 5000000000L) || !valid; // 5 seconds
+        return (System.currentTimeMillis() - calculationTime > 5000) || !valid; // 5 seconds
     }
 
     @NotNull
