@@ -1,24 +1,5 @@
 package net.countercraft.movecraft.repair.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
-
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -34,24 +15,28 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.block.BaseBlock;
-
 import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.processing.WorldManager;
-import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.processing.effects.Effect;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.jetbrains.annotations.Nullable;
 
-public class WarfareUtils extends BukkitRunnable {
-    private Queue<BlockTask> tasks = new ArrayDeque<>();
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-    @Override
-    public void run() {
-        long start = System.currentTimeMillis();
-
-        while (System.currentTimeMillis() - start < Config.RepairMaxTickTime && !tasks.isEmpty()) {
-            tasks.poll().execute();
-        }
-    }
-
+public class WarfareUtils {
     public boolean repairChunk(Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
         // Load schematic from disk
         File file = new File(directory,
@@ -70,7 +55,6 @@ public class WarfareUtils extends BukkitRunnable {
             chunk.load();
 
         // Repair chunk
-        Set<BlockTask> chunkTasks = new HashSet<>();
         for (int x = clipboard.getMinimumPoint().getBlockX(); x <= clipboard.getMaximumPoint().getBlockX(); x++) {
             for (int y = clipboard.getMinimumPoint().getBlockY(); y <= clipboard.getMaximumPoint().getBlockY(); y++) {
                 for (int z = clipboard.getMinimumPoint().getBlockZ(); z <= clipboard.getMaximumPoint()
@@ -88,11 +72,10 @@ public class WarfareUtils extends BukkitRunnable {
                     if (!check.test(location))
                         continue;
 
-                    chunkTasks.add(new BlockTask(location.toBukkit(world), BukkitAdapter.adapt(baseBlock)));
+                    WorldManager.INSTANCE.submit(new BlockTask(location.toBukkit(world), BukkitAdapter.adapt(baseBlock)));
                 }
             }
         }
-        tasks.addAll(chunkTasks);
         return true;
     }
 
@@ -149,7 +132,7 @@ public class WarfareUtils extends BukkitRunnable {
         }
     }
 
-    private class BlockTask {
+    private static class BlockTask implements Supplier<Effect> {
         private final Location location;
         private final BlockData blockData;
 
@@ -158,12 +141,12 @@ public class WarfareUtils extends BukkitRunnable {
             this.blockData = blockData;
         }
 
-        public void execute() {
-            WorldManager.INSTANCE.submit(() -> WorldManager.INSTANCE.executeMain(() -> Movecraft.getInstance().getWorldHandler().setBlockFast(location, blockData)));
+        public Effect get() {
+            return () -> Movecraft.getInstance().getWorldHandler().setBlockFast(location, blockData);
         }
     }
 
-    private class MaterialMask implements Mask {
+    private static class MaterialMask implements Mask {
         private final Set<Material> materials;
         private final World world;
 
