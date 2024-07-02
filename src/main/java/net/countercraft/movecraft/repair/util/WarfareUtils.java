@@ -37,6 +37,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 
 import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
+import net.countercraft.movecraft.processing.WorldManager;
 import net.countercraft.movecraft.repair.config.Config;
 
 public class WarfareUtils extends BukkitRunnable {
@@ -158,7 +159,7 @@ public class WarfareUtils extends BukkitRunnable {
         }
 
         public void execute() {
-            Movecraft.getInstance().getWorldHandler().setBlockFast(location, blockData);
+            WorldManager.INSTANCE.submit(() -> WorldManager.INSTANCE.executeMain(() -> Movecraft.getInstance().getWorldHandler().setBlockFast(location, blockData)));
         }
     }
 
