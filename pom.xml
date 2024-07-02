@@ -56,12 +56,6 @@
                             </artifactSet>
                             <relocations>
                                 <relocation>
-                                    <pattern>it.unimi</pattern>
-                                    <shadedPattern>net.countercraft.movecraft.repair.libs.it.unimi</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <relocations>
-                                <relocation>
                                     <pattern>com.google.code.gson</pattern>
                                     <shadedPattern>net.countercraft.movecraft.repair.libs.com.google.code.gson</shadedPattern>
                                 </relocation>
@@ -72,7 +66,6 @@
                             <artifactSet>
                                 <includes>
                                     <include>net.countercraft.movecraft.repair*</include>
-                                    <include>it.unimi.dsi:fastutil*</include>
                                     <include>com.google.code.gson*</include>
                                 </includes>
                             </artifactSet>
@@ -173,7 +166,14 @@
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
             <version>8.5.11</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
+        </dependency>
+        <!--RoaringBitmap-->
+        <dependency>
+            <groupId>org.roaringbitmap</groupId>
+            <artifactId>RoaringBitmap</artifactId>
+            <version>1.0.6</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
