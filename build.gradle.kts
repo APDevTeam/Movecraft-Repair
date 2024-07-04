@@ -12,6 +12,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven { githubPackage("apdevteam/movecraft")(this) }
     maven("https://jitpack.io")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
