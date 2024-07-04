@@ -33,7 +33,7 @@ description = "Movecraft-Repair"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 tasks.jar {
-    archiveBaseName.set("Movecraft-Combat")
+    archiveBaseName.set("Movecraft-Repair")
     archiveClassifier.set("")
     archiveVersion.set("")
 }
