@@ -1,5 +1,5 @@
 # Movecraft-Repair Addon
-![CI](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/maven.yml/badge.svg)
+![CI](https://github.com/APDevTeam/Movecraft-Repair/actions/workflows/gradle.yml/badge.svg)
 [![Codebeat](https://codebeat.co/badges/ff25e74b-fac0-4b21-8dc3-adf7121a6dca)](https://codebeat.co/projects/github-com-apdevteam-movecraft-repair-main)
 
 Home of the code for the following features:
@@ -12,18 +12,18 @@ The `legacy` branch is coded for 1.10.2 to 1.16.5 and Movecraft 7.x.
 The `main` branch is coded for 1.14.4+ and Movecraft 8.x.
  
  ## Download
+Releases can be found on the [releases tab](https://github.com/APDevTeam/Movecraft-Repair/releases).
 
 Development builds can be found on the [GitHub Actions tab](https://github.com/APDevTeam/Movecraft-Repair/actions) of this repository.
 
-Stable builds can be found on [our SpigotMC page](https://www.spigotmc.org/resources/movecraft-repair.89812/).
+Previous builds can be found on [our SpigotMC page](https://www.spigotmc.org/resources/movecraft-repair.89812/).
 
 ## Building
-This plugin requires that the user setup and build their [Movecraft](https://github.com/APDevTeam/Movecraft) development environment, and then clone this into the same folder as your Movecraft development environment such that both Movecraft-Repair and Movecraft are contained in the same folder.  Then, run the following to build Movecraft-Repair through `maven`.
+Run the following to build Movecraft-Repair:
 ```
-mvn clean install
+./gradlew clean build --parallel
 ```
-Jars are located in `/target`.
-
+Jars are located in `/build/libs` directory.
 
 ## Support
 [Github Issues](https://github.com/APDevTeam/Movecraft-Repair/issues)
