@@ -1,6 +1,6 @@
 name: Movecraft-Repair
 depend: [Movecraft, WorldEdit, Vault]
-version: ${project.version}
+version: ${projectVersion}
 api-version: 1.14
 description: Repair features of Movecraft
 authors: [TylerS1066, cccm5, BaccaYarro]
