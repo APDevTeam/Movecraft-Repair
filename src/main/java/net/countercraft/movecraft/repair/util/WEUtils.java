@@ -64,7 +64,7 @@ public class WEUtils {
      * @throws FileNotFoundException Schematic file not found
      * @throws IOException           Other I/O exception
      */
-    @Nullable
+    @NotNull
     public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException, IOException {
         name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
         File file = new File(directory, name);

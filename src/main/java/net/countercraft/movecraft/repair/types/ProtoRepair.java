@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import net.countercraft.movecraft.util.hitboxes.HitBox;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -29,22 +30,26 @@ import net.countercraft.movecraft.util.Pair;
 import net.countercraft.movecraft.util.Tags;
 
 public class ProtoRepair {
-    private UUID playerUUID;
-    private String name;
-    private RepairQueue queue;
-    private RepairCounter materials;
-    private int damagedBlockCount;
-    private MovecraftLocation origin;
-    private long calculationTime;
+    private final UUID playerUUID;
+    private final String name;
+    private final RepairQueue queue;
+    private final RepairCounter materials;
+    private final int damagedBlockCount;
+    private final MovecraftLocation origin;
+    private final World world;
+    private final HitBox hitBox;
+    private final long calculationTime;
     private boolean valid;
 
     public ProtoRepair(UUID playerUUID, String name, RepairQueue queue, RepairCounter materials, int damagedBlockCount,
-            MovecraftLocation origin) {
+            MovecraftLocation origin, World world, HitBox hitBox) {
         this.playerUUID = playerUUID;
         this.name = name;
         this.queue = queue;
         this.materials = materials;
         this.origin = origin;
+        this.world = world;
+        this.hitBox = hitBox;
         this.damagedBlockCount = damagedBlockCount;
         calculationTime = System.currentTimeMillis();
         valid = true;
@@ -68,6 +73,14 @@ public class ProtoRepair {
 
     public MovecraftLocation getOrigin() {
         return origin;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public HitBox getHitBox() {
+        return hitBox;
     }
 
     public boolean isInvalid() {
@@ -96,7 +109,7 @@ public class ProtoRepair {
 
         // Make sure we have enough
         RepairCounter remaining = pair.getLeft();
-        if (remaining.size() > 0)
+        if (!remaining.isEmpty())
             throw new NotEnoughItemsException(remaining);
 
         Repair repair = new Repair(playerUUID, name, cost, queue);
@@ -129,7 +142,7 @@ public class ProtoRepair {
         return repair;
     }
 
-    public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(Craft craft) {
+    public Pair<RepairCounter, Map<MovecraftLocation, Counter<Material>>> checkMaterials(@NotNull Craft craft) {
         RepairCounter remaining = new RepairCounter(materials);
         Map<MovecraftLocation, Counter<Material>> itemsToRemove = new HashMap<>();
 
@@ -167,6 +180,7 @@ public class ProtoRepair {
         return new Pair<>(remaining, itemsToRemove);
     }
 
+    @NotNull
     private Counter<Material> sumInventory(Inventory inventory) {
         Counter<Material> result = new Counter<>();
         if (inventory instanceof DoubleChestInventory)
@@ -180,7 +194,7 @@ public class ProtoRepair {
         return result;
     }
 
-    private void removeInventory(Inventory inventory, Counter<Material> remaining) throws ItemRemovalException {
+    private void removeInventory(@NotNull Inventory inventory, Counter<Material> remaining) throws ItemRemovalException {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack == null)
@@ -203,11 +217,11 @@ public class ProtoRepair {
                 inventory.setItem(i, null);
             }
         }
-        if (remaining.size() > 0)
+        if (!remaining.isEmpty())
             throw new ItemRemovalException();
     }
 
-    public class NotEnoughItemsException extends IllegalStateException {
+    public static class NotEnoughItemsException extends IllegalStateException {
         private final transient RepairCounter remaining;
 
         public NotEnoughItemsException(RepairCounter remaining) {
@@ -219,18 +233,18 @@ public class ProtoRepair {
         }
     }
 
-    public class NotEnoughMoneyException extends IllegalStateException {
+    public static class NotEnoughMoneyException extends IllegalStateException {
     }
 
-    public class ItemRemovalException extends IllegalStateException {
+    public static class ItemRemovalException extends IllegalStateException {
     }
 
-    public class ProtoRepairExpiredException extends IllegalStateException {
+    public static class ProtoRepairExpiredException extends IllegalStateException {
     }
 
-    public class ProtoRepairLocationException extends IllegalStateException {
+    public static class ProtoRepairLocationException extends IllegalStateException {
     }
 
-    public class CancelledException extends IllegalStateException {
+    public static class CancelledException extends IllegalStateException {
     }
 }

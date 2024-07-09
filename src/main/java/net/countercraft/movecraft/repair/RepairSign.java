@@ -161,6 +161,9 @@ public class RepairSign implements Listener {
         } catch (WorldEditException e) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
             return;
+        } catch (RepairState.ProtoRepairCancelledException e) {
+            player.sendMessage(e.getFailMessage());
+            return;
         }
         if (protoRepair == null) {
             player.sendMessage(I18nSupport.getInternationalisedString("Repair - State not found"));
