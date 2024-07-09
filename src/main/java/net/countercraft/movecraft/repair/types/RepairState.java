@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,6 +18,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.sk89q.worldedit.WorldEditException;
@@ -41,14 +43,14 @@ import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
 
 public class RepairState {
-    private UUID playerUUID;
-    private String name;
-    private Clipboard schematic;
-    private BlockVector3 schematicMinPos;
-    private BlockVector3 schematicSignOffset;
-    private BlockVector3 size;
+    private final UUID playerUUID;
+    private final String name;
+    private final Clipboard schematic;
+    private final BlockVector3 schematicMinPos;
+    private final BlockVector3 schematicSignOffset;
+    private final BlockVector3 size;
 
-    public RepairState(UUID playerUUID, String name) throws IOException, IllegalStateException {
+    public RepairState(@NotNull UUID playerUUID, String name) throws IOException, IllegalStateException {
         this.playerUUID = playerUUID;
         this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
@@ -70,7 +72,8 @@ public class RepairState {
         return name;
     }
 
-    private Clipboard rotate(Sign sign) throws WorldEditException {
+    @NotNull
+    private Clipboard rotate(@NotNull Sign sign) throws WorldEditException {
         BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
 
         BlockVector3 offset = signPosition.subtract(schematicSignOffset);
@@ -86,9 +89,10 @@ public class RepairState {
     }
 
     @Nullable
-    public ProtoRepair execute(Sign sign) throws WorldEditException {
+    public ProtoRepair execute(@NotNull Sign sign) throws WorldEditException, ProtoRepairCancelledException {
         // Rotate repair around the sign
-        Clipboard clipboard = schematic;//rotate(sign);
+        Clipboard clipboard = schematic;
+        // rotate(sign);
 
         // Gather the required materials and tasks
         World world = sign.getWorld();
@@ -97,6 +101,7 @@ public class RepairState {
         Map<Location, BlockRepair> blockRepairs = new HashMap<>();
         int damagedBlockCount = 0;
         Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
+        BitmapHitBox hitBox = new BitmapHitBox();
         for (int x = 0; x < size.getBlockX(); x++) {
             for (int z = 0; z < size.getBlockZ(); z++) {
                 for (int y = 0; y < size.getBlockY(); y++) {
@@ -116,6 +121,7 @@ public class RepairState {
                         blockRepair = new BlockRepair(worldPosition, schematicData);
                         queue.add(blockRepair);
                         blockRepairs.put(worldPosition, blockRepair);
+                        hitBox.add(MathUtils.bukkit2MovecraftLoc(worldPosition));
                         damagedBlockCount++;
 
                         // Handle dependent block repairs
@@ -146,6 +152,7 @@ public class RepairState {
                     if (!inventoryRepair.getLeft())
                         continue;
 
+                    hitBox.add(MathUtils.bukkit2MovecraftLoc(worldPosition));
                     for (Material m : inventoryRepair.getRight().getKeySet()) {
                         Material requiredMaterial = RepairUtils.remapMaterial(m);
                         if (requiredMaterial == Material.AIR)
@@ -158,22 +165,34 @@ public class RepairState {
             }
         }
 
-        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()));
+        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()), sign.getWorld(), hitBox);
 
         ProtoRepairCreateEvent event = new ProtoRepairCreateEvent(result);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
-            return null;
+            throw new ProtoRepairCancelledException(event.getFailMessage());
 
         return result;
     }
 
-    private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, Counter<Material> counter) {
+    private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, @NotNull Counter<Material> counter) {
         for (Material m : counter.getKeySet()) {
             ItemStack items = new ItemStack(m, counter.get(m));
             InventoryRepair inventoryRepair = new InventoryRepair(location, items);
             inventoryRepair.setDependency(blockRepair);
             tasks.add(inventoryRepair);
+        }
+    }
+
+    public static class ProtoRepairCancelledException extends IllegalStateException {
+        private final String failMessage;
+
+        public ProtoRepairCancelledException(String failMessage) {
+            this.failMessage = failMessage;
+        }
+
+        public String getFailMessage() {
+            return failMessage;
         }
     }
 }

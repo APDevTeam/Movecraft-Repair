@@ -10,6 +10,7 @@ public class ProtoRepairCreateEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean isCancelled = false;
     private final ProtoRepair protoRepair;
+    private String failMessage = "";
 
     public ProtoRepairCreateEvent(ProtoRepair protoRepair) {
         this.protoRepair = protoRepair;
@@ -27,6 +28,14 @@ public class ProtoRepairCreateEvent extends Event implements Cancellable {
     @Override
     public void setCancelled(boolean cancel) {
         isCancelled = cancel;
+    }
+
+    public String getFailMessage() {
+        return this.failMessage;
+    }
+
+    public void setFailMessage(String failMessage) {
+        this.failMessage = failMessage;
     }
 
     @Override
