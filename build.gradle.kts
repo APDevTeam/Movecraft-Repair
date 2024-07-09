@@ -28,7 +28,7 @@ dependencies {
 }
 
 group = "net.countercraft.movecraft.repair"
-version = "1.0.0_beta-4_gradle"
+version = "1.0.0_beta-4_gradle-2"
 description = "Movecraft-Repair"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
