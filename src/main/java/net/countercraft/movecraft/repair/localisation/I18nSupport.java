@@ -3,6 +3,10 @@ package net.countercraft.movecraft.repair.localisation;
 
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.config.Config;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,10 +17,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class I18nSupport {
-    private static Properties langFile;
+    private static Properties languageFile;
 
     public static void init() {
-        langFile = new Properties();
+        languageFile = new Properties();
 
         File langDirectory = new File(MovecraftRepair.getInstance().getDataFolder().getAbsolutePath() + "/localisation");
         if (!langDirectory.exists())
@@ -35,18 +39,20 @@ public class I18nSupport {
         }
 
         try {
-            langFile.load(stream);
+            languageFile.load(stream);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static String getInternationalisedString(String key) {
-        String ret = langFile.getProperty(key);
-        if (ret != null)
-            return ret;
+    private static String get(String key) {
+        String ret = languageFile.getProperty(key);
+        return ret != null ? ret : key;
+    }
 
-        return key;
+    @Contract("_ -> new")
+    public static @NotNull TextComponent getInternationalisedComponent(String key) {
+        return Component.text(get(key));
     }
 }

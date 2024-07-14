@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair.commands;
 
+import net.countercraft.movecraft.util.ChatUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,22 +11,17 @@ import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.Repair;
 
-import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX;
-
 public class RepairCancelCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
             @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - Must Be Player")));
             return true;
         }
-        Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repaircancel")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
-                    .getInternationalisedString("Insufficient Permissions"));
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Insufficient Permissions")));
             return true;
         }
 
@@ -42,14 +38,13 @@ public class RepairCancelCommand implements CommandExecutor {
 
         // No repairs
         if (newest == null) {
-            player.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - No Repairs"));
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - No Repairs")));
             return true;
         }
 
         // Cancel
         MovecraftRepair.getInstance().getRepairManager().cancel(newest);
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repair cancelled"));
+        player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Repair cancelled"));
 
         return true;
     }
