@@ -2,6 +2,10 @@ package net.countercraft.movecraft.repair.commands;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import net.countercraft.movecraft.util.ChatUtils;
+import net.countercraft.movecraft.util.ComponentPaginator;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -24,30 +28,24 @@ import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.types.RepairCounter;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
 import net.countercraft.movecraft.util.Tags;
-import net.countercraft.movecraft.util.TopicPaginator;
-
-import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX;
 
 public class RepairInventoryCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
             @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - Must Be Player")));
             return true;
         }
-        Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repaircancel")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
-                    .getInternationalisedString("Insufficient Permissions"));
+            player.sendMessage(ChatUtils.commandPrefix().append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Insufficient Permissions")));
             return true;
         }
 
         PlayerCraft craft = CraftManager.getInstance().getCraftByPlayer(player);
         if (craft == null) {
-            player.sendMessage(I18nSupport.getInternationalisedString("You must be piloting a craft"));
+            player.sendMessage(I18nSupport.getInternationalisedComponent("You must be piloting a craft"));
             return true;
         }
 
@@ -56,8 +54,12 @@ public class RepairInventoryCommand implements CommandExecutor {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
-                        .getInternationalisedString("Paginator - Invalid Page") + " \"" + args[0] + "\"");
+                sender.sendMessage(Component.empty()
+                        .append(ChatUtils.commandPrefix())
+                        .append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Paginator - Invalid page"))
+                        .append(Component.text(" \""))
+                        .append(Component.text(args[0]))
+                        .append(Component.text("\"")));
                 return true;
             }
         }
@@ -66,38 +68,44 @@ public class RepairInventoryCommand implements CommandExecutor {
         List<RepairBlob> keys = new LinkedList<>(inventory.getKeySet());
         keys.sort((key1, key2) -> ((int) (inventory.get(key2) - inventory.get(key1))));
 
-        TopicPaginator paginator = new TopicPaginator(
-                I18nSupport.getInternationalisedString("Inventory - Inventory Header"), false);
+        ComponentPaginator paginator = new ComponentPaginator(
+                I18nSupport.getInternationalisedComponent("Inventory - Inventory Header"),
+                pageNumber -> "/repairinventory " + pageNumber);
         for (RepairBlob key : keys) {
             paginator.addLine(buildLine(key, inventory.get(key)));
         }
 
         if (paginator.isEmpty()) {
-            player.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Inventory - Empty Craft"));
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Inventory - Empty Craft")));
             return true;
         }
 
         if (!paginator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX
-                    + net.countercraft.movecraft.localisation.I18nSupport
-                            .getInternationalisedString("Paginator - Page Number")
-                    + " " + page + " " + net.countercraft.movecraft.localisation.I18nSupport
-                            .getInternationalisedString("Paginator - Exceeds Bounds"));
+            sender.sendMessage(Component.empty()
+                    .append(ChatUtils.commandPrefix())
+                    .append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Paginator - Invalid page"))
+                    .append(Component.text(" \""))
+                    .append(Component.text(args[0]))
+                    .append(Component.text("\"")));
             return true;
         }
 
-        for (String line : paginator.getPage(page)) {
+        for (Component line : paginator.getPage(page)) {
             player.sendMessage(line);
         }
         return true;
     }
 
-    private String buildLine(RepairBlob key, double count) {
-        return key.getName() + ": " + String.format("%,.0f", count);
+    @NotNull
+    private Component buildLine(@NotNull RepairBlob key, double count) {
+        return Component.empty()
+                .append(Component.text(key.getName()))
+                .append(Component.text(": "))
+                .append(Component.text(String.format("%,.0f", count)));
     }
 
-    private RepairCounter sumInventory(Craft craft) {
+    @NotNull
+    private RepairCounter sumInventory(@NotNull Craft craft) {
         RepairCounter result = new RepairCounter();
         World world = craft.getWorld();
         for (MovecraftLocation location : craft.getHitBox()) {

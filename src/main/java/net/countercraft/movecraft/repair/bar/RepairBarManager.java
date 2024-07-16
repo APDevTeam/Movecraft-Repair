@@ -23,7 +23,7 @@ import net.countercraft.movecraft.repair.types.Repair;
 public class RepairBarManager extends BukkitRunnable implements Listener {
     @NotNull
     private final PlayerManager manager;
-    private Map<Repair, BossBar> bossBars = new HashMap<>();
+    private final Map<Repair, BossBar> bossBars = new HashMap<>();
 
     public RepairBarManager(@NotNull PlayerManager manager) {
         this.manager = manager;
@@ -71,7 +71,7 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
 
         Player player = Bukkit.getPlayer(repair.getPlayerUUID());
         if (player != null) {
-            player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs underway"));
+            player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Repairs underway"));
             if (manager.getBarSetting(player)) {
                 bossBar.addPlayer(player);
             } else {
@@ -88,7 +88,7 @@ public class RepairBarManager extends BukkitRunnable implements Listener {
         if (player == null)
             return;
 
-        player.sendMessage(I18nSupport.getInternationalisedString("Repair - Repairs complete"));
+        player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Repairs complete"));
     }
 
     @EventHandler

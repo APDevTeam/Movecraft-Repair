@@ -2,7 +2,10 @@ package net.countercraft.movecraft.repair.commands;
 
 import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.repair.localisation.I18nSupport;
-import net.countercraft.movecraft.util.TopicPaginator;
+import net.countercraft.movecraft.repair.util.WEUtils;
+import net.countercraft.movecraft.util.ChatUtils;
+import net.countercraft.movecraft.util.ComponentPaginator;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,76 +14,73 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import static net.countercraft.movecraft.repair.util.WEUtils.SCHEMATIC_FORMAT;
-import static net.countercraft.movecraft.util.ChatUtils.MOVECRAFT_COMMAND_PREFIX;
-
 public class RepairListCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
             @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Must Be Player"));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - Must Be Player")));
             return true;
         }
-        Player player = (Player) sender;
 
         if (!player.hasPermission("movecraft.repair.repairlist")) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
-                    .getInternationalisedString("Insufficient Permissions"));
+            player.sendMessage(ChatUtils.commandPrefix().append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Insufficient Permissions")));
             return true;
         }
 
         File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
         File playerDirectory = new File(repairDirectory, player.getUniqueId().toString());
         if (!playerDirectory.exists()) {
-            player.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - Empty Directory")));
             return true;
         }
 
         File[] schemList = playerDirectory.listFiles();
-        TopicPaginator pageinator = new TopicPaginator(I18nSupport.getInternationalisedString("Repair - Saved States"));
+        ComponentPaginator paginator = new ComponentPaginator(
+                I18nSupport.getInternationalisedComponent("Repair - Saved States"),
+                pageNumber -> "/repairlist " + pageNumber);
 
         int page = 1; // Default page
         if (args.length > 0) {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                player.sendMessage(MOVECRAFT_COMMAND_PREFIX + net.countercraft.movecraft.localisation.I18nSupport
-                        .getInternationalisedString("Paginator - Invalid Page") + " \"" + args[0] + "\"");
+                sender.sendMessage(Component.empty()
+                        .append(ChatUtils.commandPrefix())
+                        .append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Paginator - Invalid page"))
+                        .append(Component.text(" \""))
+                        .append(Component.text(args[0]))
+                        .append(Component.text("\"")));
                 return true;
             }
         }
 
-        for (File schemFile : schemList) {
-            String name = schemFile.getName();
-            if (!name.endsWith(SCHEMATIC_FORMAT.getPrimaryFileExtension()))
-                continue; // Don't display other format files
+        if (schemList != null) {
+            for (File schemFile : schemList) {
+                String name = schemFile.getName();
+                if (!name.endsWith(WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension()))
+                    continue; // Don't display other format files
 
-            pageinator.addLine(name.replace("." + SCHEMATIC_FORMAT.getPrimaryFileExtension(), ""));
+                name = name.replace("." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension(), "");
+                paginator.addLine(Component.text(name));
+            }
         }
-
-        if (pageinator.isEmpty()) {
-            player.sendMessage(
-                    MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Repair - Empty Directory"));
+        if (paginator.isEmpty()) {
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Repair - Empty Directory")));
             return true;
         }
-
-        if (!pageinator.isInBounds(page)) {
-            player.sendMessage(MOVECRAFT_COMMAND_PREFIX +
-                    net.countercraft.movecraft.localisation.I18nSupport
-                            .getInternationalisedString("Paginator - Page Number")
-                    + " " + page + " " +
-                    net.countercraft.movecraft.localisation.I18nSupport
-                            .getInternationalisedString("Paginator - Exceeds Bounds"));
+        if (!paginator.isInBounds(page)) {
+            sender.sendMessage(Component.empty()
+                    .append(ChatUtils.commandPrefix())
+                    .append(net.countercraft.movecraft.localisation.I18nSupport.getInternationalisedComponent("Paginator - Invalid page"))
+                    .append(Component.text(" \""))
+                    .append(Component.text(args[0]))
+                    .append(Component.text("\"")));
             return true;
         }
-
-        for (String line : pageinator.getPage(page)) {
+        for (Component line : paginator.getPage(page)) {
             player.sendMessage(line);
         }
-
         return true;
     }
 }
