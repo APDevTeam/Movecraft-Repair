@@ -35,7 +35,7 @@ public class RepairBarCommand implements CommandExecutor {
 
         manager.toggleBarSetting(player);
         player.sendMessage(ChatUtils.commandPrefix()
-                .append(I18nSupport.getInternationalisedComponent("Command - Bar set"))
+                .append(I18nSupport.getInternationalisedComponent("Command - Bar Set"))
                 .append(Component.text(": "))
                 .append(Component.text(manager.getBarSetting(player))));
         return true;
