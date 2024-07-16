@@ -1,8 +1,6 @@
 package net.countercraft.movecraft.repair;
 
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.bukkit.Bukkit;
@@ -21,20 +19,29 @@ public class RepairManager extends BukkitRunnable {
         long start = System.currentTimeMillis();
 
         Set<Repair> completed = new HashSet<>();
-        Set<Repair> executed = new HashSet<>();
-        while (System.currentTimeMillis() - start < Config.RepairMaxTickTime) {
-            Repair repair = repairs.peek();
+        List<Repair> executed = new ArrayList<>(repairs.size());
+        List<Repair> waiting = new ArrayList<>(repairs.size());
+        long time = System.currentTimeMillis();
+        while (time - start < Config.RepairMaxTickTime) {
+            Repair repair = repairs.poll();
             if (repair == null)
                 break; // No repairs, jump out
 
-            if (repair.run()) {
-                // Repair placed at least a block, return to back of queue
-                executed.add(repairs.poll());
-            } // Else leave at top of queue
+            if (repair.run(time)) {
+                // Repair placed at least a block, put it back at the end
+                executed.add(repair);
+            } else {
+                // Put back at the top of the queue
+                waiting.add(repair);
+            }
 
-            if (repair.isDone())
+            if (repair.isDone()) {
                 completed.add(repair);
+            }
+
+            time = System.currentTimeMillis();
         }
+        repairs.addAll(waiting);
         repairs.addAll(executed);
 
         for (Repair repair : completed) {
