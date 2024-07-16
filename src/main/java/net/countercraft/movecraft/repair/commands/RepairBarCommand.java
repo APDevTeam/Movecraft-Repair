@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair.commands;
 
+import net.countercraft.movecraft.repair.localisation.I18nSupport;
 import net.countercraft.movecraft.util.ChatUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
@@ -8,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.repair.bar.config.PlayerManager;
 
 public class RepairBarCommand implements CommandExecutor {
