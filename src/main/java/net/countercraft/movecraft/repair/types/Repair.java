@@ -52,8 +52,8 @@ public class Repair {
         return queue.size();
     }
 
-    public boolean run() {
-        double elapsedTicks = (System.currentTimeMillis() - lastExecution) * 20.0 / 1000;
+    public boolean run(long time) {
+        double elapsedTicks = (time - lastExecution) * 20.0 / 1000;
         int placedBlocks = 0;
 
         while (elapsedTicks > Config.RepairTicksPerBlock && placedBlocks <= Config.RepairMaxBlocksPerTick) {
@@ -67,7 +67,7 @@ public class Repair {
         }
 
         if (placedBlocks > 0) {
-            lastExecution = System.currentTimeMillis();
+            lastExecution = time;
             return true;
         }
 

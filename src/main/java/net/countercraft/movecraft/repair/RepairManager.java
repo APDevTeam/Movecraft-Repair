@@ -22,18 +22,22 @@ public class RepairManager extends BukkitRunnable {
 
         Set<Repair> completed = new HashSet<>();
         Set<Repair> executed = new HashSet<>();
-        while (System.currentTimeMillis() - start < Config.RepairMaxTickTime) {
+        long time = System.currentTimeMillis();
+        while (time - start < Config.RepairMaxTickTime) {
             Repair repair = repairs.poll();
             if (repair == null)
                 break; // No repairs, jump out
 
-            if (repair.run()) {
+            if (repair.run(time)) {
                 // Repair placed at least a block, return to back of queue
                 executed.add(repair);
             } // Else leave at top of queue
 
-            if (repair.isDone())
+            if (repair.isDone()) {
                 completed.add(repair);
+            }
+
+            time = System.currentTimeMillis();
         }
         repairs.addAll(executed);
 
