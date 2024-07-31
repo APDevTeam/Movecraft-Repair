@@ -169,6 +169,8 @@ public class RepairUtils {
     public static boolean needsBlockRepair(Material targetType, Material currentType) {
         if (targetType.isAir())
             return false;
+        if (Config.RepairBlackList.contains(targetType) || Config.RepairBlackList.contains(currentType))
+            return false;
 
         return targetType != currentType;
     }

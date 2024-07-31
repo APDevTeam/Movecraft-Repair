@@ -48,4 +48,7 @@ RepairFirstPass: # First pass to construct a hull without heavy armor
 RepairLastPass:
  - "end_stone"
  - "end_stone_bricks"
+RepairBlackList:
+ - "bedrock"
+ - "barrier"
 # Observers are placed second to last (after RepairLastPass), with fragile blocks placed last.
