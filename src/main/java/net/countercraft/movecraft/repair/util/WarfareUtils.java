@@ -19,7 +19,6 @@ import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.processing.WorldManager;
 import net.countercraft.movecraft.processing.effects.Effect;
-import net.countercraft.movecraft.repair.config.Config;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -66,8 +65,6 @@ public class WarfareUtils {
                     if (material.isAir())
                         continue; // most blocks will be air, quickly move on to the next. This loop will run
                                   // millions of times and needs to be fast
-                    if (Config.RepairBlackList.contains(material))
-                        continue;
                     if (!world.getBlockAt(x, y, z).isEmpty() && !world.getBlockAt(x, y, z).isLiquid())
                         continue; // Don't replace blocks which aren't liquid or air
 
