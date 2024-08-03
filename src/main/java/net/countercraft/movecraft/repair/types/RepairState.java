@@ -178,6 +178,9 @@ public class RepairState {
 
     private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, @NotNull Counter<Material> counter) {
         for (Material m : counter.getKeySet()) {
+            if (Config.RepairBlackList.contains(m))
+                continue;
+
             ItemStack items = new ItemStack(m, counter.get(m));
             InventoryRepair inventoryRepair = new InventoryRepair(location, items);
             inventoryRepair.setDependency(blockRepair);
