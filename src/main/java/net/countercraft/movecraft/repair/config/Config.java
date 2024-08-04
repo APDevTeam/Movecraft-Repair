@@ -23,4 +23,5 @@ public class Config {
     public static Set<Material> RepairDropperItems = EnumSet.noneOf(Material.class);
     public static Set<Material> RepairFirstPass = EnumSet.noneOf(Material.class);
     public static Set<Material> RepairLastPass = EnumSet.noneOf(Material.class);
+    public static Set<Material> RepairBlackList = EnumSet.noneOf(Material.class);
 }

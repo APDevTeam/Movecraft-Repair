@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -132,7 +133,7 @@ public class RepairState {
                         }
 
                         Material requiredMaterial = RepairUtils.remapMaterial(schematicMaterial);
-                        if (requiredMaterial == Material.AIR)
+                        if (requiredMaterial.isAir())
                             continue;
 
                         materials.add(RepairBlobManager.get(requiredMaterial), RepairUtils.blockCost(requiredMaterial));
@@ -155,7 +156,7 @@ public class RepairState {
                     hitBox.add(MathUtils.bukkit2MovecraftLoc(worldPosition));
                     for (Material m : inventoryRepair.getRight().getKeySet()) {
                         Material requiredMaterial = RepairUtils.remapMaterial(m);
-                        if (requiredMaterial == Material.AIR)
+                        if (requiredMaterial.isAir() || Config.RepairBlackList.contains(requiredMaterial))
                             continue;
 
                         materials.add(RepairBlobManager.get(requiredMaterial), inventoryRepair.getRight().get(m));
@@ -177,6 +178,9 @@ public class RepairState {
 
     private void addInventoryTasks(RepairQueue tasks, @Nullable BlockRepair blockRepair, Location location, @NotNull Counter<Material> counter) {
         for (Material m : counter.getKeySet()) {
+            if (Config.RepairBlackList.contains(m))
+                continue;
+
             ItemStack items = new ItemStack(m, counter.get(m));
             InventoryRepair inventoryRepair = new InventoryRepair(location, items);
             inventoryRepair.setDependency(blockRepair);

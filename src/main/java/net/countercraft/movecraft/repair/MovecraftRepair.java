@@ -211,6 +211,18 @@ public final class MovecraftRepair extends JavaPlugin {
                 throw new InvalidValueException("RepairLastPass entries must be a material name.");
             }
         }
+
+        entry = config.get("RepairBlackList");
+        if (!(entry instanceof  List)) {
+            throw  new InvalidValueException("RepairBlackList must be a list.");
+        }
+        for (Object object : (List<?>) entry) {
+            if (object instanceof String s) {
+                Config.RepairBlackList.addAll(Tags.parseMaterials(s));
+            } else {
+                throw new InvalidValueException("RepairBlackList entries must be a material name.");
+            }
+        }
     }
 
     @NotNull
