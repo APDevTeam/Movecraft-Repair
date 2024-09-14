@@ -16,21 +16,21 @@ repositories {
 }
 
 dependencies {
-    api("com.google.code.gson:gson:2.10")
+    api("com.google.code.gson:gson:+")
     api("org.jetbrains:annotations-java5:24.1.0")
-    api("com.sk89q.worldedit:worldedit-core:7.2.9")
-    api("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
-    compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    api("com.sk89q.worldedit:worldedit-core:7.3.3")
+    api("com.sk89q.worldedit:worldedit-bukkit:7.3.3")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("net.countercraft:movecraft:+")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    compileOnly("it.unimi.dsi:fastutil:8.5.11")
-    compileOnly("org.roaringbitmap:RoaringBitmap:1.0.6")
+    compileOnly("com.github.MilkBowl:VaultAPI:+")
+    compileOnly("it.unimi.dsi:fastutil:+")
+    compileOnly("org.roaringbitmap:RoaringBitmap:+")
 }
 
 group = "net.countercraft.movecraft.repair"
 version = "1.0.0_beta-6"
 description = "Movecraft-Repair"
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 tasks.jar {
     archiveBaseName.set("Movecraft-Repair")
@@ -76,7 +76,7 @@ hangarPublish {
         platforms {
             register(io.papermc.hangarpublishplugin.model.Platforms.PAPER) {
                 jar.set(tasks.jar.flatMap { it.archiveFile })
-                platformVersions.set(listOf("1.18.2-1.21"))
+                platformVersions.set(listOf("1.20.6-1.21.1"))
                 dependencies {
                     hangar("Movecraft") {
                         required.set(true)
