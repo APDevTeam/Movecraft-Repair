@@ -150,19 +150,17 @@ public class WEUtils {
     public static Counter<Material> getBlockContents(@NotNull BaseBlock block) {
         Counter<Material> counter = new Counter<>();
         LinCompoundTag blockNBT = block.getNbt();
-        if (blockNBT == null) {
-            MovecraftRepair.getInstance().getLogger().info("Null block NBT");
+        if (blockNBT == null)
             return null;
-        }
 
         LinListTag<?> blockItems;
         try {
             blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
         } catch (NoSuchElementException e) {
-            MovecraftRepair.getInstance().getLogger().info("No items tag");
             return null;
         }
         for (var t : blockItems.value()) {
+            MovecraftRepair.getInstance().getLogger().info("Checking " + t.toString());
             if (!(t instanceof LinCompoundTag ct))
                 continue;
 
@@ -170,18 +168,25 @@ public class WEUtils {
             try {
                 id = ct.getTag("id", LinTagType.stringTag());
             } catch (NoSuchElementException e) {
+                MovecraftRepair.getInstance().getLogger().info("No id");
                 continue;
             }
+
             Material material = getMaterial(id.value());
+            if (material == null) {
+                MovecraftRepair.getInstance().getLogger().info("No material");
+                continue;
+            }
+
             LinIntTag count;
             try {
                 count = ct.getTag("count", LinTagType.intTag());
             } catch (NoSuchElementException e) {
+                MovecraftRepair.getInstance().getLogger().info("No count");
                 continue;
             }
-            if (material == null)
-                continue;
 
+            MovecraftRepair.getInstance().getLogger().info("Added " + count.value() + " of " + material);
             counter.add(material, count.value());
         }
         return counter;
