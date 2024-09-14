@@ -18,6 +18,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,9 +141,12 @@ public class RepairState {
                     }
 
                     // Handle sign repair
-                    if (Tag.SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
-                        String[] lines = WEUtils.getBlockSignLines(schematicBlock);
-                        SignRepair signRepair = new SignRepair(worldPosition, lines);
+                    if (Tag.ALL_SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
+                        SignRepair signRepair = new SignRepair(
+                                worldPosition,
+                                WEUtils.getBlockSignLines(schematicBlock, Side.FRONT),
+                                WEUtils.getBlockSignLines(schematicBlock, Side.BACK)
+                        );
                         signRepair.setDependency(blockRepair);
                         queue.add(signRepair);
                     }

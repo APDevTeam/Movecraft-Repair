@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 import net.countercraft.movecraft.repair.tasks.RepairTask;

@@ -5,28 +5,25 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.sk89q.worldedit.EditSession;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
+import org.enginehub.linbus.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.google.gson.Gson;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
@@ -53,7 +50,7 @@ import net.countercraft.movecraft.util.hitboxes.HitBox;
 import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
-    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
+    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC;
 
     /**
      * Load a schematic from disk
@@ -115,7 +112,7 @@ public class WEUtils {
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             clipboard.setOrigin(origin);
-            Extent source = WorldEdit.getInstance().newEditSession(world);
+            EditSession source = WorldEdit.getInstance().newEditSession(world);
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, origin, clipboard, origin);
             BlockMask mask = new BlockMask(source, blocks);
             copy.setSourceMask(mask);
@@ -128,6 +125,7 @@ public class WEUtils {
             ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
             writer.write(clipboard);
             writer.close();
+            source.close();
         } catch (IOException | NullPointerException | WorldEditException e) {
             e.printStackTrace();
             return false;
@@ -152,28 +150,41 @@ public class WEUtils {
      * @return Counter of the materials in the block
      */
     @Nullable
-    public static Counter<Material> getBlockContents(BaseBlock block) {
+    public static Counter<Material> getBlockContents(@NotNull BaseBlock block) {
         Counter<Material> counter = new Counter<>();
-        CompoundTag blockNBT = block.getNbtData();
+        LinCompoundTag blockNBT = block.getNbt();
         if (blockNBT == null)
             return null;
 
-        ListTag blockItems = blockNBT.getListTag("Items");
-        if (blockItems == null)
+        LinListTag<?> blockItems;
+        try {
+            blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
+        } catch (NoSuchElementException e) {
             return null;
-
-        for (Tag t : blockItems.getValue()) {
-            if (!(t instanceof CompoundTag))
+        }
+        for (var t : blockItems.value()) {
+            if (!(t instanceof LinCompoundTag ct))
                 continue;
 
-            CompoundTag ct = (CompoundTag) t;
-            String id = ct.getString("id");
-            Material material = getMaterial(id);
-            byte count = ct.getByte("Count");
+            LinStringTag id;
+            try {
+                id = ct.getTag("id", LinTagType.stringTag());
+            } catch (NoSuchElementException e) {
+                continue;
+            }
+
+            Material material = getMaterial(id.value());
             if (material == null)
                 continue;
 
-            counter.add(material, count);
+            LinIntTag count;
+            try {
+                count = ct.getTag("count", LinTagType.intTag());
+            } catch (NoSuchElementException e) {
+                continue;
+            }
+
+            counter.add(material, count.value());
         }
         return counter;
     }
@@ -198,66 +209,43 @@ public class WEUtils {
      * @return Array of sign lines in the block
      */
     @Nullable
-    public static String[] getBlockSignLines(BaseBlock block) {
-        CompoundTag blockNBT = block.getNbtData();
-        if (blockNBT == null)
+    public static Component[] getBlockSignLines(@NotNull BaseBlock block, Side side) {
+        LinCompoundTag blockNBT = block.getNbt();
+        if (blockNBT == null) {
             return null;
+        }
 
-        String[] result = new String[4];
-        result[0] = getSignTextFromJSON(blockNBT.getString("Text1"));
-        result[1] = getSignTextFromJSON(blockNBT.getString("Text2"));
-        result[2] = getSignTextFromJSON(blockNBT.getString("Text3"));
-        result[3] = getSignTextFromJSON(blockNBT.getString("Text4"));
-        return result;
-    }
-
-    private static final String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
-
-    private static String getSignTextFromJSON(String json) {
+        LinCompoundTag text;
         try {
-            Gson gson = new Gson();
-            Map<?, ?> lineData = gson.fromJson(json, Map.class);
-            String result = "";
-            if (lineData == null)
-                return result;
-
-            result += getSignTextFromMap(lineData);
-            if (!lineData.containsKey("extra"))
-                return result;
-
-            Object extrasObject = lineData.get("extra");
-            if (!(extrasObject instanceof List))
-                return result;
-
-            List<?> extras = (List<?>) extrasObject;
-            StringBuilder builder = new StringBuilder();
-            for (Object componentObject : extras) {
-                if (!(componentObject instanceof Map))
-                    continue;
-
-                builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
-            }
-            result += builder.toString();
-
-            return result;
-        } catch (Exception e) {
-            MovecraftRepair.getInstance().getLogger().severe("Got exception when parsing '" + json + "'");
-            e.printStackTrace();
-            return "";
+            text = switch (side) {
+                case FRONT -> blockNBT.getTag("front_text", LinTagType.compoundTag());
+                case BACK -> blockNBT.getTag("back_text", LinTagType.compoundTag());
+            };
         }
+        catch (NoSuchElementException e) {
+            return null;
+        }
+
+        return getSideSignLines(text);
     }
 
-    private static @NotNull String getSignTextFromMap(@NotNull Map<?, ?> component) {
-        StringBuilder builder = new StringBuilder();
-        if (component.containsKey("color")) {
-            builder.append(ChatColor.valueOf(((String) component.get("color")).toUpperCase()));
+    @Nullable
+    private static Component[] getSideSignLines(@NotNull LinCompoundTag text) {
+        List<? extends LinTag<?>> messages;
+        try {
+            messages = text.getListTag("messages", LinTagType.stringTag()).value();
         }
-        for (String style : TEXT_STYLES) {
-            if (component.containsKey(style)) {
-                builder.append(ChatColor.valueOf(((String) component.get(style)).toUpperCase()));
-            }
+        catch (NoSuchElementException e) {
+            return null;
         }
-        builder.append(component.get("text"));
-        return builder.toString();
+
+        return messages.stream().map(WEUtils::getSignLine).toArray(Component[]::new);
+    }
+
+    @NotNull
+    private static Component getSignLine(@NotNull LinTag<?> message) {
+        if (!(message instanceof LinStringTag stringTag))
+            return Component.text("");
+        return GsonComponentSerializer.gson().deserializeOr(stringTag.value(), Component.text(""));
     }
 }

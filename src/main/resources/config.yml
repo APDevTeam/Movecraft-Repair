@@ -21,6 +21,7 @@ RepairBlobs: # "Blobs" of materials which can be used interchangeably to repair
  - "#carpets"
  - "#planks"
  - "#signs"
+ - "#all_hanging_signs"
  - "#wooden_buttons"
  - "#wooden_doors"
  - "#wooden_fences"

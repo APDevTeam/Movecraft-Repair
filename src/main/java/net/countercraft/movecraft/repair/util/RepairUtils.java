@@ -188,10 +188,9 @@ public class RepairUtils {
         if (targetContents == null || targetContents.getKeySet().isEmpty())
             return new Pair<>(false, new Counter<>());
 
-        if (!(currentState instanceof Container))
+        if (!(currentState instanceof Container container))
             return new Pair<>(true, targetContents);
 
-        Container container = (Container) currentState;
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
         for (ItemStack stack : items) {
