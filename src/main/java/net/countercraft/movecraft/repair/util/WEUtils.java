@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import com.sk89q.worldedit.EditSession;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
@@ -112,7 +113,7 @@ public class WEUtils {
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             clipboard.setOrigin(origin);
-            Extent source = WorldEdit.getInstance().newEditSession(world);
+            EditSession source = WorldEdit.getInstance().newEditSession(world);
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, origin, clipboard, origin);
             BlockMask mask = new BlockMask(source, blocks);
             copy.setSourceMask(mask);
@@ -125,6 +126,7 @@ public class WEUtils {
             ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
             writer.write(clipboard);
             writer.close();
+            source.close();
         } catch (IOException | NullPointerException | WorldEditException e) {
             e.printStackTrace();
             return false;

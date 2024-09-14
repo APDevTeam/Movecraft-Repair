@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair.util;
 
+import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -114,7 +115,7 @@ public class WarfareUtils {
         File file = new File(directory, c.getX() + "_" + c.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-            Extent source = WorldEdit.getInstance().newEditSessionBuilder().world(world).maxBlocks(16 * 16 * (world.getMaxY() - world.getMinY() + 2)).build(); // Get enough space for the chunk, with a little extra wiggle room
+            EditSession source = WorldEdit.getInstance().newEditSessionBuilder().world(world).maxBlocks(16 * 16 * (world.getMaxY() - world.getMinY() + 2)).build(); // Get enough space for the chunk, with a little extra wiggle room
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
             if (materialMask != null) {
                 // A null materialMask will be understood as saving every block
@@ -125,6 +126,7 @@ public class WarfareUtils {
             ClipboardWriter writer = WEUtils.SCHEMATIC_FORMAT.getWriter(new FileOutputStream(file, false));
             writer.write(clipboard);
             writer.close();
+            source.close();
             return true;
         } catch (MaxChangedBlocksException | IOException e) {
             e.printStackTrace();
