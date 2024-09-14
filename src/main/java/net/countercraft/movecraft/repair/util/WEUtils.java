@@ -153,14 +153,29 @@ public class WEUtils {
         if (blockNBT == null)
             return null;
 
-        LinListTag<?> blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
+        LinListTag<?> blockItems;
+        try {
+            blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
+        } catch (NoSuchElementException e) {
+            return null;
+        }
         for (var t : blockItems.value()) {
             if (!(t instanceof LinCompoundTag ct))
                 continue;
 
-            LinStringTag id = ct.getTag("id", LinTagType.stringTag());
+            LinStringTag id;
+            try {
+                id = ct.getTag("id", LinTagType.stringTag());
+            } catch (NoSuchElementException e) {
+                continue;
+            }
             Material material = getMaterial(id.value());
-            LinByteTag count = ct.getTag("Count", LinTagType.byteTag());
+            LinByteTag count;
+            try {
+                count = ct.getTag("Count", LinTagType.byteTag());
+            } catch (NoSuchElementException e) {
+                continue;
+            }
             if (material == null)
                 continue;
 
@@ -196,7 +211,12 @@ public class WEUtils {
 
         String[] result = new String[8];
         for (int i = 0; i < result.length; i++) {
-            result[i] = getSignTextFromJSON(blockNBT.getTag("Text" + i, LinTagType.stringTag()).value());
+            try {
+                result[i] = getSignTextFromJSON(blockNBT.getTag("Text" + i, LinTagType.stringTag()).value());
+            }
+            catch (NoSuchElementException e) {
+                result[i] = "";
+            }
         }
         return result;
     }
