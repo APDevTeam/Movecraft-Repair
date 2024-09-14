@@ -199,6 +199,7 @@ public class WEUtils {
 
     /**
      * Get the sign contents of a WorldEdit block
+     * TODO: 1.20+ sign format changed
      *
      * @param block block to check
      * @return Array of sign lines in the block
@@ -211,66 +212,6 @@ public class WEUtils {
             return null;
         }
 
-        String[] result = new String[8];
-        for (int i = 0; i < result.length; i++) {
-            try {
-                result[i] = getSignTextFromJSON(blockNBT.getTag("Text" + i, LinTagType.stringTag()).value());
-            }
-            catch (NoSuchElementException e) {
-                result[i] = "";
-            }
-            MovecraftRepair.getInstance().getLogger().info("Found " + i + ": " + result[i]);
-        }
-        return result;
-    }
-
-    private static final String[] TEXT_STYLES = {"bold", "italic", "underline", "strikethrough"};
-
-    @NotNull
-    private static String getSignTextFromJSON(String json) {
-        try {
-            Gson gson = new Gson();
-            Map<?, ?> lineData = gson.fromJson(json, Map.class);
-            String result = "";
-            if (lineData == null)
-                return result;
-
-            result += getSignTextFromMap(lineData);
-            if (!lineData.containsKey("extra"))
-                return result;
-
-            Object extrasObject = lineData.get("extra");
-            if (!(extrasObject instanceof List<?> extras))
-                return result;
-
-            StringBuilder builder = new StringBuilder();
-            for (Object componentObject : extras) {
-                if (!(componentObject instanceof Map))
-                    continue;
-
-                builder.append(getSignTextFromMap((Map<?, ?>) componentObject));
-            }
-            result += builder.toString();
-
-            return result;
-        } catch (Exception e) {
-            MovecraftRepair.getInstance().getLogger().severe("Got exception when parsing '" + json + "'");
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    private static @NotNull String getSignTextFromMap(@NotNull Map<?, ?> component) {
-        StringBuilder builder = new StringBuilder();
-        if (component.containsKey("color")) {
-            builder.append(ChatColor.valueOf(((String) component.get("color")).toUpperCase()));
-        }
-        for (String style : TEXT_STYLES) {
-            if (component.containsKey(style)) {
-                builder.append(ChatColor.valueOf(((String) component.get(style)).toUpperCase()));
-            }
-        }
-        builder.append(component.get("text"));
-        return builder.toString();
+        return null;
     }
 }
