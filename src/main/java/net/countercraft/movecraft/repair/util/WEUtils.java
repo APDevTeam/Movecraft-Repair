@@ -7,11 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
 import org.enginehub.linbus.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -206,12 +209,43 @@ public class WEUtils {
      * @return Array of sign lines in the block
      */
     @Nullable
-    public static String[] getBlockSignLines(@NotNull BaseBlock block) {
+    public static Component[] getBlockSignLines(@NotNull BaseBlock block, Side side) {
         LinCompoundTag blockNBT = block.getNbt();
         if (blockNBT == null) {
             return null;
         }
 
-        return null;
+        LinCompoundTag text;
+        try {
+            text = switch (side) {
+                case FRONT -> blockNBT.getTag("front_text", LinTagType.compoundTag());
+                case BACK -> blockNBT.getTag("back_text", LinTagType.compoundTag());
+            };
+        }
+        catch (NoSuchElementException e) {
+            return null;
+        }
+
+        return getSideSignLines(text);
+    }
+
+    @Nullable
+    private static Component[] getSideSignLines(@NotNull LinCompoundTag text) {
+        List<? extends LinTag<?>> messages;
+        try {
+            messages = text.getListTag("messages", LinTagType.stringTag()).value();
+        }
+        catch (NoSuchElementException e) {
+            return null;
+        }
+
+        return messages.stream().map(WEUtils::getSignLine).toArray(Component[]::new);
+    }
+
+    @NotNull
+    private static Component getSignLine(@NotNull LinTag<?> message) {
+        if (!(message instanceof LinStringTag stringTag))
+            return Component.text("");
+        return GsonComponentSerializer.gson().deserializeOr(stringTag.value(), Component.text(""));
     }
 }
