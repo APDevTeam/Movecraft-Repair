@@ -24,7 +24,6 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
@@ -205,7 +204,6 @@ public class WEUtils {
 
     /**
      * Get the sign contents of a WorldEdit block
-     * TODO: 1.20+ sign format changed
      *
      * @param block block to check
      * @return Array of sign lines in the block

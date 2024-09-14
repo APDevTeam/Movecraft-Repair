@@ -1,6 +1,5 @@
 package net.countercraft.movecraft.repair.util;
 
-import net.countercraft.movecraft.repair.MovecraftRepair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
