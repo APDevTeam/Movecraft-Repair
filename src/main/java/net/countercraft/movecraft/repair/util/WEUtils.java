@@ -150,13 +150,16 @@ public class WEUtils {
     public static Counter<Material> getBlockContents(@NotNull BaseBlock block) {
         Counter<Material> counter = new Counter<>();
         LinCompoundTag blockNBT = block.getNbt();
-        if (blockNBT == null)
+        if (blockNBT == null) {
+            MovecraftRepair.getInstance().getLogger().info("Null block NBT");
             return null;
+        }
 
         LinListTag<?> blockItems;
         try {
             blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
         } catch (NoSuchElementException e) {
+            MovecraftRepair.getInstance().getLogger().info("No items tag");
             return null;
         }
         for (var t : blockItems.value()) {
@@ -170,9 +173,9 @@ public class WEUtils {
                 continue;
             }
             Material material = getMaterial(id.value());
-            LinByteTag count;
+            LinIntTag count;
             try {
-                count = ct.getTag("Count", LinTagType.byteTag());
+                count = ct.getTag("count", LinTagType.intTag());
             } catch (NoSuchElementException e) {
                 continue;
             }

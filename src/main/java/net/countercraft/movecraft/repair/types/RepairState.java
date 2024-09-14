@@ -141,7 +141,6 @@ public class RepairState {
 
                     // Handle sign repair
                     if (Tag.ALL_SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
-                        MovecraftRepair.getInstance().getLogger().info("Checking " + x + "," + y + "," + z);
                         String[] lines = WEUtils.getBlockSignLines(schematicBlock);
                         SignRepair signRepair = new SignRepair(worldPosition, lines);
                         signRepair.setDependency(blockRepair);
@@ -149,6 +148,7 @@ public class RepairState {
                     }
 
                     // Handle inventory repair
+                    MovecraftRepair.getInstance().getLogger().info("Checking: <" + x + "," + y + "," + z + ">");
                     Counter<Material> schematicContents = WEUtils.getBlockContents(schematicBlock);
                     Pair<Boolean, Counter<Material>> inventoryRepair = RepairUtils.checkInventoryRepair(worldMaterial, worldState, schematicContents);
                     if (!inventoryRepair.getLeft())

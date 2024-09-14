@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair.util;
 
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -188,10 +189,9 @@ public class RepairUtils {
         if (targetContents == null || targetContents.getKeySet().isEmpty())
             return new Pair<>(false, new Counter<>());
 
-        if (!(currentState instanceof Container))
+        if (!(currentState instanceof Container container))
             return new Pair<>(true, targetContents);
 
-        Container container = (Container) currentState;
         ItemStack[] items = container.getInventory().getContents();
         Counter<Material> currentContents = new Counter<>();
         for (ItemStack stack : items) {
