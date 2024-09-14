@@ -140,7 +140,8 @@ public class RepairState {
                     }
 
                     // Handle sign repair
-                    if (Tag.SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
+                    if (Tag.ALL_SIGNS.isTagged(schematicMaterial) && blockRepair != null) {
+                        MovecraftRepair.getInstance().getLogger().info("Checking " + x + "," + y + "," + z);
                         String[] lines = WEUtils.getBlockSignLines(schematicBlock);
                         SignRepair signRepair = new SignRepair(worldPosition, lines);
                         signRepair.setDependency(blockRepair);

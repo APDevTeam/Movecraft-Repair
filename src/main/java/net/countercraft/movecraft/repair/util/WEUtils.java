@@ -206,8 +206,10 @@ public class WEUtils {
     @Nullable
     public static String[] getBlockSignLines(@NotNull BaseBlock block) {
         LinCompoundTag blockNBT = block.getNbt();
-        if (blockNBT == null)
+        if (blockNBT == null) {
+            MovecraftRepair.getInstance().getLogger().info("Null NBT!");
             return null;
+        }
 
         String[] result = new String[8];
         for (int i = 0; i < result.length; i++) {
@@ -217,6 +219,7 @@ public class WEUtils {
             catch (NoSuchElementException e) {
                 result[i] = "";
             }
+            MovecraftRepair.getInstance().getLogger().info("Found " + i + ": " + result[i]);
         }
         return result;
     }
