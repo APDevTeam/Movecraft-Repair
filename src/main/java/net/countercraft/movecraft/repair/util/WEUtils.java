@@ -16,7 +16,6 @@ import org.enginehub.linbus.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.google.gson.Gson;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -160,7 +159,6 @@ public class WEUtils {
             return null;
         }
         for (var t : blockItems.value()) {
-            MovecraftRepair.getInstance().getLogger().info("Checking " + t.toString());
             if (!(t instanceof LinCompoundTag ct))
                 continue;
 
@@ -168,25 +166,20 @@ public class WEUtils {
             try {
                 id = ct.getTag("id", LinTagType.stringTag());
             } catch (NoSuchElementException e) {
-                MovecraftRepair.getInstance().getLogger().info("No id");
                 continue;
             }
 
             Material material = getMaterial(id.value());
-            if (material == null) {
-                MovecraftRepair.getInstance().getLogger().info("No material");
+            if (material == null)
                 continue;
-            }
 
             LinIntTag count;
             try {
                 count = ct.getTag("count", LinTagType.intTag());
             } catch (NoSuchElementException e) {
-                MovecraftRepair.getInstance().getLogger().info("No count");
                 continue;
             }
 
-            MovecraftRepair.getInstance().getLogger().info("Added " + count.value() + " of " + material);
             counter.add(material, count.value());
         }
         return counter;
@@ -216,7 +209,6 @@ public class WEUtils {
     public static String[] getBlockSignLines(@NotNull BaseBlock block) {
         LinCompoundTag blockNBT = block.getNbt();
         if (blockNBT == null) {
-            MovecraftRepair.getInstance().getLogger().info("Null NBT!");
             return null;
         }
 
