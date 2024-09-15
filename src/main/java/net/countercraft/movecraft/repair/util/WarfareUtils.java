@@ -25,10 +25,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -37,14 +37,12 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class WarfareUtils {
-    public boolean repairChunk(Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
+    public boolean repairChunk(@NotNull Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
         // Load schematic from disk
-        File file = new File(directory,
-                chunk.getX() + "_" + chunk.getZ() + "." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension());
         Clipboard clipboard;
         World world = chunk.getWorld();
         try {
-            clipboard = WEUtils.SCHEMATIC_FORMATS.getFirst().getReader(new FileInputStream(file)).read();
+            clipboard = WEUtils.loadSchematic(directory, chunk.getX() + "_" + chunk.getZ());
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -79,7 +77,7 @@ public class WarfareUtils {
         return true;
     }
 
-    public boolean saveChunk(Chunk c, File directory, @Nullable Set<Material> materialMask) {
+    public boolean saveChunk(Chunk c, @NotNull File directory, @Nullable Set<Material> materialMask) {
         if (!directory.exists())
             directory.mkdirs();
 
