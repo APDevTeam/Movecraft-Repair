@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.countercraft.movecraft.repair.config.Config;
+import net.countercraft.movecraft.repair.tasks.LecternRepair;
 import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -150,6 +151,17 @@ public class RepairState {
                         );
                         signRepair.setDependency(blockRepair);
                         queue.add(signRepair);
+                    }
+
+                    // Handle lectern repair
+                    if (schematicMaterial == Material.LECTERN && blockRepair != null) {
+                        LecternRepair lecternRepair = new LecternRepair(
+                                worldPosition,
+                                schematicBlock
+                        );
+                        lecternRepair.setDependency(blockRepair);
+                        queue.add(lecternRepair);
+                        continue;
                     }
 
                     // Handle inventory repair
