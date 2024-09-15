@@ -109,6 +109,26 @@ public class WEUtils {
     }
 
     /**
+     * Save a schematic
+     *
+     * @param directory Directory for the schematic file
+     * @param name      Name of the schematic file (without the extension)
+     * @param clipboard The clipboard to save from
+     */
+    public static boolean saveSchematic(File directory, String name, Clipboard clipboard) {
+        File file = new File(directory, name + "." + SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension());
+        try (FileOutputStream outputStream = new FileOutputStream(file, false)) {
+            ClipboardWriter writer = SCHEMATIC_FORMATS.getFirst().getWriter(outputStream);
+            writer.write(clipboard);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Save a schematic from a craft
      *
      * @param craft The craft to save
@@ -120,8 +140,6 @@ public class WEUtils {
         if (!playerDirectory.exists())
             playerDirectory.mkdirs();
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += "." + SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension();
-        File repairFile = new File(playerDirectory, repairName);
 
         HitBox hitbox = craft.getHitBox();
         BlockVector3 minPos = BlockVector3.at(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ());
@@ -140,8 +158,9 @@ public class WEUtils {
 
         Set<BaseBlock> blocks = getWorldEditBlocks(craft.getHitBox(), bukkitWorld);
 
+        Clipboard clipboard;
         try {
-            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+            clipboard = new BlockArrayClipboard(region);
             clipboard.setOrigin(origin);
             EditSession source = WorldEdit.getInstance().newEditSession(world);
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, origin, clipboard, origin);
@@ -153,15 +172,13 @@ public class WEUtils {
                         BlockVector3.at(location.getX(), location.getY(), location.getZ()),
                         BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
-            ClipboardWriter writer = SCHEMATIC_FORMATS.getFirst().getWriter(new FileOutputStream(repairFile, false));
-            writer.write(clipboard);
-            writer.close();
             source.close();
-        } catch (IOException | NullPointerException | WorldEditException e) {
+        } catch (WorldEditException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        return saveSchematic(playerDirectory, repairName, clipboard);
     }
 
     @NotNull
