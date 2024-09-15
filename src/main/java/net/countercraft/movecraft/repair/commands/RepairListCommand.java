@@ -56,12 +56,12 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         if (schemList != null) {
+            String primaryExtension = "." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension();
             for (File schemFile : schemList) {
                 String name = schemFile.getName();
-                if (!name.endsWith(WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension()))
-                    continue; // Don't display other format files
+                if (name.endsWith(primaryExtension))
+                    name = name.replace(primaryExtension, "");
 
-                name = name.replace("." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension(), "");
                 paginator.addLine(Component.text(name));
             }
         }

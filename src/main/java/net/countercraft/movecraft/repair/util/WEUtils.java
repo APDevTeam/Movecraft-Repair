@@ -10,10 +10,9 @@ import java.util.*;
 import com.sk89q.worldedit.EditSession;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.sign.Side;
 import org.enginehub.linbus.tree.*;
@@ -42,15 +41,14 @@ import com.sk89q.worldedit.world.item.ItemType;
 import com.sk89q.worldedit.world.item.ItemTypes;
 
 import net.countercraft.movecraft.MovecraftLocation;
-import net.countercraft.movecraft.craft.PilotedCraft;
-import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.hitboxes.BitmapHitBox;
 import net.countercraft.movecraft.util.hitboxes.HitBox;
 import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
-    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC;
+    // Default format is the first one of the list, previous formats follow
+    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
 
     /**
      * Load a schematic from disk
@@ -59,43 +57,88 @@ public class WEUtils {
      * @param name      Name of the schematic file (without the extension)
      * @return A clipboard containing the schematic
      * @throws FileNotFoundException Schematic file not found
-     * @throws IOException           Other I/O exception
      */
     @NotNull
-    public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException, IOException {
-        name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
+    public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException {
+        Clipboard result = null;
+        for (ClipboardFormat format : SCHEMATIC_FORMATS) {
+            Clipboard temp;
+            try {
+                temp = loadSchematic(directory, name, format);
+            } catch (FileNotFoundException e) {
+                continue; // normal operation
+            } catch (IOException e) {
+                // Abnormal, but report to console and continue reading
+                e.printStackTrace();
+                continue;
+            }
+            if (temp == null)
+                continue;
+
+            result = temp;
+            break;
+        }
+
+        if (result == null)
+            throw new FileNotFoundException();
+
+        return result;
+    }
+
+    @Nullable
+    private static Clipboard loadSchematic(File directory, String name, @NotNull ClipboardFormat format) throws IOException {
+        name += "." + format.getPrimaryFileExtension();
         File file = new File(directory, name);
+        if (!format.isFormat(file))
+            return null;
         Clipboard clipboard;
-        try {
-            ClipboardReader reader = SCHEMATIC_FORMAT.getReader(new FileInputStream(file));
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            ClipboardReader reader = format.getReader(inputStream);
             clipboard = reader.read();
         } catch (FileNotFoundException e) {
+            // Normal operation, pass the exception up
             throw e;
         } catch (IOException e) {
-            throw new IOException("Failed to load schematic", e);
+            // Abnormal, add more logging info
+            throw new IOException("Failed to load " + directory.getName() + "/" + name + " as format " + format.getName(), e);
         }
         return clipboard;
     }
 
     /**
+     * Save a schematic
+     *
+     * @param directory Directory for the schematic file
+     * @param name      Name of the schematic file (without the extension)
+     * @param clipboard The clipboard to save from
+     */
+    public static boolean saveSchematic(File directory, String name, Clipboard clipboard) {
+        File file = new File(directory, name + "." + SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension());
+        try (FileOutputStream outputStream = new FileOutputStream(file, false)) {
+            ClipboardWriter writer = SCHEMATIC_FORMATS.getFirst().getWriter(outputStream);
+            writer.write(clipboard);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Save a schematic from a craft
      *
-     * @param craft The craft to save
+     * @param directory Directory to save in
+     * @param name Name to save as
+     * @param world World to save from
+     * @param hitbox Hitbox to save from
+     * @param origin Origin point to save from
      * @return true on success
      */
-    public static boolean saveCraftSchematic(@NotNull PilotedCraft craft, @NotNull Sign sign) {
-        File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
-        if (!playerDirectory.exists())
-            playerDirectory.mkdirs();
-        String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
-        File repairFile = new File(playerDirectory, repairName);
-
-        HitBox hitbox = craft.getHitBox();
+    public static boolean saveCraftSchematic(File directory, String name, World world, @NotNull HitBox hitbox, @NotNull Location origin) {
         BlockVector3 minPos = BlockVector3.at(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ());
         BlockVector3 maxPos = BlockVector3.at(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ());
-        BlockVector3 origin = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
+        BlockVector3 weOrigin = BlockVector3.at(origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
         CuboidRegion region = new CuboidRegion(minPos, maxPos);
         // Calculate a hitbox of all blocks within the cuboid region but not within the
         // hitbox (so we don't save them)
@@ -104,16 +147,16 @@ public class WEUtils {
                 new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ()));
         surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
-        World bukkitWorld = craft.getWorld();
-        com.sk89q.worldedit.world.World world = new BukkitWorld(bukkitWorld);
+        com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
 
-        Set<BaseBlock> blocks = getWorldEditBlocks(craft.getHitBox(), bukkitWorld);
+        Set<BaseBlock> blocks = getWorldEditBlocks(hitbox, world);
 
+        Clipboard clipboard;
         try {
-            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-            clipboard.setOrigin(origin);
-            EditSession source = WorldEdit.getInstance().newEditSession(world);
-            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, origin, clipboard, origin);
+            clipboard = new BlockArrayClipboard(region);
+            clipboard.setOrigin(weOrigin);
+            EditSession source = WorldEdit.getInstance().newEditSession(weWorld);
+            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, weOrigin, clipboard, weOrigin);
             BlockMask mask = new BlockMask(source, blocks);
             copy.setSourceMask(mask);
             Operations.complete(copy);
@@ -122,15 +165,13 @@ public class WEUtils {
                         BlockVector3.at(location.getX(), location.getY(), location.getZ()),
                         BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
-            ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
-            writer.write(clipboard);
-            writer.close();
             source.close();
-        } catch (IOException | NullPointerException | WorldEditException e) {
+        } catch (WorldEditException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+
+        return saveSchematic(directory, name, clipboard);
     }
 
     @NotNull

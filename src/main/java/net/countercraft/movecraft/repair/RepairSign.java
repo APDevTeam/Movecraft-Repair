@@ -1,5 +1,7 @@
 package net.countercraft.movecraft.repair;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -149,7 +151,7 @@ public class RepairSign implements Listener {
         RepairState state;
         try {
             state = new RepairState(uuid, stateName);
-        } catch (IOException e) {
+        } catch (FileNotFoundException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
             return;
         }
@@ -158,15 +160,13 @@ public class RepairSign implements Listener {
         ProtoRepair protoRepair;
         try {
             protoRepair = state.execute(sign);
-        } catch (WorldEditException e) {
-            player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
-            return;
         } catch (RepairState.ProtoRepairCancelledException e) {
             player.sendMessage(e.getFailMessage());
             return;
-        }
-        if (protoRepair == null) {
+        } catch (WorldEditException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
+            MovecraftRepair.getInstance().getLogger().info("WorldEdit error parsing repair state.");
+            e.printStackTrace();
             return;
         }
 
@@ -209,7 +209,12 @@ public class RepairSign implements Listener {
             }
         }
 
-        if (!WEUtils.saveCraftSchematic(craft, sign)) {
+        File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
+        File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
+        if (!playerDirectory.exists())
+            playerDirectory.mkdirs();
+        String repairName = ChatColor.stripColor(sign.getLine(1));
+        if (!WEUtils.saveCraftSchematic(playerDirectory, repairName, craft.getWorld(), craft.getHitBox(), sign.getLocation())) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Could not save file"));
             return;
         }

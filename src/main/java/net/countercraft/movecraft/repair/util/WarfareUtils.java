@@ -7,7 +7,6 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.Mask2D;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
@@ -25,11 +24,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,14 +35,12 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class WarfareUtils {
-    public boolean repairChunk(Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
+    public boolean repairChunk(@NotNull Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
         // Load schematic from disk
-        File file = new File(directory,
-                chunk.getX() + "_" + chunk.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
         Clipboard clipboard;
         World world = chunk.getWorld();
         try {
-            clipboard = WEUtils.SCHEMATIC_FORMAT.getReader(new FileInputStream(file)).read();
+            clipboard = WEUtils.loadSchematic(directory, chunk.getX() + "_" + chunk.getZ());
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -79,7 +75,7 @@ public class WarfareUtils {
         return true;
     }
 
-    public boolean saveChunk(Chunk c, File directory, @Nullable Set<Material> materialMask) {
+    public boolean saveChunk(Chunk c, @NotNull File directory, @Nullable Set<Material> materialMask) {
         if (!directory.exists())
             directory.mkdirs();
 
@@ -111,9 +107,9 @@ public class WarfareUtils {
         }
 
         // Save chunk to disk
-        File file = new File(directory, c.getX() + "_" + c.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
+        Clipboard clipboard;
         try {
-            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+            clipboard = new BlockArrayClipboard(region);
             EditSession source = WorldEdit.getInstance().newEditSessionBuilder().world(world).maxBlocks(16 * 16 * (world.getMaxY() - world.getMinY() + 2)).build(); // Get enough space for the chunk, with a little extra wiggle room
             ForwardExtentCopy copy = new ForwardExtentCopy(source, region, clipboard.getOrigin(), clipboard, minPos);
             if (materialMask != null) {
@@ -122,15 +118,12 @@ public class WarfareUtils {
                 copy.setSourceMask(mask);
             }
             Operations.completeLegacy(copy);
-            ClipboardWriter writer = WEUtils.SCHEMATIC_FORMAT.getWriter(new FileOutputStream(file, false));
-            writer.write(clipboard);
-            writer.close();
             source.close();
-            return true;
-        } catch (MaxChangedBlocksException | IOException e) {
+        } catch (MaxChangedBlocksException e) {
             e.printStackTrace();
             return false;
         }
+        return WEUtils.saveSchematic(directory, c.getX() + "_" + c.getZ(), clipboard);
     }
 
     private static class BlockTask implements Supplier<Effect> {
