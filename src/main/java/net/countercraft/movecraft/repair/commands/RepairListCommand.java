@@ -56,8 +56,12 @@ public class RepairListCommand implements CommandExecutor {
         }
 
         if (schemList != null) {
+            String primaryExtension = "." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension();
             for (File schemFile : schemList) {
-                String name = schemFile.getName().replace("." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension(), "");
+                String name = schemFile.getName();
+                if (name.endsWith(primaryExtension))
+                    name = name.replace(primaryExtension, "");
+
                 paginator.addLine(Component.text(name));
             }
         }
