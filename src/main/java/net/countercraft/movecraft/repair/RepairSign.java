@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -149,8 +150,13 @@ public class RepairSign implements Listener {
         RepairState state;
         try {
             state = new RepairState(uuid, stateName);
+        } catch (FileNotFoundException e) {
+            player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
+            return;
         } catch (IOException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
+            MovecraftRepair.getInstance().getLogger().info("Unknown I/O error loading repair state from disk.");
+            e.printStackTrace();
             return;
         }
 
@@ -158,15 +164,13 @@ public class RepairSign implements Listener {
         ProtoRepair protoRepair;
         try {
             protoRepair = state.execute(sign);
-        } catch (WorldEditException e) {
-            player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
-            return;
         } catch (RepairState.ProtoRepairCancelledException e) {
             player.sendMessage(e.getFailMessage());
             return;
-        }
-        if (protoRepair == null) {
+        } catch (WorldEditException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
+            MovecraftRepair.getInstance().getLogger().info("WorldEdit error parsing repair state.");
+            e.printStackTrace();
             return;
         }
 

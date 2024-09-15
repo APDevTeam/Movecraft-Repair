@@ -90,7 +90,7 @@ public class RepairState {
         return ClipboardUtils.transform(schematic, new AffineTransform().rotateY(angle));
     }
 
-    @Nullable
+    @NotNull
     public ProtoRepair execute(@NotNull Sign sign) throws WorldEditException, ProtoRepairCancelledException {
         // Rotate repair around the sign
         Clipboard clipboard = schematic;
