@@ -51,8 +51,7 @@ import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
     // Default format is the first one of the list, previous formats follow
-    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC);
-    // List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
+    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
 
     /**
      * Load a schematic from disk
@@ -93,10 +92,10 @@ public class WEUtils {
     private static Clipboard loadSchematic(File directory, String name, @NotNull ClipboardFormat format) throws IOException {
         name += "." + format.getPrimaryFileExtension();
         File file = new File(directory, name);
+        if (!format.isFormat(file))
+            return null;
         Clipboard clipboard;
         try (FileInputStream inputStream = new FileInputStream(file)) {
-            if (!format.isFormat(inputStream))
-                return null;
             ClipboardReader reader = format.getReader(inputStream);
             clipboard = reader.read();
         } catch (FileNotFoundException e) {
