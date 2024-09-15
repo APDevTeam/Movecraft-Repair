@@ -51,7 +51,8 @@ import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
     // Default format is the first one of the list, previous formats follow
-    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
+    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC);
+    // List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
 
     /**
      * Load a schematic from disk
@@ -71,7 +72,8 @@ public class WEUtils {
             } catch (FileNotFoundException e) {
                 continue; // normal operation
             } catch (IOException e) {
-                MovecraftRepair.getInstance().getLogger().info("Failed to load " + name + " of format " + format.getName() + " for " + directory.getName());
+                // Abnormal, but report to console and continue reading
+                e.printStackTrace();
                 continue;
             }
             if (temp == null)
@@ -88,7 +90,7 @@ public class WEUtils {
     }
 
     @Nullable
-    private static Clipboard loadSchematic(File directory, String name, @NotNull ClipboardFormat format) throws FileNotFoundException, IOException {
+    private static Clipboard loadSchematic(File directory, String name, @NotNull ClipboardFormat format) throws IOException {
         name += "." + format.getPrimaryFileExtension();
         File file = new File(directory, name);
         Clipboard clipboard;
@@ -98,9 +100,11 @@ public class WEUtils {
             ClipboardReader reader = format.getReader(inputStream);
             clipboard = reader.read();
         } catch (FileNotFoundException e) {
+            // Normal operation, pass the exception up
             throw e;
         } catch (IOException e) {
-            throw new IOException("Failed to load schematic", e);
+            // Abnormal, add more logging info
+            throw new IOException("Failed to load " + directory.getName() + "/" + name + " as format " + format.getName(), e);
         }
         return clipboard;
     }
