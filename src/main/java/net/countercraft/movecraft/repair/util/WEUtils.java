@@ -161,6 +161,8 @@ public class WEUtils {
             blockItems = blockNBT.getListTag("Items", LinTagType.compoundTag());
         } catch (NoSuchElementException e) {
             return null;
+        } catch (IllegalStateException e) {
+            return null; // empty list
         }
         for (var t : blockItems.value()) {
             if (!(t instanceof LinCompoundTag ct))
