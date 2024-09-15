@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.repair;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -208,7 +209,12 @@ public class RepairSign implements Listener {
             }
         }
 
-        if (!WEUtils.saveCraftSchematic(craft, sign)) {
+        File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
+        File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
+        if (!playerDirectory.exists())
+            playerDirectory.mkdirs();
+        String repairName = ChatColor.stripColor(sign.getLine(1));
+        if (!WEUtils.saveCraftSchematic(playerDirectory, repairName, craft.getWorld(), craft.getHitBox(), sign.getLocation())) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Could not save file"));
             return;
         }

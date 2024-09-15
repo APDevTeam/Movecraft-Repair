@@ -11,6 +11,7 @@ import com.sk89q.worldedit.EditSession;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
@@ -131,20 +132,17 @@ public class WEUtils {
     /**
      * Save a schematic from a craft
      *
-     * @param craft The craft to save
+     * @param directory Directory to save in
+     * @param name Name to save as
+     * @param world World to save from
+     * @param hitbox Hitbox to save from
+     * @param origin Origin point to save from
      * @return true on success
      */
-    public static boolean saveCraftSchematic(@NotNull PilotedCraft craft, @NotNull Sign sign) {
-        File repairDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
-        File playerDirectory = new File(repairDirectory, craft.getPilot().getUniqueId().toString());
-        if (!playerDirectory.exists())
-            playerDirectory.mkdirs();
-        String repairName = ChatColor.stripColor(sign.getLine(1));
-
-        HitBox hitbox = craft.getHitBox();
+    public static boolean saveCraftSchematic(File directory, String name, World world, @NotNull HitBox hitbox, @NotNull Location origin) {
         BlockVector3 minPos = BlockVector3.at(hitbox.getMinX(), hitbox.getMinY(), hitbox.getMinZ());
         BlockVector3 maxPos = BlockVector3.at(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ());
-        BlockVector3 origin = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
+        BlockVector3 weOrigin = BlockVector3.at(origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
         CuboidRegion region = new CuboidRegion(minPos, maxPos);
         // Calculate a hitbox of all blocks within the cuboid region but not within the
         // hitbox (so we don't save them)
@@ -153,17 +151,16 @@ public class WEUtils {
                 new MovecraftLocation(hitbox.getMaxX(), hitbox.getMaxY(), hitbox.getMaxZ()));
         surrounding = new BitmapHitBox(surrounding).difference(hitbox);
 
-        World bukkitWorld = craft.getWorld();
-        com.sk89q.worldedit.world.World world = new BukkitWorld(bukkitWorld);
+        com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
 
-        Set<BaseBlock> blocks = getWorldEditBlocks(craft.getHitBox(), bukkitWorld);
+        Set<BaseBlock> blocks = getWorldEditBlocks(hitbox, world);
 
         Clipboard clipboard;
         try {
             clipboard = new BlockArrayClipboard(region);
-            clipboard.setOrigin(origin);
-            EditSession source = WorldEdit.getInstance().newEditSession(world);
-            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, origin, clipboard, origin);
+            clipboard.setOrigin(weOrigin);
+            EditSession source = WorldEdit.getInstance().newEditSession(weWorld);
+            ForwardExtentCopy copy = new ForwardExtentCopy(source, region, weOrigin, clipboard, weOrigin);
             BlockMask mask = new BlockMask(source, blocks);
             copy.setSourceMask(mask);
             Operations.complete(copy);
@@ -178,7 +175,7 @@ public class WEUtils {
             return false;
         }
 
-        return saveSchematic(playerDirectory, repairName, clipboard);
+        return saveSchematic(directory, name, clipboard);
     }
 
     @NotNull
