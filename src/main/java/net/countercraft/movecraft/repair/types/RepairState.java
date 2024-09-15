@@ -161,6 +161,7 @@ public class RepairState {
                         );
                         lecternRepair.setDependency(blockRepair);
                         queue.add(lecternRepair);
+                        materials.add(RepairBlobManager.get(Material.WRITABLE_BOOK), 1);
                         continue;
                     }
 
