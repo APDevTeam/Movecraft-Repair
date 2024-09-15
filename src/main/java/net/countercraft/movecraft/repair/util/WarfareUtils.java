@@ -40,11 +40,11 @@ public class WarfareUtils {
     public boolean repairChunk(Chunk chunk, File directory, Predicate<MovecraftLocation> check) {
         // Load schematic from disk
         File file = new File(directory,
-                chunk.getX() + "_" + chunk.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
+                chunk.getX() + "_" + chunk.getZ() + "." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension());
         Clipboard clipboard;
         World world = chunk.getWorld();
         try {
-            clipboard = WEUtils.SCHEMATIC_FORMAT.getReader(new FileInputStream(file)).read();
+            clipboard = WEUtils.SCHEMATIC_FORMATS.getFirst().getReader(new FileInputStream(file)).read();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -111,7 +111,7 @@ public class WarfareUtils {
         }
 
         // Save chunk to disk
-        File file = new File(directory, c.getX() + "_" + c.getZ() + "." + WEUtils.SCHEMATIC_FORMAT.getPrimaryFileExtension());
+        File file = new File(directory, c.getX() + "_" + c.getZ() + "." + WEUtils.SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension());
         try {
             BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
             EditSession source = WorldEdit.getInstance().newEditSessionBuilder().world(world).maxBlocks(16 * 16 * (world.getMaxY() - world.getMinY() + 2)).build(); // Get enough space for the chunk, with a little extra wiggle room
@@ -122,7 +122,7 @@ public class WarfareUtils {
                 copy.setSourceMask(mask);
             }
             Operations.completeLegacy(copy);
-            ClipboardWriter writer = WEUtils.SCHEMATIC_FORMAT.getWriter(new FileOutputStream(file, false));
+            ClipboardWriter writer = WEUtils.SCHEMATIC_FORMATS.getFirst().getWriter(new FileOutputStream(file, false));
             writer.write(clipboard);
             writer.close();
             source.close();

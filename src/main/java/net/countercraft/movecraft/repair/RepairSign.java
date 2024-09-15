@@ -153,11 +153,6 @@ public class RepairSign implements Listener {
         } catch (FileNotFoundException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
             return;
-        } catch (IOException e) {
-            player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - State not found"));
-            MovecraftRepair.getInstance().getLogger().info("Unknown I/O error loading repair state from disk.");
-            e.printStackTrace();
-            return;
         }
 
         // Convert to a proto repair

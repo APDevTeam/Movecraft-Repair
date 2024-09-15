@@ -50,7 +50,8 @@ import net.countercraft.movecraft.util.hitboxes.HitBox;
 import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
-    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC;
+    // Default format is the first one of the list, previous formats follow
+    public static final List<ClipboardFormat> SCHEMATIC_FORMATS = List.of(BuiltInClipboardFormat.SPONGE_V3_SCHEMATIC, BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC, BuiltInClipboardFormat.MCEDIT_SCHEMATIC);
 
     /**
      * Load a schematic from disk
@@ -59,15 +60,42 @@ public class WEUtils {
      * @param name      Name of the schematic file (without the extension)
      * @return A clipboard containing the schematic
      * @throws FileNotFoundException Schematic file not found
-     * @throws IOException           Other I/O exception
      */
     @NotNull
-    public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException, IOException {
-        name += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
+    public static Clipboard loadSchematic(File directory, String name) throws FileNotFoundException {
+        Clipboard result = null;
+        for (ClipboardFormat format : SCHEMATIC_FORMATS) {
+            Clipboard temp;
+            try {
+                temp = loadSchematic(directory, name, format);
+            } catch (FileNotFoundException e) {
+                continue; // normal operation
+            } catch (IOException e) {
+                MovecraftRepair.getInstance().getLogger().info("Failed to load " + name + " of format " + format.getName() + " for " + directory.getName());
+                continue;
+            }
+            if (temp == null)
+                continue;
+
+            result = temp;
+            break;
+        }
+
+        if (result == null)
+            throw new FileNotFoundException();
+
+        return result;
+    }
+
+    @Nullable
+    private static Clipboard loadSchematic(File directory, String name, @NotNull ClipboardFormat format) throws FileNotFoundException, IOException {
+        name += "." + format.getPrimaryFileExtension();
         File file = new File(directory, name);
         Clipboard clipboard;
-        try {
-            ClipboardReader reader = SCHEMATIC_FORMAT.getReader(new FileInputStream(file));
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            if (!format.isFormat(inputStream))
+                return null;
+            ClipboardReader reader = format.getReader(inputStream);
             clipboard = reader.read();
         } catch (FileNotFoundException e) {
             throw e;
@@ -89,7 +117,7 @@ public class WEUtils {
         if (!playerDirectory.exists())
             playerDirectory.mkdirs();
         String repairName = ChatColor.stripColor(sign.getLine(1));
-        repairName += "." + SCHEMATIC_FORMAT.getPrimaryFileExtension();
+        repairName += "." + SCHEMATIC_FORMATS.getFirst().getPrimaryFileExtension();
         File repairFile = new File(playerDirectory, repairName);
 
         HitBox hitbox = craft.getHitBox();
@@ -122,7 +150,7 @@ public class WEUtils {
                         BlockVector3.at(location.getX(), location.getY(), location.getZ()),
                         BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
-            ClipboardWriter writer = SCHEMATIC_FORMAT.getWriter(new FileOutputStream(repairFile, false));
+            ClipboardWriter writer = SCHEMATIC_FORMATS.getFirst().getWriter(new FileOutputStream(repairFile, false));
             writer.write(clipboard);
             writer.close();
             source.close();

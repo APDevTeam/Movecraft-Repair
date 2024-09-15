@@ -1,6 +1,7 @@
 package net.countercraft.movecraft.repair.types;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class RepairState {
     private final BlockVector3 schematicSignOffset;
     private final BlockVector3 size;
 
-    public RepairState(@NotNull UUID playerUUID, String name) throws IOException, IllegalStateException {
+    public RepairState(@NotNull UUID playerUUID, String name) throws FileNotFoundException, IllegalStateException {
         this.playerUUID = playerUUID;
         this.name = name;
         File dataDirectory = new File(MovecraftRepair.getInstance().getDataFolder(), "RepairStates");
