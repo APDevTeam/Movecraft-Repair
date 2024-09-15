@@ -50,7 +50,7 @@ import net.countercraft.movecraft.util.hitboxes.HitBox;
 import net.countercraft.movecraft.util.hitboxes.SolidHitBox;
 
 public class WEUtils {
-    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_SCHEMATIC;
+    public static final ClipboardFormat SCHEMATIC_FORMAT = BuiltInClipboardFormat.SPONGE_V2_SCHEMATIC;
 
     /**
      * Load a schematic from disk
