@@ -6,6 +6,7 @@ import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Rotatable;
 import org.jetbrains.annotations.Nullable;
 
+import com.sk89q.worldedit.util.Direction;
 import com.sk89q.worldedit.world.block.BaseBlock;
 
 public class RotationUtils {
@@ -18,44 +19,60 @@ public class RotationUtils {
     @Nullable
     public static BlockFace getRotation(BaseBlock block) {
         for (var e : block.getStates().entrySet()) {
-            if (!e.getKey().getName().equals("rotation"))
-                continue;
+            String key = e.getKey().getName();
 
-            switch ((int) e.getValue()) {
-                case 0:
-                    return BlockFace.SOUTH;
-                case 1:
-                    return BlockFace.SOUTH_SOUTH_WEST;
-                case 2:
-                    return BlockFace.SOUTH_WEST;
-                case 3:
-                    return BlockFace.WEST_SOUTH_WEST;
-                case 4:
-                    return BlockFace.WEST;
-                case 5:
-                    return BlockFace.WEST_NORTH_WEST;
-                case 6:
-                    return BlockFace.NORTH_WEST;
-                case 7:
-                    return BlockFace.NORTH_NORTH_WEST;
-                case 8:
-                    return BlockFace.NORTH;
-                case 9:
-                    return BlockFace.NORTH_NORTH_EAST;
-                case 10:
-                    return BlockFace.NORTH_EAST;
-                case 11:
-                    return BlockFace.EAST_NORTH_EAST;
-                case 12:
-                    return BlockFace.EAST;
-                case 13:
-                    return BlockFace.EAST_SOUTH_EAST;
-                case 14:
-                    return BlockFace.SOUTH_EAST;
-                case 15:
-                    return BlockFace.SOUTH_SOUTH_EAST;
-                default:
-                    return null;
+            if (key.equals("rotation")) {
+                // Applies to "floor" signs
+                switch ((int) e.getValue()) {
+                    case 0:
+                        return BlockFace.SOUTH;
+                    case 1:
+                        return BlockFace.SOUTH_SOUTH_WEST;
+                    case 2:
+                        return BlockFace.SOUTH_WEST;
+                    case 3:
+                        return BlockFace.WEST_SOUTH_WEST;
+                    case 4:
+                        return BlockFace.WEST;
+                    case 5:
+                        return BlockFace.WEST_NORTH_WEST;
+                    case 6:
+                        return BlockFace.NORTH_WEST;
+                    case 7:
+                        return BlockFace.NORTH_NORTH_WEST;
+                    case 8:
+                        return BlockFace.NORTH;
+                    case 9:
+                        return BlockFace.NORTH_NORTH_EAST;
+                    case 10:
+                        return BlockFace.NORTH_EAST;
+                    case 11:
+                        return BlockFace.EAST_NORTH_EAST;
+                    case 12:
+                        return BlockFace.EAST;
+                    case 13:
+                        return BlockFace.EAST_SOUTH_EAST;
+                    case 14:
+                        return BlockFace.SOUTH_EAST;
+                    case 15:
+                        return BlockFace.SOUTH_SOUTH_EAST;
+                    default:
+                        return null;
+                }
+            } else if (key.equals("facing")) {
+                // Applies to wall signs
+                switch ((Direction) e.getValue()) {
+                    case SOUTH:
+                        return BlockFace.SOUTH;
+                    case WEST:
+                        return BlockFace.WEST;
+                    case NORTH:
+                        return BlockFace.NORTH;
+                    case EAST:
+                        return BlockFace.EAST;
+                    default:
+                        return null;
+                }
             }
         }
         return null;
@@ -70,10 +87,12 @@ public class RotationUtils {
     @Nullable
     public static BlockFace getRotation(Block block) {
         if (block.getBlockData() instanceof Rotatable) {
+            // Applies to "floor" signs
             return ((Rotatable) block.getBlockData()).getRotation();
         }
         if (block.getBlockData() instanceof Directional) {
-            return ((Directional) block.getBlockData()).getFacing().getOppositeFace();
+            // Applies to wall signs
+            return ((Directional) block.getBlockData()).getFacing();
         }
         return null;
     }
