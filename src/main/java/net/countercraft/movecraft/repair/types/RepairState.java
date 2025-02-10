@@ -78,11 +78,7 @@ public class RepairState {
 
     @NotNull
     private Clipboard rotate(@NotNull Sign sign) throws WorldEditException {
-        BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
-
-        BlockVector3 offset = signPosition.subtract(schematicSignOffset);
-        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(schematicMinPos);
-        BaseBlock schematicSign = schematic.getFullBlock(schematicSignPosition);
+        BaseBlock schematicSign = schematic.getFullBlock(schematic.getOrigin());
         BlockFace schematicSignFacing = RotationUtils.getRotation(schematicSign);
 
         BlockFace worldSignFacing = RotationUtils.getRotation(sign.getBlock());
