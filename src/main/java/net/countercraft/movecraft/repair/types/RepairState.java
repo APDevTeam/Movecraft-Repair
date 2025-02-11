@@ -177,7 +177,7 @@ public class RepairState {
             }
         }
 
-        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()), sign.getWorld(), hitBox);
+        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()), RotationUtils.getRotation(sign.getBlockData()), sign.getWorld(), hitBox);
 
         ProtoRepairCreateEvent event = new ProtoRepairCreateEvent(result);
         Bukkit.getPluginManager().callEvent(event);
