@@ -72,10 +72,10 @@ public class RepairState {
 
     @NotNull
     private Clipboard rotate(@NotNull Sign sign) throws WorldEditException {
-        BaseBlock schematicSign = schematic.getFullBlock(schematic.getOrigin());
+        BlockData schematicSign = BukkitAdapter.adapt(schematic.getBlock(schematic.getOrigin()));
         BlockFace schematicSignFacing = RotationUtils.getRotation(schematicSign);
 
-        BlockFace worldSignFacing = RotationUtils.getRotation(sign.getBlock());
+        BlockFace worldSignFacing = RotationUtils.getRotation(sign.getBlockData());
 
         int angle = RotationUtils.angleBetweenBlockFaces(worldSignFacing, schematicSignFacing);
 
