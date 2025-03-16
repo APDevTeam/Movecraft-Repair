@@ -123,10 +123,10 @@ public class RepairSign implements Listener {
             return;
         } catch (ProtoRepair.ItemRemovalException e) {
             player.sendMessage(I18nSupport.getInternationalisedComponent("Repair - Removal exception"));
-            return;
-        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException e) {
-            // Expired or wrong location, go back to first click
             // ItemRemovalException shouldn't happen, but go back to first click regardless
+            return;
+        } catch (ProtoRepair.ProtoRepairExpiredException | ProtoRepair.ProtoRepairLocationException | ProtoRepair.ProtoRepairRotationException e) {
+            // Expired, wrong location or rotation, go back to first click
             createProtoRepair(sign, uuid, player, craft);
             return;
         } catch (ProtoRepair.CancelledException e) {

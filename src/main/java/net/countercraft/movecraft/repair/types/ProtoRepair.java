@@ -97,14 +97,14 @@ public class ProtoRepair {
 
     @NotNull
     public Repair execute(@NotNull Craft craft, Sign sign)
-            throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
-            NotEnoughItemsException, NotEnoughMoneyException {
+            throws ProtoRepairExpiredException, ProtoRepairLocationException, ProtoRepairRotationException,
+            ItemRemovalException, NotEnoughItemsException, NotEnoughMoneyException {
         if (isInvalid())
             throw new ProtoRepairExpiredException(); // Check for expired
         if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
         if (!rotation.equals(RotationUtils.getRotation(sign.getBlockData())))
-            throw new ProtoRepairLocationException(); // Check for rotation
+            throw new ProtoRepairRotationException(); // Check for rotation
 
         // Check for balance
         double cost = 0;
@@ -253,6 +253,9 @@ public class ProtoRepair {
     }
 
     public static class ProtoRepairLocationException extends IllegalStateException {
+    }
+
+    public static class ProtoRepairRotationException extends IllegalStateException {
     }
 
     public static class CancelledException extends IllegalStateException {
