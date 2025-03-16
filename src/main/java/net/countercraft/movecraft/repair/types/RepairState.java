@@ -96,13 +96,14 @@ public class RepairState {
 
         // We use offsets from the sign (clipboard origin) to calculate actual coordinates
         // This is straightforward since we already know the position of the sign in both the schematic and the world
-        BlockVector3 minOffset = clipboard.getMinimumPoint().subtract(clipboard.getOrigin());
-        BlockVector3 maxOffset = clipboard.getMaximumPoint().subtract(clipboard.getOrigin());
+        BlockVector3 clipboardOrigin = clipboard.getOrigin();
+        BlockVector3 minOffset = clipboard.getMinimumPoint().subtract(clipboardOrigin);
+        BlockVector3 maxOffset = clipboard.getMaximumPoint().subtract(clipboardOrigin);
 
         for (int x = minOffset.x(); x <= maxOffset.x(); x++) {
             for (int z = minOffset.z(); z <= maxOffset.z(); z++) {
                 for (int y = minOffset.y(); y <= maxOffset.y(); y++) {
-                    BlockVector3 schematicPosition = clipboard.getOrigin().add(x, y, z);
+                    BlockVector3 schematicPosition = clipboardOrigin.add(x, y, z);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
