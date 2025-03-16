@@ -50,9 +50,6 @@ public class RepairState {
     private final UUID playerUUID;
     private final String name;
     private final Clipboard schematic;
-    private final BlockVector3 schematicMinPos;
-    private final BlockVector3 schematicSignOffset;
-    private final BlockVector3 size;
 
     public RepairState(@NotNull UUID playerUUID, String name) throws FileNotFoundException, IllegalStateException {
         this.playerUUID = playerUUID;
@@ -63,9 +60,6 @@ public class RepairState {
             throw new IllegalStateException("Unable to create player directory");
 
         schematic = WEUtils.loadSchematic(playerDirectory, name);
-        schematicMinPos = schematic.getMinimumPoint();
-        schematicSignOffset = schematic.getOrigin().subtract(schematicMinPos);
-        size = schematic.getDimensions();
     }
 
     public UUID getUUID() {
@@ -78,14 +72,10 @@ public class RepairState {
 
     @NotNull
     private Clipboard rotate(@NotNull Sign sign) throws WorldEditException {
-        BlockVector3 signPosition = BlockVector3.at(sign.getX(), sign.getY(), sign.getZ());
-
-        BlockVector3 offset = signPosition.subtract(schematicSignOffset);
-        BlockVector3 schematicSignPosition = signPosition.subtract(offset).add(schematicMinPos);
-        BaseBlock schematicSign = schematic.getFullBlock(schematicSignPosition);
+        BlockData schematicSign = BukkitAdapter.adapt(schematic.getBlock(schematic.getOrigin()));
         BlockFace schematicSignFacing = RotationUtils.getRotation(schematicSign);
 
-        BlockFace worldSignFacing = RotationUtils.getRotation(sign.getBlock());
+        BlockFace worldSignFacing = RotationUtils.getRotation(sign.getBlockData());
 
         int angle = RotationUtils.angleBetweenBlockFaces(worldSignFacing, schematicSignFacing);
 
@@ -95,26 +85,30 @@ public class RepairState {
     @NotNull
     public ProtoRepair execute(@NotNull Sign sign) throws WorldEditException, ProtoRepairCancelledException {
         // Rotate repair around the sign
-        Clipboard clipboard = schematic;
-        // rotate(sign);
+        Clipboard clipboard = rotate(sign);
 
         // Gather the required materials and tasks
-        World world = sign.getWorld();
         RepairCounter materials = new RepairCounter();
         RepairQueue queue = new RepairQueue();
         Map<Location, BlockRepair> blockRepairs = new HashMap<>();
         int damagedBlockCount = 0;
-        Location worldMinPos = sign.getLocation().subtract(schematicSignOffset.getBlockX(), schematicSignOffset.getBlockY(), schematicSignOffset.getBlockZ());
         BitmapHitBox hitBox = new BitmapHitBox();
-        for (int x = 0; x < size.getBlockX(); x++) {
-            for (int z = 0; z < size.getBlockZ(); z++) {
-                for (int y = 0; y < size.getBlockY(); y++) {
-                    BlockVector3 schematicPosition = schematicMinPos.add(x, y, z);
+
+        // We use offsets from the sign (clipboard origin) to calculate actual coordinates
+        // This is straightforward since we already know the position of the sign in both the schematic and the world
+        BlockVector3 clipboardOrigin = clipboard.getOrigin();
+        BlockVector3 minOffset = clipboard.getMinimumPoint().subtract(clipboardOrigin);
+        BlockVector3 maxOffset = clipboard.getMaximumPoint().subtract(clipboardOrigin);
+
+        for (int x = minOffset.x(); x <= maxOffset.x(); x++) {
+            for (int z = minOffset.z(); z <= maxOffset.z(); z++) {
+                for (int y = minOffset.y(); y <= maxOffset.y(); y++) {
+                    BlockVector3 schematicPosition = clipboardOrigin.add(x, y, z);
                     BaseBlock schematicBlock = clipboard.getFullBlock(schematicPosition);
                     Material schematicMaterial = BukkitAdapter.adapt(schematicBlock.getBlockType());
                     BlockData schematicData = BukkitAdapter.adapt(schematicBlock);
 
-                    Location worldPosition = new Location(world, x, y, z).add(worldMinPos);
+                    Location worldPosition = sign.getLocation().add(x, y, z);
                     Block worldBlock = worldPosition.getBlock();
                     Material worldMaterial = worldBlock.getType();
                     BlockState worldState = worldBlock.getState();
@@ -184,7 +178,7 @@ public class RepairState {
             }
         }
 
-        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()), sign.getWorld(), hitBox);
+        ProtoRepair result = new ProtoRepair(playerUUID, name, queue, materials, damagedBlockCount, MathUtils.bukkit2MovecraftLoc(sign.getLocation()), RotationUtils.getRotation(sign.getBlockData()), sign.getWorld(), hitBox);
 
         ProtoRepairCreateEvent event = new ProtoRepairCreateEvent(result);
         Bukkit.getPluginManager().callEvent(event);

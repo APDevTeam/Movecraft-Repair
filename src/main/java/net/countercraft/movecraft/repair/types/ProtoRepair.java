@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
@@ -24,6 +25,7 @@ import net.countercraft.movecraft.repair.RepairBlobManager;
 import net.countercraft.movecraft.repair.config.Config;
 import net.countercraft.movecraft.repair.events.RepairPreStartedEvent;
 import net.countercraft.movecraft.repair.types.blobs.RepairBlob;
+import net.countercraft.movecraft.repair.util.RotationUtils;
 import net.countercraft.movecraft.util.Counter;
 import net.countercraft.movecraft.util.MathUtils;
 import net.countercraft.movecraft.util.Pair;
@@ -36,18 +38,20 @@ public class ProtoRepair {
     private final RepairCounter materials;
     private final int damagedBlockCount;
     private final MovecraftLocation origin;
+    private final BlockFace rotation;
     private final World world;
     private final HitBox hitBox;
     private final long calculationTime;
     private boolean valid;
 
     public ProtoRepair(UUID playerUUID, String name, RepairQueue queue, RepairCounter materials, int damagedBlockCount,
-            MovecraftLocation origin, World world, HitBox hitBox) {
+            MovecraftLocation origin, BlockFace rotation, World world, HitBox hitBox) {
         this.playerUUID = playerUUID;
         this.name = name;
         this.queue = queue;
         this.materials = materials;
         this.origin = origin;
+        this.rotation = rotation;
         this.world = world;
         this.hitBox = hitBox;
         this.damagedBlockCount = damagedBlockCount;
@@ -75,6 +79,10 @@ public class ProtoRepair {
         return origin;
     }
 
+    public BlockFace getRotation() {
+        return rotation;
+    }
+
     public World getWorld() {
         return world;
     }
@@ -89,12 +97,14 @@ public class ProtoRepair {
 
     @NotNull
     public Repair execute(@NotNull Craft craft, Sign sign)
-            throws ProtoRepairExpiredException, ProtoRepairLocationException, ItemRemovalException,
-            NotEnoughItemsException, NotEnoughMoneyException {
+            throws ProtoRepairExpiredException, ProtoRepairLocationException, ProtoRepairRotationException,
+            ItemRemovalException, NotEnoughItemsException, NotEnoughMoneyException {
         if (isInvalid())
             throw new ProtoRepairExpiredException(); // Check for expired
         if (!origin.equals(MathUtils.bukkit2MovecraftLoc(sign.getLocation())))
             throw new ProtoRepairLocationException(); // Check for origin
+        if (!rotation.equals(RotationUtils.getRotation(sign.getBlockData())))
+            throw new ProtoRepairRotationException(); // Check for rotation
 
         // Check for balance
         double cost = 0;
@@ -243,6 +253,9 @@ public class ProtoRepair {
     }
 
     public static class ProtoRepairLocationException extends IllegalStateException {
+    }
+
+    public static class ProtoRepairRotationException extends IllegalStateException {
     }
 
     public static class CancelledException extends IllegalStateException {
