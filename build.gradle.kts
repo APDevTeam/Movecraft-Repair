@@ -22,7 +22,7 @@ dependencies {
     api("com.sk89q.worldedit:worldedit-bukkit:7.3.3")
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("net.countercraft:movecraft:+")
-    compileOnly("com.github.MilkBowl:VaultAPI:+")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("it.unimi.dsi:fastutil:+")
     compileOnly("org.roaringbitmap:RoaringBitmap:+")
 }
