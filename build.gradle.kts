@@ -1,8 +1,8 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("io.github.0ffz.github-packages") version "1.2.1"
-    id("io.papermc.hangar-publish-plugin") version "0.1.2"
+    d("io.github.apdevteam.github-packages") version "1.2.2"
+    id("io.papermc.hangar-publish-plugin") version "0.1.3"
 }
 
 repositories {
@@ -76,7 +76,7 @@ hangarPublish {
         platforms {
             register(io.papermc.hangarpublishplugin.model.Platforms.PAPER) {
                 jar.set(tasks.jar.flatMap { it.archiveFile })
-                platformVersions.set(listOf("1.20.6-1.21.1"))
+                platformVersions.set(listOf("1.20.6-1.21.5"))
                 dependencies {
                     hangar("Movecraft") {
                         required.set(true)
