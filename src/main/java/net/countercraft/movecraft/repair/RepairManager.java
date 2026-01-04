@@ -73,7 +73,7 @@ public class RepairManager extends BukkitRunnable {
             }
         }
 
-        MovecraftRepair.getInstance().getLogger().info("Repairs completed");
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("Repairs completed in %d ms", System.currentTimeMillis() - start));
     }
 
     public Set<Repair> get() {
