@@ -49,6 +49,33 @@ public class RepairManager extends BukkitRunnable {
         }
     }
 
+    public void shutdown() {
+        long start = System.currentTimeMillis();
+        MovecraftRepair.getInstance().getLogger().info(() -> String.format("Completing %d repairs", repairs.size()));
+
+        while (!repairs.isEmpty()) {
+            Repair repair = repairs.poll();
+            repair.run();
+
+            if (repair.isDone()) {
+                end(repair);
+            }
+            else {
+                repairs.add(repair);
+            }
+
+            if (System.currentTimeMillis() - start > 5000) {
+                MovecraftRepair.getInstance().getLogger().info(() -> String.format("Repair time overrun, %d skipped:", repairs.size()));
+                for (Repair skipped : repairs) {
+                    MovecraftRepair.getInstance().getLogger().info(() -> String.format("- %s's repair %s with the cost of %.2f", skipped.getPlayerUUID(), skipped.getName(), skipped.getCost()));
+                }
+                return;
+            }
+        }
+
+        MovecraftRepair.getInstance().getLogger().info("Repairs completed");
+    }
+
     public Set<Repair> get() {
         return new HashSet<>(repairs);
     }
