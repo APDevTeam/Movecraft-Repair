@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.countercraft.movecraft.util.ChatUtils;
 import net.countercraft.movecraft.util.ComponentPaginator;
+import net.countercraft.movecraft.util.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -64,20 +65,22 @@ public class RepairInventoryCommand implements CommandExecutor {
             }
         }
 
-        RepairCounter inventory = sumInventory(craft);
-        List<RepairBlob> keys = new LinkedList<>(inventory.getKeySet());
-        keys.sort((key1, key2) -> ((int) (inventory.get(key2) - inventory.get(key1))));
+        Pair<RepairCounter, Integer> result = sumInventory(craft);
+        RepairCounter inventory = result.getLeft();
 
+        List<RepairBlob> keys = new LinkedList<>(inventory.getKeySet());
+        if (keys.isEmpty()) {
+            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Inventory - Empty Craft")));
+            return true;
+        }
+
+        keys.sort((key1, key2) -> ((int) (inventory.get(key2) - inventory.get(key1))));
         ComponentPaginator paginator = new ComponentPaginator(
                 I18nSupport.getInternationalisedComponent("Inventory - Inventory Header"),
                 pageNumber -> "/repairinventory " + pageNumber);
+        paginator.addLine(Component.text(String.format("EMPTY SLOTS: %,d", result.getRight())));
         for (RepairBlob key : keys) {
             paginator.addLine(buildLine(key, inventory.get(key)));
-        }
-
-        if (paginator.isEmpty()) {
-            player.sendMessage(ChatUtils.commandPrefix().append(I18nSupport.getInternationalisedComponent("Inventory - Empty Craft")));
-            return true;
         }
 
         if (!paginator.isInBounds(page)) {
@@ -105,8 +108,9 @@ public class RepairInventoryCommand implements CommandExecutor {
     }
 
     @NotNull
-    private RepairCounter sumInventory(@NotNull Craft craft) {
+    private Pair<RepairCounter, Integer> sumInventory(@NotNull Craft craft) {
         RepairCounter result = new RepairCounter();
+        int emptySlots = 0;
         World world = craft.getWorld();
         for (MovecraftLocation location : craft.getHitBox()) {
             Block block = world.getBlockAt(location.getX(), location.getY(), location.getZ());
@@ -121,12 +125,14 @@ public class RepairInventoryCommand implements CommandExecutor {
             if (inventory instanceof DoubleChestInventory)
                 continue; // Don't take from double chests
             for (ItemStack item : inventory.getContents()) {
-                if (item == null)
+                if (item == null) {
+                    emptySlots++;
                     continue;
+                }
 
                 result.add(RepairBlobManager.get(item.getType()), item.getAmount());
             }
         }
-        return result;
+        return new Pair<>(result, emptySlots);
     }
 }
