@@ -225,6 +225,11 @@ public final class MovecraftRepair extends JavaPlugin {
         }
     }
 
+    @Override
+    public void onDisable() {
+        repairManager.shutdown();
+    }
+
     @NotNull
     public WorldEditPlugin getWorldEditPlugin() {
         return worldEditPlugin;

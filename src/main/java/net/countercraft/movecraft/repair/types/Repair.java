@@ -57,11 +57,9 @@ public class Repair {
         int placedBlocks = 0;
 
         while (elapsedTicks > Config.RepairTicksPerBlock && placedBlocks <= Config.RepairMaxBlocksPerTick) {
-            RepairTask task = queue.poll();
-            if (task == null)
+            if (!run())
                 break;
 
-            task.execute();
             elapsedTicks -= Config.RepairTicksPerBlock;
             placedBlocks++;
         }
@@ -72,5 +70,14 @@ public class Repair {
         }
 
         return false;
+    }
+
+    public boolean run() {
+        RepairTask task = queue.poll();
+        if (task == null)
+            return false;
+
+        task.execute();
+        return true;
     }
 }
